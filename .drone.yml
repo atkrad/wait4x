@@ -42,3 +42,6 @@ steps:
     depends_on:
       - build-linux
       - build-darwin
+    when:
+      event:
+        - tag
