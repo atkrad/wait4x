@@ -1,0 +1,44 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+  - name: build-linux
+    image: golang:1.13-alpine3.10
+    when:
+      branch:
+        - master
+    commands:
+      - go build -o dist/wait4x-linux-amd64
+    environment:
+      GOARCH: amd64
+      GOOS: linux
+
+  - name: build-darwin
+    image: golang:1.13-alpine3.10
+    when:
+      branch:
+        - master
+    commands:
+      - go build -o dist/wait4x-darwin-amd64
+    environment:
+      GOARCH: amd64
+      GOOS: darwin
+
+  - name: publish
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - dist/*
+      checksum:
+        - sha256
+    depends_on:
+      - build-linux
+      - build-darwin
