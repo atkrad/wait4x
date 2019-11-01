@@ -10,9 +10,6 @@ platform:
 steps:
   - name: build-linux
     image: golang:1.13-alpine3.10
-    when:
-      branch:
-        - master
     commands:
       - go build -o dist/wait4x-linux-amd64
     environment:
@@ -21,9 +18,6 @@ steps:
 
   - name: build-darwin
     image: golang:1.13-alpine3.10
-    when:
-      branch:
-        - master
     commands:
       - go build -o dist/wait4x-darwin-amd64
     environment:
