@@ -1,21 +1,41 @@
 package cmd
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"time"
 )
 
 var httpCmd = &cobra.Command{
-	Use:   "http",
+	Use:   "http ADDRESS",
 	Short: "Check HTTP connection.",
 	Long:  "",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("ADDRESS is required argument for the http command")
+		}
+
+		_, err := url.Parse(args[0])
+		if err != nil {
+			return err
+		}
+
+		return nil
+	},
+	Example: `
+  # If you want checking just http connection 
+  wait4x http http://ifconfig.co
+
+  # If you want checking http connection and expect specify http status code
+  wait4x http http://ifconfig.co --expect-status-code 200
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-		addr, _ := cmd.Flags().GetString("address")
 		timeout, _ := cmd.Flags().GetDuration("timeout")
 		expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 		expectBody, _ := cmd.Flags().GetString("expect-body")
@@ -28,12 +48,12 @@ var httpCmd = &cobra.Command{
 		for i <= RetryCount {
 			log.Info("Checking HTTP connection")
 
-			resp, err := httpClient.Get(addr)
+			resp, err := httpClient.Get(args[0])
 
 			if err != nil {
 				log.Debug(err)
-				time.Sleep(Sleep)
 
+				time.Sleep(Sleep)
 				i += 1
 				continue
 			} else {
@@ -42,6 +62,7 @@ var httpCmd = &cobra.Command{
 				if httpResponseCodeExpectation(expectStatusCode, resp) && httpResponseBodyExpectation(expectBody, resp) {
 					os.Exit(0)
 				} else {
+					time.Sleep(Sleep)
 					i += 1
 					continue
 				}
@@ -56,10 +77,9 @@ var httpCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(httpCmd)
-	httpCmd.Flags().String("address", "http://127.0.0.1", "Http address.")
 	httpCmd.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
 	httpCmd.Flags().String("expect-body", "", "Expect response body pattern.")
-	httpCmd.Flags().Duration("timeout", time.Second*10, "The timeout includes connection time, any redirects, and reading the response body.")
+	httpCmd.Flags().Duration("timeout", time.Second*10, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 }
 
 func httpResponseCodeExpectation(expectStatusCode int, resp *http.Response) bool {
