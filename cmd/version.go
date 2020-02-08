@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"runtime"
 	"text/template"
 
 	"github.com/spf13/cobra"
@@ -21,9 +22,6 @@ OS/Arch:           {{.GoOs}}/{{.GoArch}}`
 
 var (
 	AppVersion = "unknown-app-version"
-	GoVersion  = "unknown-go-version"
-	GoOs       = "unknown-go-os"
-	GoArch     = "unknown-go-arch"
 	GitCommit  = "unknown-git-commit"
 	BuildTime  = "unknown-build-time"
 )
@@ -44,9 +42,9 @@ var versionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		versionValues := Version{
 			AppVersion: AppVersion,
-			GoVersion: GoVersion,
-			GoOs: GoOs,
-			GoArch: GoArch,
+			GoVersion: runtime.Version(),
+			GoOs: runtime.GOOS,
+			GoArch: runtime.GOARCH,
 			GitCommit: GitCommit,
 			BuildTime: BuildTime,
 		}
