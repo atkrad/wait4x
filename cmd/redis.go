@@ -61,10 +61,13 @@ var redisCmd = &cobra.Command{
 				continue
 			} else {
 				// It can connect to Redis successfully
+				if expectKey == "" {
+					os.Exit(0)
+				}
+
 				splittedKey := strings.Split(expectKey, "=")
 				keyHasValue := len(splittedKey) == 2
 
-				//client.Info().
 				val, err := client.Get(splittedKey[0]).Result()
 				if err == redis.Nil {
 					// Redis key does not exist.
@@ -94,7 +97,7 @@ var redisCmd = &cobra.Command{
 						os.Exit(0)
 					} else {
 						log.WithFields(log.Fields{
-							"key": splittedKey[0],
+							"key":    splittedKey[0],
 							"actual": val,
 							"expect": splittedKey[1],
 						}).Info("Checking value expectation of the key")
