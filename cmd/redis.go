@@ -22,17 +22,14 @@ var redisCmd = &cobra.Command{
 		return nil
 	},
 	Example: `
-  # If you want checking just redis connection 
+  # Checking Redis connection
   wait4x redis 127.0.0.1:6379
   
-  # If you want checking redis connection and specify db or password
-  wait4x redis 127.0.0.1:6379 --db 1 --password secret
-  
-  # If you want checking redis connection and key exists or not 
+  # Checking a key existence 
   wait4x redis 127.0.0.1:6379 --expect-key FOO
   
-  # Checking redis connection and value expectation of the key 
-  wait4x redis 127.0.0.1:6379 --expect-key FOO=bar
+  # Checking a key existence and matching the value 
+  wait4x redis 127.0.0.1:6379 --expect-key "FOO=^b[A-Z]r$"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		timeout, _ := cmd.Flags().GetDuration("timeout")
@@ -118,7 +115,6 @@ func init() {
 	rootCmd.AddCommand(redisCmd)
 	redisCmd.Flags().Duration("timeout", time.Second*5, "Dial timeout for establishing new connections.")
 	redisCmd.Flags().String("password", "", "Optional password. Must match the password specified in the requirepass server configuration option.")
-	redisCmd.Flags().String("expect-key", "", "Optional password. Must match the password specified in the requirepass server configuration option.")
-	redisCmd.Flags().String("expect-info", "", "Optional password. Must match the password specified in the requirepass server configuration option.")
+	redisCmd.Flags().String("expect-key", "", "Checking key existence.")
 	redisCmd.Flags().Int("db", 0, "Database to be selected after connecting to the server.")
 }
