@@ -1,0 +1,40 @@
+* Wait4X
+*Wait4X* is an utility to wait for everything! It can be wait for tcp, http, Redis and ... .
+
+*Features:*
+ - Checking tcp connection
+ - Checking http connection and also status code and response body
+ - Checking Redis connection (Ping request) and key existence
+
+** Installation
+There are many different methods to install *Wait4X*
+
+*** with Docker
+*Wait4X* provides automatically updated Docker images within Docker Hub. It is possible to always use the latest stable tag.
+
+Pull the image from the docker index. These builds are performed by the Docker *Trusted Build service*.
+#+BEGIN_SRC sh
+docker pull atkrad/wait4x:latest
+#+END_SRC
+
+then you can launch the ~wait4x~ container.
+#+BEGIN_SRC sh
+docker run --rm --name='wait4x' \
+    atkrad/wait4x:latest --help
+#+END_SRC
+
+*** From binary
+Choose the file matching the destination platform from the [[https://github.com/atkrad/wait4x/releases][release page]], copy the URL and replace the URL within the commands below:
+#+BEGIN_SRC sh
+curl -L https://github.com/atkrad/wait4x/releases/download/v0.1.0/wait4x-linux-amd64 -o /usr/local/bin/wait4x
+chmod +x /usr/local/bin/wait4x
+#+END_SRC
+
+*** From package
+You can install *Wait4X* from package, currentlly we only support *Alpine Linux*.
+
+**** Alpine Linux
+Currently you can find it in [[https://pkgs.alpinelinux.org/packages?name=wait4x&branch=edge][~@edge~]] repository so you have to ensure the repository has enabled. ([[https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management#Repository_pinning][Repository pinning]])
+#+BEGIN_SRC sh
+apk add wait4x@testing
+#+END_SRC
