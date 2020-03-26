@@ -1,5 +1,5 @@
 * Wait4X
-*Wait4X* is an utility to wait for everything! It can be wait for tcp, http, Redis and ... .
+*Wait4X* is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested stat.
 
 *Features:*
  - Checking tcp connection
