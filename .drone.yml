@@ -9,17 +9,17 @@ platform:
 
 steps:
   - name: build-linux
-    image: golang:1.13-alpine3.10
+    image: golang:1.13-buster
     commands:
-      - go build -o dist/wait4x-linux-amd64
+      - go build -o wait4x-linux-amd64
     environment:
       GOARCH: amd64
       GOOS: linux
 
   - name: build-darwin
-    image: golang:1.13-alpine3.10
+    image: golang:1.13-buster
     commands:
-      - go build -o dist/wait4x-darwin-amd64
+      - go build -o wait4x-darwin-amd64
     environment:
       GOARCH: amd64
       GOOS: darwin
@@ -30,7 +30,8 @@ steps:
       api_key:
         from_secret: github_token
       files:
-        - dist/*
+        - wait4x-linux-amd64
+        - wait4x-darwin-amd64
       checksum:
         - sha256
     depends_on:
