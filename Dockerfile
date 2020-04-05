@@ -7,7 +7,7 @@ LABEL maintainer="Mohammad Abdolirad <m.abdolirad@gmail.com>" \
     org.label-schema.vcs-url="https://github.com/atkrad/wait4x" \
     org.label-schema.license="MIT"
 
-COPY ./docker/root/ /
+COPY .docker/root/ /
 COPY wait4x-linux-amd64 /usr/local/bin/wait4x
 
 RUN apk --update --no-cache add ca-certificates
