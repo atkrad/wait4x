@@ -12,6 +12,16 @@ steps:
       GOARCH: amd64
       GOOS: linux
 
+  - name: docker
+    image: plugins/docker
+    settings:
+      repo: atkrad/wait4x
+      auto_tag: true
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+
 ---
 kind: pipeline
 type: docker
