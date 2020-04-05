@@ -1,30 +1,52 @@
 ---
 kind: pipeline
 type: docker
-name: default
-
-platform:
-  arch: amd64
-  os: linux
+name: build-linux
 
 steps:
-  - name: build-linux
+  - name: build
     image: golang:1.13-buster
     commands:
-      - go build -o wait4x-linux-amd64
+      - make build BUILD_OUTPUT=wait4x-linux-amd64
     environment:
       GOARCH: amd64
       GOOS: linux
 
-  - name: build-darwin
+---
+kind: pipeline
+type: docker
+name: build-darwin
+
+steps:
+  - name: build
     image: golang:1.13-buster
     commands:
-      - go build -o wait4x-darwin-amd64
+      - make build BUILD_OUTPUT=wait4x-darwin-amd64
     environment:
       GOARCH: amd64
       GOOS: darwin
 
-  - name: publish
+---
+kind: pipeline
+type: docker
+name: build-windows
+
+steps:
+  - name: build
+    image: golang:1.13-buster
+    commands:
+      - make build BUILD_OUTPUT=wait4x-windows-amd64
+    environment:
+      GOARCH: amd64
+      GOOS: windows
+
+---
+kind: pipeline
+type: docker
+name: release
+
+steps:
+  - name: github
     image: plugins/github-release
     settings:
       api_key:
@@ -32,11 +54,14 @@ steps:
       files:
         - wait4x-linux-amd64
         - wait4x-darwin-amd64
+        - wait4x-windows-amd64
       checksum:
         - sha256
-    depends_on:
-      - build-linux
-      - build-darwin
     when:
       event:
         - tag
+
+depends_on:
+  - build-linux
+  - build-darwin
+  - build-windows
