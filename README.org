@@ -1,4 +1,5 @@
-* Wait4X
+#+macro: DroneCI [[https://cloud.drone.io/atkrad/wait4x][https://img.shields.io/drone/build/atkrad/wait4x/master]]
+* Wait4X {{{DroneCI}}}
 *Wait4X* is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested state.
 
 *Features:*
