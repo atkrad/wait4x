@@ -21,6 +21,7 @@ steps:
   - name: build
     image: golang:1.13-alpine
     commands:
+      - apk --update add make
       - make build BUILD_OUTPUT=wait4x-linux-musl-amd64
     environment:
       GOARCH: amd64
