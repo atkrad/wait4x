@@ -6,5 +6,14 @@ if [ "${1#-}" != "$1" ]; then
 	set -- wait4x "$@"
 fi
 
+# if our command is a valid Wait4X subcommand, let's invoke it through Wait4X instead
+# (this allows for "docker run atkrad/wait4x version", etc)
+if wait4x "$1" --help >/dev/null 2>&1
+then
+	set -- wait4x "$@"
+else
+	echo "= '$1' is not a Wait4X command: assuming shell execution." 1>&2
+fi
+
 exec "$@"
 
