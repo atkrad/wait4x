@@ -25,6 +25,30 @@ steps:
 ---
 kind: pipeline
 type: docker
+name: build-linux-musl
+
+steps:
+  - name: build
+    image: golang:1.13-alpine
+    commands:
+      - make build BUILD_OUTPUT=wait4x-linux-musl-amd64
+    environment:
+      GOARCH: amd64
+      GOOS: linux
+
+  - name: docker
+    image: plugins/docker
+    settings:
+      repo: atkrad/wait4x
+      auto_tag: true
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+
+---
+kind: pipeline
+type: docker
 name: build-darwin
 
 steps:
@@ -63,6 +87,7 @@ steps:
         from_secret: github_token
       files:
         - wait4x-linux-amd64
+        - wait4x-linux-musl-amd64
         - wait4x-darwin-amd64
         - wait4x-windows-amd64
       checksum:
@@ -73,5 +98,6 @@ steps:
 
 depends_on:
   - build-linux
+  - build-linux-musl
   - build-darwin
   - build-windows
