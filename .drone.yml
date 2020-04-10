@@ -1,10 +1,10 @@
 ---
 kind: pipeline
 type: docker
-name: build-linux
+name: default
 
 steps:
-  - name: build
+  - name: build-linux
     image: golang:1.13-buster
     commands:
       - make build BUILD_OUTPUT=wait4x-linux-amd64
@@ -12,13 +12,7 @@ steps:
       GOARCH: amd64
       GOOS: linux
 
----
-kind: pipeline
-type: docker
-name: build-linux-musl
-
-steps:
-  - name: build
+  - name: build-linux-musl
     image: golang:1.13-alpine
     commands:
       - apk --update add make git
@@ -26,6 +20,22 @@ steps:
     environment:
       GOARCH: amd64
       GOOS: linux
+
+  - name: build-darwin
+    image: golang:1.13-buster
+    commands:
+      - make build BUILD_OUTPUT=wait4x-darwin-amd64
+    environment:
+      GOARCH: amd64
+      GOOS: darwin
+
+  - name: build-windows
+    image: golang:1.13-buster
+    commands:
+      - make build BUILD_OUTPUT=wait4x-windows-amd64
+    environment:
+      GOARCH: amd64
+      GOOS: windows
 
   - name: docker
     image: plugins/docker
@@ -36,42 +46,10 @@ steps:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
+    depends_on:
+      - build-linux-musl
 
----
-kind: pipeline
-type: docker
-name: build-darwin
-
-steps:
-  - name: build
-    image: golang:1.13-buster
-    commands:
-      - make build BUILD_OUTPUT=wait4x-darwin-amd64
-    environment:
-      GOARCH: amd64
-      GOOS: darwin
-
----
-kind: pipeline
-type: docker
-name: build-windows
-
-steps:
-  - name: build
-    image: golang:1.13-buster
-    commands:
-      - make build BUILD_OUTPUT=wait4x-windows-amd64
-    environment:
-      GOARCH: amd64
-      GOOS: windows
-
----
-kind: pipeline
-type: docker
-name: release
-
-steps:
-  - name: github
+  - name: release
     image: plugins/github-release
     settings:
       api_key:
@@ -86,9 +64,8 @@ steps:
     when:
       event:
         - tag
-
-depends_on:
-  - build-linux
-  - build-linux-musl
-  - build-darwin
-  - build-windows
+    depends_on:
+      - build-linux
+      - build-linux-musl
+      - build-darwin
+      - build-windows
