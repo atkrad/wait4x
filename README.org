@@ -35,7 +35,7 @@ chmod +x /usr/local/bin/wait4x
 You can install *Wait4X* from package, currentlly we only support *Alpine Linux*.
 
 **** Alpine Linux
-Currently you can find it in [[https://pkgs.alpinelinux.org/packages?name=wait4x&branch=edge][~@edge~]] repository so you have to ensure the repository has enabled. ([[https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management#Repository_pinning][Repository pinning]])
+Currently you can find it in [[https://pkgs.alpinelinux.org/packages?name=wait4x&branch=edge][@edge]] repository so you have to ensure the repository has enabled. ([[https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management#Repository_pinning][Repository pinning]])
 #+BEGIN_SRC sh
 apk add wait4x@testing
 #+END_SRC
