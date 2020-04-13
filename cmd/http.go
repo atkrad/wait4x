@@ -36,42 +36,45 @@ var httpCmd = &cobra.Command{
   wait4x http http://ifconfig.co --expect-status-code 200
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		timeout, _ := cmd.Flags().GetDuration("timeout")
-		expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
-		expectBody, _ := cmd.Flags().GetString("expect-body")
+		ticker := time.NewTicker(Interval)
+		defer ticker.Stop()
 
-		var httpClient = &http.Client{
-			Timeout: timeout,
-		}
+		go func() {
+			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
+			expectBody, _ := cmd.Flags().GetString("expect-body")
 
-		var i = 1
-		for i <= RetryCount {
-			log.Info("Checking HTTP connection")
-
-			resp, err := httpClient.Get(args[0])
-
-			if err != nil {
-				log.Debug(err)
-
-				time.Sleep(Sleep)
-				i += 1
-				continue
-			} else {
-				defer resp.Body.Close()
-
-				if httpResponseCodeExpectation(expectStatusCode, resp) && httpResponseBodyExpectation(expectBody, resp) {
-					os.Exit(0)
-				} else {
-					time.Sleep(Sleep)
-					i += 1
-					continue
-				}
-
-				os.Exit(0)
+			var httpClient = &http.Client{
+				Timeout: connectionTimeout,
 			}
-		}
 
-		os.Exit(1)
+			for ; true; <-ticker.C {
+				log.Info("Checking HTTP connection ...")
+
+				resp, err := httpClient.Get(args[0])
+
+				if err != nil {
+					log.Debug(err)
+
+					continue
+				} else {
+					defer resp.Body.Close()
+
+					if httpResponseCodeExpectation(expectStatusCode, resp) && httpResponseBodyExpectation(expectBody, resp) {
+						os.Exit(EXIT_SUCCESS)
+					} else {
+						continue
+					}
+
+					os.Exit(EXIT_SUCCESS)
+				}
+			}
+		}()
+
+		time.Sleep(Timeout)
+		log.Info("Operation Timed Out")
+
+		os.Exit(EXIT_TIMEDOUT)
 	},
 }
 
@@ -79,7 +82,7 @@ func init() {
 	rootCmd.AddCommand(httpCmd)
 	httpCmd.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
 	httpCmd.Flags().String("expect-body", "", "Expect response body pattern.")
-	httpCmd.Flags().Duration("timeout", time.Second*10, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+	httpCmd.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 }
 
 func httpResponseCodeExpectation(expectStatusCode int, resp *http.Response) bool {

@@ -32,88 +32,88 @@ var redisCmd = &cobra.Command{
   wait4x redis 127.0.0.1:6379 --expect-key "FOO=^b[A-Z]r$"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		timeout, _ := cmd.Flags().GetDuration("timeout")
-		password, _ := cmd.Flags().GetString("password")
-		db, _ := cmd.Flags().GetInt("db")
-		expectKey, _ := cmd.Flags().GetString("expect-key")
+		ticker := time.NewTicker(Interval)
+		defer ticker.Stop()
 
-		var i = 1
-		for i <= RetryCount {
-			log.Info("Checking redis connection")
+		go func() {
+			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+			password, _ := cmd.Flags().GetString("password")
+			db, _ := cmd.Flags().GetInt("db")
+			expectKey, _ := cmd.Flags().GetString("expect-key")
 
-			client := redis.NewClient(&redis.Options{
-				Addr:        args[0],
-				Password:    password,
-				DB:          db,
-				DialTimeout: timeout,
-			})
+			for ; true; <-ticker.C {
+				log.Info("Checking Redis connection ...")
 
-			// Check Redis connection
-			_, err := client.Ping().Result()
-			if err != nil {
-				log.Debug(err)
+				client := redis.NewClient(&redis.Options{
+					Addr:        args[0],
+					Password:    password,
+					DB:          db,
+					DialTimeout: connectionTimeout,
+				})
 
-				time.Sleep(Sleep)
-				i += 1
-				continue
-			} else {
-				// It can connect to Redis successfully
-				if expectKey == "" {
-					os.Exit(0)
-				}
-
-				splittedKey := strings.Split(expectKey, "=")
-				keyHasValue := len(splittedKey) == 2
-
-				val, err := client.Get(splittedKey[0]).Result()
-				if err == redis.Nil {
-					// Redis key does not exist.
-					log.WithFields(log.Fields{
-						"key": splittedKey[0],
-					}).Info("Key does not exist.")
-
-					time.Sleep(Sleep)
-					i += 1
-					continue
-				} else if err != nil {
-					// Error occurred on get Redis key
+				// Check Redis connection
+				_, err := client.Ping().Result()
+				if err != nil {
 					log.Debug(err)
 
-					time.Sleep(Sleep)
-					i += 1
 					continue
 				} else {
-					// The Redis key exists.
-					if !keyHasValue {
-						os.Exit(0)
+					// It can connect to Redis successfully
+					if expectKey == "" {
+						os.Exit(EXIT_SUCCESS)
 					}
 
-					// When the user expect a key with value
-					matched, _ := regexp.MatchString(splittedKey[1], val)
-					if matched {
-						os.Exit(0)
-					} else {
-						log.WithFields(log.Fields{
-							"key":    splittedKey[0],
-							"actual": val,
-							"expect": splittedKey[1],
-						}).Info("Checking value expectation of the key")
+					splittedKey := strings.Split(expectKey, "=")
+					keyHasValue := len(splittedKey) == 2
 
-						time.Sleep(Sleep)
-						i += 1
+					val, err := client.Get(splittedKey[0]).Result()
+					if err == redis.Nil {
+						// Redis key does not exist.
+						log.WithFields(log.Fields{
+							"key": splittedKey[0],
+						}).Info("Key does not exist.")
+
 						continue
+					} else if err != nil {
+						// Error occurred on get Redis key
+						log.Debug(err)
+
+						continue
+					} else {
+						// The Redis key exists.
+						if !keyHasValue {
+							os.Exit(EXIT_SUCCESS)
+						}
+
+						// When the user expect a key with value
+						matched, _ := regexp.MatchString(splittedKey[1], val)
+						if matched {
+							os.Exit(EXIT_SUCCESS)
+						} else {
+							log.WithFields(log.Fields{
+								"key":    splittedKey[0],
+								"actual": val,
+								"expect": splittedKey[1],
+							}).Info("Checking value expectation of the key")
+
+							continue
+						}
 					}
 				}
 			}
-		}
+		}()
 
-		os.Exit(1)
+		time.Sleep(Timeout)
+		log.Info("Operation Timed Out")
+
+		os.Exit(EXIT_TIMEDOUT)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(redisCmd)
-	redisCmd.Flags().Duration("timeout", time.Second*5, "Dial timeout for establishing new connections.")
+
+	redisCmd.Flags().Duration("connection-timeout", time.Second*5, "Dial timeout for establishing new connections.")
 	redisCmd.Flags().String("password", "", "Optional password. Must match the password specified in the requirepass server configuration option.")
 	redisCmd.Flags().String("expect-key", "", "Checking key existence.")
 	redisCmd.Flags().Int("db", 0, "Database to be selected after connecting to the server.")

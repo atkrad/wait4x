@@ -23,31 +23,36 @@ var tcpCmd = &cobra.Command{
   # If you want checking just tcp connection 
   wait4x tcp 127.0.0.1:9090
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		timeout, _ := cmd.Flags().GetDuration("timeout")
+	Run: func (cmd *cobra.Command, args []string) {
+		ticker := time.NewTicker(Interval)
+		defer ticker.Stop()
 
-		var i = 1
-		for i <= RetryCount {
-			log.Info("Checking tcp connection")
+		go func() {
+			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+			for ; true; <-ticker.C {
+				log.Info("Checking TCP connection ...")
 
-			d := net.Dialer{Timeout: timeout}
-			_, err := d.Dial("tcp", args[0])
-			if err != nil {
-				log.Debug(err)
+				d := net.Dialer{Timeout: connectionTimeout}
+				_, err := d.Dial("tcp", args[0])
+				if err != nil {
+					log.Debug(err)
 
-				time.Sleep(Sleep)
-				i += 1
-				continue
-			} else {
-				os.Exit(0)
+					continue
+				} else {
+					os.Exit(EXIT_SUCCESS)
+				}
 			}
-		}
+		}()
 
-		os.Exit(1)
+		time.Sleep(Timeout)
+		log.Info("Operation Timed Out")
+
+		os.Exit(EXIT_TIMEDOUT)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(tcpCmd)
-	tcpCmd.Flags().Duration("timeout", time.Second*10, "Timeout is the maximum amount of time a dial will wait for a connect to complete.")
+
+	tcpCmd.Flags().Duration("connection-timeout", time.Second*5, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
 }
