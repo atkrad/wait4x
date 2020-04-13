@@ -3,9 +3,10 @@
 *Wait4X* is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested state.
 
 *Features:*
- - Checking tcp connection
- - Checking http connection and also status code and response body
+ - Checking TCP connection
+ - Checking HTTP connection and also status code and response body
  - Checking Redis connection (Ping request) and key existence
+ - Checking MySQL connection
 
 ** Installation
 There are many different methods to install *Wait4X*
