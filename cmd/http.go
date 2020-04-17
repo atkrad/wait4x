@@ -1,88 +1,92 @@
 package cmd
 
 import (
-	"errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"time"
+	"github.com/atkrad/wait4x/internal/errors"
+	"context"
 )
 
-var httpCmd = &cobra.Command{
-	Use:   "http ADDRESS",
-	Short: "Check HTTP connection.",
-	Long:  "",
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("ADDRESS is required argument for the http command")
-		}
+func NewHttpCommannd() *cobra.Command {
+	httpCommand := &cobra.Command{
+		Use:   "http ADDRESS",
+		Short: "Check HTTP connection.",
+		Long:  "",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return errors.NewCommandError("ADDRESS is required argument for the http command")
+			}
 
-		_, err := url.Parse(args[0])
-		if err != nil {
-			return err
-		}
+			_, err := url.Parse(args[0])
+			if err != nil {
+				return err
+			}
 
-		return nil
-	},
-	Example: `
-  # If you want checking just http connection 
+			return nil
+		},
+		Example: `
+  # If you want checking just http connection
   wait4x http http://ifconfig.co
 
   # If you want checking http connection and expect specify http status code
   wait4x http http://ifconfig.co --expect-status-code 200
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		ticker := time.NewTicker(Interval)
-		defer ticker.Stop()
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+			defer cancel()
 
-		go func() {
-			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
-			expectBody, _ := cmd.Flags().GetString("expect-body")
-
-			var httpClient = &http.Client{
-				Timeout: connectionTimeout,
-			}
-
-			for ; true; <-ticker.C {
-				log.Info("Checking HTTP connection ...")
-
-				resp, err := httpClient.Get(args[0])
-
-				if err != nil {
-					log.Debug(err)
-
-					continue
-				} else {
-					defer resp.Body.Close()
-
-					if httpResponseCodeExpectation(expectStatusCode, resp) && httpResponseBodyExpectation(expectBody, resp) {
-						os.Exit(EXIT_SUCCESS)
-					} else {
-						continue
-					}
-
-					os.Exit(EXIT_SUCCESS)
+			for !checkingHttp(cmd, args) {
+				select {
+				case <-ctx.Done():
+					return errors.NewTimedOutError()
+				case <-time.After(Interval):
 				}
 			}
-		}()
 
-		time.Sleep(Timeout)
-		log.Info("Operation Timed Out")
+			return nil
+		},
+	}
 
-		os.Exit(EXIT_TIMEDOUT)
-	},
+	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
+	httpCommand.Flags().String("expect-body", "", "Expect response body pattern.")
+	httpCommand.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+
+	return httpCommand
 }
 
-func init() {
-	rootCmd.AddCommand(httpCmd)
-	httpCmd.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
-	httpCmd.Flags().String("expect-body", "", "Expect response body pattern.")
-	httpCmd.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+func checkingHttp(cmd *cobra.Command, args []string) bool {
+	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
+	expectBody, _ := cmd.Flags().GetString("expect-body")
+
+	var httpClient = &http.Client{
+		Timeout: connectionTimeout,
+	}
+
+	log.Info("Checking HTTP connection ...")
+
+	resp, err := httpClient.Get(args[0])
+
+	if err != nil {
+		log.Debug(err)
+
+		return false
+	}
+
+	defer resp.Body.Close()
+
+	if httpResponseCodeExpectation(expectStatusCode, resp) && httpResponseBodyExpectation(expectBody, resp) {
+		return true
+	} else {
+		return false
+	}
+
+	return true
 }
 
 func httpResponseCodeExpectation(expectStatusCode int, resp *http.Response) bool {
