@@ -7,14 +7,13 @@ steps:
   - name: test
     image: golang:1.13-buster
     commands:
-      - go get -t -v
       - make test
-      - bash <(curl -s https://codecov.io/bash)
+      - curl -s https://codecov.io/bash | bash -s
 
 ---
 kind: pipeline
 type: docker
-name: default
+name: build
 
 steps:
   - name: build-linux
