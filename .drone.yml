@@ -10,7 +10,7 @@ steps:
       - make test
       - bash -c "bash <(curl -s https://codecov.io/bash)"
     environment:
-      USERNAME:
+      CODECOV_TOKEN:
         from_secret: CODECOV_TOKEN
 
 ---
