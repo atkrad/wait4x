@@ -8,6 +8,8 @@ type CommandError struct {
 const EXIT_ERROR = 1
 const EXIT_TIMEDOUT = 124
 
+const TIMED_OUT_ERROR_MESSAGE = "Timed Out"
+
 func (e *CommandError) Error() string {
 	return e.Message
 }
@@ -21,7 +23,7 @@ func NewCommandError(msg string) error {
 
 func NewTimedOutError() error {
 	return &CommandError{
-		Message: "Timed Out",
+		Message: TIMED_OUT_ERROR_MESSAGE,
 		ExitCode: EXIT_TIMEDOUT,
 	}
 }

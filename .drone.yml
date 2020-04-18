@@ -1,6 +1,19 @@
 ---
 kind: pipeline
 type: docker
+name: test
+
+steps:
+  - name: test
+    image: golang:1.13-buster
+    commands:
+      - go get -t -v
+      - make test
+      - bash <(curl -s https://codecov.io/bash)
+
+---
+kind: pipeline
+type: docker
 name: default
 
 steps:
@@ -69,3 +82,6 @@ steps:
       - build-linux-musl
       - build-darwin
       - build-windows
+
+depends_on:
+  - test

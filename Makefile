@@ -21,6 +21,9 @@ help:
 	@echo '  You can pass subcommand and arguements with "Wait4X" e.g. "make run WAIT4X_FLAGS.'
 	@echo ""
 
+test:
+	go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd
+
 build:
 	go build -v \
 	-ldflags "-X github.com/atkrad/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
