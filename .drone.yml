@@ -9,6 +9,9 @@ steps:
     commands:
       - make test
       - curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}
+    environment:
+      USERNAME:
+        from_secret: CODECOV_TOKEN
 
 ---
 kind: pipeline
