@@ -8,7 +8,7 @@ steps:
     image: golang:1.13-buster
     commands:
       - make test
-      - curl -s https://codecov.io/bash | bash -s
+      - curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}
 
 ---
 kind: pipeline
