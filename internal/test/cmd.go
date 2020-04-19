@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/spf13/cobra"
 	"bytes"
+	"github.com/spf13/cobra"
 )
 
 func ExecuteCommand(root *cobra.Command, args ...string) (output string, err error) {

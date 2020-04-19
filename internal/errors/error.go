@@ -1,7 +1,7 @@
 package errors
 
 type CommandError struct {
-	Message string
+	Message  string
 	ExitCode int
 }
 
@@ -16,14 +16,14 @@ func (e *CommandError) Error() string {
 
 func NewCommandError(msg string) error {
 	return &CommandError{
-		Message: msg,
+		Message:  msg,
 		ExitCode: EXIT_ERROR,
 	}
 }
 
 func NewTimedOutError() error {
 	return &CommandError{
-		Message: TIMED_OUT_ERROR_MESSAGE,
+		Message:  TIMED_OUT_ERROR_MESSAGE,
 		ExitCode: EXIT_TIMEDOUT,
 	}
 }

@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/internal/errors"
+	"context"
 	"database/sql"
+	"github.com/atkrad/wait4x/internal/errors"
 	_ "github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"context"
 	"time"
 )
 

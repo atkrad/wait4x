@@ -3,10 +3,10 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/spf13/cobra"
 	"log"
 	"runtime"
 	"text/template"
-	"github.com/spf13/cobra"
 )
 
 var versionTemplate = `Version:           {{.AppVersion}}
@@ -35,7 +35,7 @@ func NewVersionCommand() *cobra.Command {
 		Use:   "version",
 		Short: "Print the version number of wait4x",
 		Long:  "All software has versions. It's mine.",
-		Run: runVersion,
+		Run:   runVersion,
 	}
 
 	return versionCommand
@@ -44,11 +44,11 @@ func NewVersionCommand() *cobra.Command {
 func runVersion(cmd *cobra.Command, args []string) {
 	versionValues := Version{
 		AppVersion: AppVersion,
-		GoVersion: runtime.Version(),
-		GoOs: runtime.GOOS,
-		GoArch: runtime.GOARCH,
-		GitCommit: GitCommit,
-		BuildTime: BuildTime,
+		GoVersion:  runtime.Version(),
+		GoOs:       runtime.GOOS,
+		GoArch:     runtime.GOARCH,
+		GitCommit:  GitCommit,
+		BuildTime:  BuildTime,
 	}
 	var tmplBytes bytes.Buffer
 

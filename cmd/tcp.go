@@ -1,12 +1,12 @@
 package cmd
 
 import (
+	"context"
+	"github.com/atkrad/wait4x/internal/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"net"
 	"time"
-	"context"
-	"github.com/atkrad/wait4x/internal/errors"
 )
 
 func NewTcpCommand() *cobra.Command {

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+	"github.com/atkrad/wait4x/internal/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"io/ioutil"
@@ -8,8 +10,6 @@ import (
 	"net/url"
 	"regexp"
 	"time"
-	"github.com/atkrad/wait4x/internal/errors"
-	"context"
 )
 
 func NewHttpCommannd() *cobra.Command {
