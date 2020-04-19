@@ -30,6 +30,9 @@ check-gofmt:
 		exit 1; \
 	fi
 
+check-golint:
+	golint ./...
+
 build:
 	go build -v \
 	-ldflags "-X github.com/atkrad/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \

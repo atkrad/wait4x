@@ -9,6 +9,12 @@ steps:
     commands:
       - make check-gofmt
 
+  - name: golint
+    image: golang:1.13-buster
+    commands:
+      - go get -u golang.org/x/lint/golint
+      - make check-golint
+
 ---
 kind: pipeline
 type: docker
