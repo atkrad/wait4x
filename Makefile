@@ -24,6 +24,12 @@ help:
 test:
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd
 
+check-gofmt:
+	@ if [ -n "$(shell gofmt -s -l .)" ]; then \
+		echo "Go code is not formatted, run 'gofmt -s -w .'"; \
+		exit 1; \
+	fi
+
 build:
 	go build -v \
 	-ldflags "-X github.com/atkrad/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \

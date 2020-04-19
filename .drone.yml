@@ -1,6 +1,17 @@
 ---
 kind: pipeline
 type: docker
+name: check
+
+steps:
+  - name: test
+    image: golang:1.13-buster
+    commands:
+      - make check-gofmt
+
+---
+kind: pipeline
+type: docker
 name: test
 
 steps:
@@ -12,6 +23,9 @@ steps:
     environment:
       CODECOV_TOKEN:
         from_secret: CODECOV_TOKEN
+
+depends_on:
+  - check
 
 ---
 kind: pipeline
