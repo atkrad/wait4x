@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 
 func TestTcpCommandInvalidArgument(t *testing.T) {
 	wait4xCommand := NewWait4X()
-	wait4xCommand.AddCommand(NewTcpCommand())
+	wait4xCommand.AddCommand(NewTCPCommand())
 
 	_, err := test.ExecuteCommand(wait4xCommand, "tcp")
 
@@ -27,7 +27,7 @@ func TestTcpCommandInvalidArgument(t *testing.T) {
 
 func TestTcpConnectionSuccess(t *testing.T) {
 	wait4xCommand := NewWait4X()
-	wait4xCommand.AddCommand(NewTcpCommand())
+	wait4xCommand.AddCommand(NewTCPCommand())
 
 	_, err := test.ExecuteCommand(wait4xCommand, "tcp", "1.1.1.1:53")
 
@@ -36,7 +36,7 @@ func TestTcpConnectionSuccess(t *testing.T) {
 
 func TestTcpConnectionFail(t *testing.T) {
 	wait4xCommand := NewWait4X()
-	wait4xCommand.AddCommand(NewTcpCommand())
+	wait4xCommand.AddCommand(NewTCPCommand())
 
 	_, err := test.ExecuteCommand(wait4xCommand, "tcp", "127.0.0.1:8080", "-t", "2s")
 

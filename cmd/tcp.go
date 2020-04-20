@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func NewTcpCommand() *cobra.Command {
+func NewTCPCommand() *cobra.Command {
 	tcpCommand := &cobra.Command{
 		Use:   "tcp ADDRESS",
 		Short: "Check TCP connection.",
@@ -28,7 +28,7 @@ func NewTcpCommand() *cobra.Command {
 			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 			defer cancel()
 
-			for !checkingTcp(cmd, args) {
+			for !checkingTCP(cmd, args) {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
@@ -45,7 +45,7 @@ func NewTcpCommand() *cobra.Command {
 	return tcpCommand
 }
 
-func checkingTcp(cmd *cobra.Command, args []string) bool {
+func checkingTCP(cmd *cobra.Command, args []string) bool {
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	log.Info("Checking TCP connection ...")
 

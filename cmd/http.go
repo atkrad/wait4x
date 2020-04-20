@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func NewHttpCommannd() *cobra.Command {
+func NewHTTPCommand() *cobra.Command {
 	httpCommand := &cobra.Command{
 		Use:   "http ADDRESS",
 		Short: "Check HTTP connection.",
@@ -40,7 +40,7 @@ func NewHttpCommannd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 			defer cancel()
 
-			for !checkingHttp(cmd, args) {
+			for !checkingHTTP(cmd, args) {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
@@ -59,7 +59,7 @@ func NewHttpCommannd() *cobra.Command {
 	return httpCommand
 }
 
-func checkingHttp(cmd *cobra.Command, args []string) bool {
+func checkingHTTP(cmd *cobra.Command, args []string) bool {
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 	expectBody, _ := cmd.Flags().GetString("expect-body")

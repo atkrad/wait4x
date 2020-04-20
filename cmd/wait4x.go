@@ -32,8 +32,8 @@ func NewWait4X() *cobra.Command {
 
 func Execute() {
 	wait4x := NewWait4X()
-	wait4x.AddCommand(NewTcpCommand())
-	wait4x.AddCommand(NewHttpCommannd())
+	wait4x.AddCommand(NewTCPCommand())
+	wait4x.AddCommand(NewHTTPCommand())
 	wait4x.AddCommand(NewMysqlCommand())
 	wait4x.AddCommand(NewRedisCommand())
 	wait4x.AddCommand(NewVersionCommand())
