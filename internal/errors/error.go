@@ -6,13 +6,13 @@ type CommandError struct {
 	ExitCode int
 }
 
-// General error exit code.
+// ExitError represents general error exit code
 const ExitError = 1
 
-// Timed out error exit code
+// ExitTimedOut represents timed out error exit code
 const ExitTimedOut = 124
 
-// Timed out error message
+// TimedOutErrorMessage represents timed out error message
 const TimedOutErrorMessage = "Timed Out"
 
 func (e *CommandError) Error() string {
