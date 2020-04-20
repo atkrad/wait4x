@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	// Interval represents time between each loop
 	Interval time.Duration
 	Timeout  time.Duration
 )

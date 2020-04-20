@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ExecuteCommand executes command in testing environment.
 func ExecuteCommand(root *cobra.Command, args ...string) (output string, err error) {
 	_, output, err = executeCommandC(root, args...)
 

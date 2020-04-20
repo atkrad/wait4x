@@ -83,11 +83,9 @@ func checkingHTTP(cmd *cobra.Command, args []string) bool {
 
 	if httpResponseCodeExpectation(expectStatusCode, resp) && httpResponseBodyExpectation(expectBody, resp) {
 		return true
-	} else {
-		return false
 	}
 
-	return true
+	return false
 }
 
 func httpResponseCodeExpectation(expectStatusCode int, resp *http.Response) bool {
