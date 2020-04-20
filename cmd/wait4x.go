@@ -11,6 +11,7 @@ import (
 var (
 	// Interval represents time between each loop
 	Interval time.Duration
+	// Timeout represents the maximum amount of time that Wait4X will wait for a checking operation
 	Timeout  time.Duration
 )
 

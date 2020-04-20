@@ -18,7 +18,9 @@ OS/Arch:           {{.GoOs}}/{{.GoArch}}`
 var (
 	// AppVersion represents Wait4X version
 	AppVersion = "unknown-app-version"
+	// GitCommit represents Wait4X commit hash
 	GitCommit  = "unknown-git-commit"
+	// BuildTime represents Wait4X build time
 	BuildTime  = "unknown-build-time"
 )
 
