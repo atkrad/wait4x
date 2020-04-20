@@ -44,6 +44,6 @@ func Execute() {
 			os.Exit(commandError.ExitCode)
 		}
 
-		os.Exit(errs.EXIT_ERROR)
+		os.Exit(errs.ExitError)
 	}
 }

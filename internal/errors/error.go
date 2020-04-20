@@ -5,10 +5,10 @@ type CommandError struct {
 	ExitCode int
 }
 
-const EXIT_ERROR = 1
-const EXIT_TIMEDOUT = 124
+const ExitError = 1
+const ExitTimedOut = 124
 
-const TIMED_OUT_ERROR_MESSAGE = "Timed Out"
+const TimedOutErrorMessage = "Timed Out"
 
 func (e *CommandError) Error() string {
 	return e.Message
@@ -17,13 +17,13 @@ func (e *CommandError) Error() string {
 func NewCommandError(msg string) error {
 	return &CommandError{
 		Message:  msg,
-		ExitCode: EXIT_ERROR,
+		ExitCode: ExitError,
 	}
 }
 
 func NewTimedOutError() error {
 	return &CommandError{
-		Message:  TIMED_OUT_ERROR_MESSAGE,
-		ExitCode: EXIT_TIMEDOUT,
+		Message:  TimedOutErrorMessage,
+		ExitCode: ExitTimedOut,
 	}
 }

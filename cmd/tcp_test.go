@@ -40,5 +40,5 @@ func TestTcpConnectionFail(t *testing.T) {
 
 	_, err := test.ExecuteCommand(wait4xCommand, "tcp", "127.0.0.1:8080", "-t", "2s")
 
-	assert.Equal(t, errors.TIMED_OUT_ERROR_MESSAGE, err.Error())
+	assert.Equal(t, errors.TimedOutErrorMessage, err.Error())
 }
