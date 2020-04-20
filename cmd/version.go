@@ -19,9 +19,9 @@ var (
 	// AppVersion represents Wait4X version
 	AppVersion = "unknown-app-version"
 	// GitCommit represents Wait4X commit hash
-	GitCommit  = "unknown-git-commit"
+	GitCommit = "unknown-git-commit"
 	// BuildTime represents Wait4X build time
-	BuildTime  = "unknown-build-time"
+	BuildTime = "unknown-build-time"
 )
 
 // Version represents some information which useful in version sub-command

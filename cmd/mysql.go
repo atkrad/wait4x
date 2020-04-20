@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/atkrad/wait4x/internal/errors"
+	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
