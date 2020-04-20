@@ -30,8 +30,8 @@ check-gofmt:
 		exit 1; \
 	fi
 
-check-golint:
-	golint ./...
+check-revive:
+	revive -config .revive.toml ./...
 
 build:
 	go build -v \
