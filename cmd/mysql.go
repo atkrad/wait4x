@@ -48,7 +48,7 @@ func NewMysqlCommand() *cobra.Command {
 	return mysqlCommand
 }
 
-func checkingMysql(cmd *cobra.Command, args []string) bool {
+func checkingMysql(_ *cobra.Command, args []string) bool {
 	log.Info("Checking MySQL connection ...")
 	db, err := sql.Open("mysql", args[0])
 	if err != nil {

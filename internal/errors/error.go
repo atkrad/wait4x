@@ -1,13 +1,18 @@
 package errors
 
+// CommandError represents command errors
 type CommandError struct {
 	Message  string
 	ExitCode int
 }
 
+// General error exit code.
 const ExitError = 1
+
+// Timed out error exit code
 const ExitTimedOut = 124
 
+// Timed out error message
 const TimedOutErrorMessage = "Timed Out"
 
 func (e *CommandError) Error() string {

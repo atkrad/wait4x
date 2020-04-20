@@ -43,7 +43,7 @@ func NewVersionCommand() *cobra.Command {
 	return versionCommand
 }
 
-func runVersion(cmd *cobra.Command, args []string) {
+func runVersion(_ *cobra.Command, _ []string) {
 	versionValues := Version{
 		AppVersion: AppVersion,
 		GoVersion:  runtime.Version(),
