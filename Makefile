@@ -31,7 +31,7 @@ check-gofmt:
 	fi
 
 check-revive:
-	revive -config .revive.toml ./...
+	revive -config .revive.toml -formatter friendly ./...
 
 build:
 	go build -v \
