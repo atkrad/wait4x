@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// NewMysqlCommand creates the mysql sub-command
 func NewMysqlCommand() *cobra.Command {
 	mysqlCommand := &cobra.Command{
 		Use:   "mysql DSN",

@@ -21,6 +21,7 @@ var (
 	BuildTime  = "unknown-build-time"
 )
 
+// Version represents some information which useful in version sub-command
 type Version struct {
 	AppVersion string
 	GoVersion  string
@@ -30,6 +31,7 @@ type Version struct {
 	BuildTime  string
 }
 
+// NewVersionCommand creates the version sub-command
 func NewVersionCommand() *cobra.Command {
 	versionCommand := &cobra.Command{
 		Use:   "version",

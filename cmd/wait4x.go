@@ -13,7 +13,7 @@ var (
 	Timeout  time.Duration
 )
 
-// NewWait4X create a root command
+// NewWait4X creates the root command
 func NewWait4X() *cobra.Command {
 	wait4x := &cobra.Command{
 		Use:   "wait4x",

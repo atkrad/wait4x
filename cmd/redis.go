@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// NewRedisCommand creates the redis sub-command
 func NewRedisCommand() *cobra.Command {
 	redisCommand := &cobra.Command{
 		Use:   "redis ADDRESS",

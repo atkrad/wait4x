@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// NewTCPCommand creates the tcp sub-command
 func NewTCPCommand() *cobra.Command {
 	tcpCommand := &cobra.Command{
 		Use:   "tcp ADDRESS",

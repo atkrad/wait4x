@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// NewHTTPCommand creates the http sub-command
 func NewHTTPCommand() *cobra.Command {
 	httpCommand := &cobra.Command{
 		Use:   "http ADDRESS",

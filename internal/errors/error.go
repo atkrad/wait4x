@@ -14,6 +14,7 @@ func (e *CommandError) Error() string {
 	return e.Message
 }
 
+// NewCommandError creates the general error
 func NewCommandError(msg string) error {
 	return &CommandError{
 		Message:  msg,
@@ -21,6 +22,7 @@ func NewCommandError(msg string) error {
 	}
 }
 
+// NewTimedOutError creates the timed out error
 func NewTimedOutError() error {
 	return &CommandError{
 		Message:  TimedOutErrorMessage,
