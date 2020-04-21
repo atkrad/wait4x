@@ -25,9 +25,11 @@ steps:
     image: golang:1.13-buster
     commands:
       - make test
-      - bash -c "bash <(curl -s https://codecov.io/bash)"
-    environment:
-      CODECOV_TOKEN:
+
+  - name: coverage
+    image: plugins/codecov
+    settings:
+      token:
         from_secret: CODECOV_TOKEN
 
 depends_on:
