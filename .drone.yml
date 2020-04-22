@@ -56,6 +56,8 @@ steps:
     commands:
       - ls -la
       - env
+    depends_on:
+      - build
 
   - name: pre-release
     image: plugins/github-release
@@ -78,7 +80,7 @@ steps:
           - "refs/tags/*alpha*"
           - "refs/tags/*beta*"
     depends_on:
-      - build
+      - debug
 
   - name: release
     image: plugins/github-release
