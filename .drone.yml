@@ -51,6 +51,12 @@ steps:
     commands:
       - make build
 
+  - name: debug
+    image: golang:1.13-buster
+    commands:
+      - ls -la
+      - env
+
   - name: pre-release
     image: plugins/github-release
     settings:
@@ -59,6 +65,7 @@ steps:
       prerelease: true
       files:
         - $BUILD_OUTPUT
+        - wait4x-linux-amd64
       checksum:
         - sha256
       checksum_file: $BUILD_OUTPUT.CHECKSUM
