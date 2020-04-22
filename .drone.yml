@@ -87,7 +87,7 @@ steps:
       api_key:
         from_secret: github_token
       files:
-        - wait4x-linux-amd64
+        - $BUILD_OUTPUT
       checksum:
         - sha256
       checksum_file: wait4x-linux-amd64.CHECKSUM
