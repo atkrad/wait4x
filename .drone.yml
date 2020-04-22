@@ -40,24 +40,15 @@ kind: pipeline
 type: docker
 name: linux-amd64
 
-environment:
-  GOOS: linux
-  GOARCH: amd64
-  BUILD_OUTPUT: wait4x-linux-amd64
-
 steps:
   - name: build
     image: golang:1.13-buster
     commands:
       - make build
-
-  - name: debug
-    image: golang:1.13-buster
-    commands:
-      - ls -la
-      - env
-    depends_on:
-      - build
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      BUILD_OUTPUT: wait4x-linux-amd64
 
   - name: pre-release
     image: plugins/github-release
@@ -66,10 +57,10 @@ steps:
         from_secret: github_token
       prerelease: true
       files:
-        - $BUILD_OUTPUT
+        - wait4x-linux-amd64
       checksum:
         - sha256
-      checksum_file: $BUILD_OUTPUT.CHECKSUM
+      checksum_file: wait4x-linux-amd64.CHECKSUMsum
     when:
       event:
         - tag
@@ -79,7 +70,7 @@ steps:
           - "refs/tags/*alpha*"
           - "refs/tags/*beta*"
     depends_on:
-      - debug
+      - build
 
   - name: release
     image: plugins/github-release
@@ -87,10 +78,10 @@ steps:
       api_key:
         from_secret: github_token
       files:
-        - ${BUILD_OUTPUT}
+        - wait4x-linux-amd64
       checksum:
         - sha256
-      checksum_file: wait4x-linux-amd64.CHECKSUM
+      checksum_file: wait4x-linux-amd64.CHECKSUMsum
     when:
       event:
         - tag
@@ -107,207 +98,204 @@ steps:
 depends_on:
   - test
 
-#---
-#kind: pipeline
-#type: docker
-#name: linux-musl-amd64
-#
-#environment:
-#  GOOS: linux
-#  GOARCH: amd64
-#  BUILD_OUTPUT: wait4x-linux-musl-amd64
-#
-#steps:
-#  - name: build
-#    image: golang:1.13-alpine
-#    commands:
-#      - apk --update add make git
-#      - make build
-#
-#  - name: docker
-#    image: plugins/docker
-#    settings:
-#      repo: atkrad/wait4x
-#      auto_tag: true
-#      username:
-#        from_secret: DOCKER_USERNAME
-#      password:
-#        from_secret: DOCKER_PASSWORD
-#    depends_on:
-#      - build
-#
-#  - name: pre-release
-#    image: plugins/github-release
-#    settings:
-#      api_key:
-#        from_secret: github_token
-#      prerelease: true
-#      files:
-#        - $BUILD_OUTPUT
-#      checksum:
-#        - sha256
-#      checksum_file: $BUILD_OUTPUT.CHECKSUM
-#    when:
-#      event:
-#        - tag
-#      ref:
-#        include:
-#          - "refs/tags/*rc*"
-#          - "refs/tags/*alpha*"
-#          - "refs/tags/*beta*"
-#    depends_on:
-#      - build
-#
-#  - name: release
-#    image: plugins/github-release
-#    settings:
-#      api_key:
-#        from_secret: github_token
-#      files:
-#        - $BUILD_OUTPUT
-#      checksum:
-#        - sha256
-#      checksum_file: $BUILD_OUTPUT.CHECKSUM
-#    when:
-#      event:
-#        - tag
-#      ref:
-#        include:
-#          - "refs/tags/*"
-#        exclude:
-#          - "refs/tags/*rc*"
-#          - "refs/tags/*alpha*"
-#          - "refs/tags/*beta*"
-#    depends_on:
-#      - build
-#
-#depends_on:
-#  - test
-#
-#---
-#kind: pipeline
-#type: docker
-#name: darwin-amd64
-#
-#environment:
-#  GOOS: darwin
-#  GOARCH: amd64
-#  BUILD_OUTPUT: wait4x-darwin-amd64
-#
-#steps:
-#  - name: build
-#    image: golang:1.13-buster
-#    commands:
-#      - make build
-#
-#  - name: pre-release
-#    image: plugins/github-release
-#    settings:
-#      api_key:
-#        from_secret: github_token
-#      prerelease: true
-#      files:
-#        - $BUILD_OUTPUT
-#      checksum:
-#        - sha256
-#      checksum_file: $BUILD_OUTPUT.CHECKSUM
-#    when:
-#      event:
-#        - tag
-#      ref:
-#        include:
-#          - "refs/tags/*rc*"
-#          - "refs/tags/*alpha*"
-#          - "refs/tags/*beta*"
-#    depends_on:
-#      - build
-#
-#  - name: release
-#    image: plugins/github-release
-#    settings:
-#      api_key:
-#        from_secret: github_token
-#      files:
-#        - $BUILD_OUTPUT
-#      checksum:
-#        - sha256
-#      checksum_file: $BUILD_OUTPUT.CHECKSUM
-#    when:
-#      event:
-#        - tag
-#      ref:
-#        include:
-#          - "refs/tags/*"
-#        exclude:
-#          - "refs/tags/*rc*"
-#          - "refs/tags/*alpha*"
-#          - "refs/tags/*beta*"
-#    depends_on:
-#      - build
-#
-#depends_on:
-#  - test
-#
-#---
-#kind: pipeline
-#type: docker
-#name: windows-amd64
-#
-#environment:
-#  GOOS: windows
-#  GOARCH: amd64
-#  BUILD_OUTPUT: wait4x-windows-amd64
-#
-#steps:
-#  - name: build
-#    image: golang:1.13-buster
-#    commands:
-#      - make build
-#
-#  - name: pre-release
-#    image: plugins/github-release
-#    settings:
-#      api_key:
-#        from_secret: github_token
-#      prerelease: true
-#      files:
-#        - $BUILD_OUTPUT
-#      checksum:
-#        - sha256
-#      checksum_file: $BUILD_OUTPUT.CHECKSUM
-#    when:
-#      event:
-#        - tag
-#      ref:
-#        include:
-#          - "refs/tags/*rc*"
-#          - "refs/tags/*alpha*"
-#          - "refs/tags/*beta*"
-#    depends_on:
-#      - build
-#
-#  - name: release
-#    image: plugins/github-release
-#    settings:
-#      api_key:
-#        from_secret: github_token
-#      files:
-#        - $BUILD_OUTPUT
-#      checksum:
-#        - sha256
-#      checksum_file: $BUILD_OUTPUT.CHECKSUM
-#    when:
-#      event:
-#        - tag
-#      ref:
-#        include:
-#          - "refs/tags/*"
-#        exclude:
-#          - "refs/tags/*rc*"
-#          - "refs/tags/*alpha*"
-#          - "refs/tags/*beta*"
-#    depends_on:
-#      - build
-#
-#depends_on:
-#  - test
+---
+kind: pipeline
+type: docker
+name: linux-musl-amd64
+
+steps:
+  - name: build
+    image: golang:1.13-alpine
+    commands:
+      - apk --update add make git
+      - make build
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      BUILD_OUTPUT: wait4x-linux-musl-amd64
+
+  - name: docker
+    image: plugins/docker
+    settings:
+      repo: atkrad/wait4x
+      auto_tag: true
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+    depends_on:
+      - build
+
+  - name: pre-release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      prerelease: true
+      files:
+        - wait4x-linux-musl-amd64
+      checksum:
+        - sha256
+      checksum_file: wait4x-linux-musl-amd64.CHECKSUMsum
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    depends_on:
+      - build
+
+  - name: release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - wait4x-linux-musl-amd64
+      checksum:
+        - sha256
+      checksum_file: wait4x-linux-musl-amd64.CHECKSUMsum
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    depends_on:
+      - build
+
+depends_on:
+  - test
+
+---
+kind: pipeline
+type: docker
+name: darwin-amd64
+
+steps:
+  - name: build
+    image: golang:1.13-buster
+    commands:
+      - make build
+    environment:
+      GOOS: darwin
+      GOARCH: amd64
+      BUILD_OUTPUT: wait4x-darwin-amd64
+
+  - name: pre-release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      prerelease: true
+      files:
+        - wait4x-darwin-amd64
+      checksum:
+        - sha256
+      checksum_file: wait4x-darwin-amd64.CHECKSUMsum
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    depends_on:
+      - build
+
+  - name: release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - wait4x-darwin-amd64
+      checksum:
+        - sha256
+      checksum_file: wait4x-darwin-amd64.CHECKSUMsum
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    depends_on:
+      - build
+
+depends_on:
+  - test
+
+---
+kind: pipeline
+type: docker
+name: windows-amd64
+
+steps:
+  - name: build
+    image: golang:1.13-buster
+    commands:
+      - make build
+    environment:
+      GOOS: windows
+      GOARCH: amd64
+      BUILD_OUTPUT: wait4x-windows-amd64
+
+  - name: pre-release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      prerelease: true
+      files:
+        - wait4x-windows-amd64
+      checksum:
+        - sha256
+      checksum_file: wait4x-windows-amd64.CHECKSUMsum
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    depends_on:
+      - build
+
+  - name: release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - wait4x-windows-amd64
+      checksum:
+        - sha256
+      checksum_file: wait4x-windows-amd64.CHECKSUMsum
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    depends_on:
+      - build
+
+depends_on:
+  - test
