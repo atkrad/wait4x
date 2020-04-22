@@ -65,10 +65,11 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -77,7 +78,6 @@ steps:
     settings:
       api_key:
         from_secret: github_token
-      draft: true
       files:
         - $BUILD_OUTPUT
       checksum:
@@ -86,12 +86,13 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*"
-      exclude:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -141,10 +142,11 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -153,7 +155,6 @@ steps:
     settings:
       api_key:
         from_secret: github_token
-      draft: true
       files:
         - $BUILD_OUTPUT
       checksum:
@@ -162,12 +163,13 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*"
-      exclude:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -204,10 +206,11 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -216,7 +219,6 @@ steps:
     settings:
       api_key:
         from_secret: github_token
-      draft: true
       files:
         - $BUILD_OUTPUT
       checksum:
@@ -225,12 +227,13 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*"
-      exclude:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -267,10 +270,11 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
@@ -279,7 +283,6 @@ steps:
     settings:
       api_key:
         from_secret: github_token
-      draft: true
       files:
         - $BUILD_OUTPUT
       checksum:
@@ -288,12 +291,13 @@ steps:
     when:
       event:
         - tag
-      include:
-        - "refs/tags/*"
-      exclude:
-        - "refs/tags/*rc*"
-        - "refs/tags/*alpha*"
-        - "refs/tags/*beta*"
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
     depends_on:
       - build
 
