@@ -19,8 +19,8 @@ var (
 func NewWait4X() *cobra.Command {
 	wait4x := &cobra.Command{
 		Use:   "wait4x",
-		Short: "wait4x allows waiting for a port or a service to enter into specify state",
-		Long:  `wait4x allows waiting for a port to enter into specify state or waiting for a service e.g. redis, mysql, postgres, ... to enter inter ready state`,
+		Short: "Wait4X allows waiting for a port or a service to enter into specify state",
+		Long:  `Wait4X allows waiting for a port to enter into specify state or waiting for a service e.g. redis, mysql, postgres, ... to enter inter ready state`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Prevent showing usage when subcommand return error.
 			cmd.SilenceUsage = true

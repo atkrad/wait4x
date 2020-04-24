@@ -38,7 +38,7 @@ type Version struct {
 func NewVersionCommand() *cobra.Command {
 	versionCommand := &cobra.Command{
 		Use:   "version",
-		Short: "Print the version number of wait4x",
+		Short: "Print the version number of Wait4X",
 		Long:  "All software has versions. It's mine.",
 		Run:   runVersion,
 	}
