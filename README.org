@@ -1,5 +1,15 @@
 #+OPTIONS: toc:nil
 * Wait4X [[https://cloud.drone.io/atkrad/wait4x][https://img.shields.io/drone/build/atkrad/wait4x/master.svg]] [[https://codecov.io/gh/atkrad/wait4x][https://img.shields.io/codecov/c/github/atkrad/wait4x/master.svg]] [[https://goreportcard.com/report/github.com/atkrad/wait4x][https://goreportcard.com/badge/github.com/atkrad/wait4x?.svg]]
+
+- [[#introduction][Introduction]]
+- [[#installation][Installation]]
+  - [[#with-docker][with Docker]]
+  - [[#from-binary][From binary]]
+    - [[#verify-sha256-checksum][Verify SHA256 Checksum]]
+  - [[#from-package][From package]]
+    - [[#alpine-linux][Alpine Linux]]
+
+** Introduction
 *Wait4X* is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested state.
 
 *Features:*
