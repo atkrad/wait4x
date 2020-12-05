@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/internal/errors"
-	"github.com/atkrad/wait4x/internal/test"
-	log "github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"github.com/atkrad/wait4x/internal/pkg/test"
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {

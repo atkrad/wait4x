@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/internal/errors"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"net"
 	"time"
+
+	"github.com/atkrad/wait4x/internal/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 // NewTCPCommand creates the tcp sub-command

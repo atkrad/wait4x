@@ -3,10 +3,11 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"runtime"
 	"text/template"
+
+	"github.com/spf13/cobra"
 )
 
 var versionTemplate = `Version:           {{.AppVersion}}

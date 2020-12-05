@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	errs "github.com/atkrad/wait4x/internal/errors"
+	errs "github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

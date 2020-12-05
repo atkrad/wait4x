@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/internal/errors"
-	"github.com/go-redis/redis/v7"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"github.com/go-redis/redis/v7"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 // NewRedisCommand creates the redis sub-command

@@ -3,12 +3,13 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"github.com/atkrad/wait4x/internal/errors"
+	"time"
+
+	"github.com/atkrad/wait4x/internal/pkg/errors"
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 // NewMysqlCommand creates the mysql sub-command
