@@ -2,14 +2,15 @@ package cmd
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/internal/pkg/errors"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
 	"time"
+
+	"github.com/atkrad/wait4x/internal/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 // NewHTTPCommand creates the http sub-command
