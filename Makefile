@@ -22,7 +22,7 @@ help:
 	@echo ""
 
 test:
-	go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd
+	go test -race -coverprofile=coverage.txt -covermode=atomic ./internal/app/wait4x/cmd
 
 check-gofmt:
 	@ if [ -n "$(shell gofmt -s -l .)" ]; then \
@@ -35,10 +35,10 @@ check-revive:
 
 build:
 	go build -v \
-	-ldflags "-X github.com/atkrad/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
-	-o $(BUILD_OUTPUT)
+	-ldflags "-X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
+	-o $(BUILD_OUTPUT) cmd/wait4x/main.go
 
 run:
 	go run \
-	-ldflags "-X github.com/atkrad/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
-	main.go $(WAIT4X_FLAGS)
+	-ldflags "-X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
+	cmd/wait4x/main.go $(WAIT4X_FLAGS)
