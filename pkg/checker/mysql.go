@@ -8,13 +8,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// MySQL represents MySQL checker
 type MySQL struct {
 	dsn    string
 	logger log.Logger
 }
 
-// NewMysqlCommand creates the mysql sub-command
-func NewMysql(dsn string) Checker {
+// NewMySQL creates the MySQL checker
+func NewMySQL(dsn string) Checker {
 	m := &MySQL{
 		dsn: dsn,
 	}

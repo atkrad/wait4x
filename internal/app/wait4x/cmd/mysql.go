@@ -32,7 +32,7 @@ func NewMysqlCommand() *cobra.Command {
 			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 			defer cancel()
 
-			mc := checker.NewMysql(args[0])
+			mc := checker.NewMySQL(args[0])
 			mc.SetLogger(Logger)
 
 			for !mc.Check() {

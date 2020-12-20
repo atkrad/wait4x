@@ -7,12 +7,14 @@ import (
 	"github.com/atkrad/wait4x/pkg/log"
 )
 
+// TCP represents TCP checker
 type TCP struct {
 	logger  log.Logger
 	address string
 	timeout time.Duration
 }
 
+// NewTCP creates the TCP checker
 func NewTCP(address string, timeout time.Duration) Checker {
 	t := &TCP{
 		address: address,

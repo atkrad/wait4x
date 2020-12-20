@@ -9,6 +9,7 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
+// Redis represents Redis checker
 type Redis struct {
 	logger    log.Logger
 	address   string
@@ -16,6 +17,7 @@ type Redis struct {
 	timeout   time.Duration
 }
 
+// NewRedis creates the Redis checker
 func NewRedis(address string, expectKey string, timeout time.Duration) Checker {
 	r := &Redis{
 		address:   address,

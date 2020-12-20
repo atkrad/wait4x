@@ -11,6 +11,7 @@ type Logrus struct {
 	logger *logrus.Logger
 }
 
+// NewLogrus creates Logrus logger
 func NewLogrus(level string, output io.Writer) (Logger, error) {
 	log := logrus.New()
 
@@ -29,26 +30,32 @@ func NewLogrus(level string, output io.Writer) (Logger, error) {
 	return l, nil
 }
 
+// Info logging a new message with info level.
 func (l *Logrus) Info(args ...interface{}) {
 	l.logger.Info(args...)
 }
 
+// Infof logging a new message with info level and custom format.
 func (l *Logrus) Infof(format string, args ...interface{}) {
 	l.logger.Infof(format, args...)
 }
 
+// InfoWithFields logging a new message with info level and extra fields.
 func (l *Logrus) InfoWithFields(msg string, fields map[string]interface{}) {
 	l.logger.WithFields(fields).Info(msg)
 }
 
+// Debug logging a new message with debug level.
 func (l *Logrus) Debug(args ...interface{}) {
 	l.logger.Debug(args...)
 }
 
+// Debugf logging a new message with debug level and custom format.
 func (l *Logrus) Debugf(format string, args ...interface{}) {
 	l.logger.Debugf(format, args...)
 }
 
+// Fatal logging a new message with fatal level.
 func (l *Logrus) Fatal(args ...interface{}) {
 	l.logger.Fatal(args...)
 }
