@@ -6,6 +6,7 @@ import (
 	"time"
 
 	errs "github.com/atkrad/wait4x/internal/pkg/errors"
+	"github.com/atkrad/wait4x/pkg/log"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -17,6 +18,8 @@ var (
 	Timeout time.Duration
 	// LogLevel represents logging level e.g. info, warn, error, debug
 	LogLevel string
+	// Logger is the global logger.
+	Logger log.Logger
 )
 
 // NewRootCommand creates the root command
@@ -25,17 +28,14 @@ func NewRootCommand() *cobra.Command {
 		Use:   "wait4x",
 		Short: "Wait4X allows waiting for a port or a service to enter into specify state",
 		Long:  `Wait4X allows waiting for a port to enter into specify state or waiting for a service e.g. redis, mysql, postgres, ... to enter inter ready state`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			// Prevent showing usage when subcommand return error.
 			cmd.SilenceUsage = true
 
-			lvl, err := logrus.ParseLevel(LogLevel)
+			Logger, err = log.NewLogrus(LogLevel, os.Stdout)
 			if err != nil {
 				return err
 			}
-
-			logrus.SetOutput(os.Stdout)
-			logrus.SetLevel(lvl)
 
 			return nil
 		},

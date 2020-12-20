@@ -2,13 +2,10 @@ package cmd
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
-	// Needed for the MySQL driver
-	_ "github.com/go-sql-driver/mysql"
-	log "github.com/sirupsen/logrus"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +32,10 @@ func NewMysqlCommand() *cobra.Command {
 			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 			defer cancel()
 
-			for !checkingMysql(cmd, args) {
+			mc := checker.NewMysql(args[0])
+			mc.SetLogger(Logger)
+
+			for !mc.Check() {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
@@ -48,28 +48,4 @@ func NewMysqlCommand() *cobra.Command {
 	}
 
 	return mysqlCommand
-}
-
-func checkingMysql(_ *cobra.Command, args []string) bool {
-	log.Info("Checking MySQL connection ...")
-	db, err := sql.Open("mysql", args[0])
-	if err != nil {
-		log.Warn("Validating DSN data has error.")
-		log.Debug(err)
-
-		return false
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Warn("Pinging MySQL has error.")
-		log.Debug(err)
-
-		return false
-	}
-
-	log.Info("Connection established successfully.")
-
-	return true
 }

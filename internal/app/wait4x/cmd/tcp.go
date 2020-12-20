@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"context"
-	"net"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
 
@@ -27,10 +26,15 @@ func NewTCPCommand() *cobra.Command {
   wait4x tcp 127.0.0.1:9090
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			timeout, _ := cmd.Flags().GetDuration("connection-timeout")
+
 			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 			defer cancel()
 
-			for !checkingTCP(cmd, args) {
+			tc := checker.NewTCP(args[0], timeout)
+			tc.SetLogger(Logger)
+
+			for !tc.Check() {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
@@ -45,19 +49,4 @@ func NewTCPCommand() *cobra.Command {
 	tcpCommand.Flags().Duration("connection-timeout", time.Second*5, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
 
 	return tcpCommand
-}
-
-func checkingTCP(cmd *cobra.Command, args []string) bool {
-	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-	log.Info("Checking TCP connection ...")
-
-	d := net.Dialer{Timeout: connectionTimeout}
-	_, err := d.Dial("tcp", args[0])
-	if err != nil {
-		log.Debug(err)
-
-		return false
-	}
-
-	return true
 }
