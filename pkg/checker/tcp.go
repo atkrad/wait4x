@@ -8,7 +8,7 @@ import (
 )
 
 type TCP struct {
-	logger log.Logger
+	logger  log.Logger
 	address string
 	timeout time.Duration
 }

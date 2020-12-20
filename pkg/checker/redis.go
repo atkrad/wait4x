@@ -10,17 +10,17 @@ import (
 )
 
 type Redis struct {
-	logger log.Logger
-	address string
+	logger    log.Logger
+	address   string
 	expectKey string
-	timeout time.Duration
+	timeout   time.Duration
 }
 
 func NewRedis(address string, expectKey string, timeout time.Duration) Checker {
 	r := &Redis{
-		address: address,
+		address:   address,
 		expectKey: expectKey,
-		timeout: timeout,
+		timeout:   timeout,
 	}
 
 	return r

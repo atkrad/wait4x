@@ -8,7 +8,7 @@ import (
 
 // Logrus is the implementation for a Logger using Logrus.
 type Logrus struct {
-	logger  *logrus.Logger
+	logger *logrus.Logger
 }
 
 func NewLogrus(level string, output io.Writer) (Logger, error) {

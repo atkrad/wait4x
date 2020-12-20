@@ -10,20 +10,20 @@ import (
 )
 
 type HTTP struct {
-	address string
-	timeout time.Duration
+	address          string
+	timeout          time.Duration
 	expectStatusCode int
-	expectBody string
-	logger log.Logger
+	expectBody       string
+	logger           log.Logger
 }
 
 // NewHTTP creates the http checker
 func NewHTTP(address string, expectStatusCode int, expectBody string, timeout time.Duration) Checker {
 	h := &HTTP{
-		address: address,
+		address:          address,
 		expectStatusCode: expectStatusCode,
-		expectBody: expectBody,
-		timeout: timeout,
+		expectBody:       expectBody,
+		timeout:          timeout,
 	}
 
 	return h

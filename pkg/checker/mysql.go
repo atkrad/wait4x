@@ -9,7 +9,7 @@ import (
 )
 
 type MySQL struct {
-	dsn string
+	dsn    string
 	logger log.Logger
 }
 
