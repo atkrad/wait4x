@@ -12,9 +12,9 @@ import (
 // NewPostgresqlCommand creates the postgresql sub-command
 func NewPostgresqlCommand() *cobra.Command {
 	postgresqlCommand := &cobra.Command{
-		Use:   "postgresql DSN",
+		Use:     "postgresql DSN",
 		Aliases: []string{"postgres", "postgre"},
-		Short: "Check PostgreSQL connection.",
+		Short:   "Check PostgreSQL connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.NewCommandError("DSN is required argument for the postgresql command")
