@@ -30,10 +30,12 @@ func NewHTTP(address string, expectStatusCode int, expectBody string, timeout ti
 	return h
 }
 
+// SetLogger sets default logger
 func (h *HTTP) SetLogger(logger log.Logger) {
 	h.logger = logger
 }
 
+// Check checks HTTP connection
 func (h *HTTP) Check() bool {
 	var httpClient = &http.Client{
 		Timeout: h.timeout,

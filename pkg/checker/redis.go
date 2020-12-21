@@ -28,10 +28,12 @@ func NewRedis(address string, expectKey string, timeout time.Duration) Checker {
 	return r
 }
 
+// SetLogger sets default logger
 func (r *Redis) SetLogger(logger log.Logger) {
 	r.logger = logger
 }
 
+// Check checks Redis connection
 func (r *Redis) Check() bool {
 	r.logger.Info("Checking Redis connection ...")
 

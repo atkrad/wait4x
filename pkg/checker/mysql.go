@@ -23,10 +23,12 @@ func NewMySQL(dsn string) Checker {
 	return m
 }
 
+// SetLogger sets default logger
 func (m *MySQL) SetLogger(logger log.Logger) {
 	m.logger = logger
 }
 
+// Check checks MySQL connection
 func (m *MySQL) Check() bool {
 	m.logger.Info("Checking MySQL connection ...")
 	db, err := sql.Open("mysql", m.dsn)

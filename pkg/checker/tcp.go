@@ -24,10 +24,12 @@ func NewTCP(address string, timeout time.Duration) Checker {
 	return t
 }
 
+// SetLogger sets default logger
 func (t *TCP) SetLogger(logger log.Logger) {
 	t.logger = logger
 }
 
+// Check checks TCP connection
 func (t *TCP) Check() bool {
 	d := net.Dialer{Timeout: t.timeout}
 
