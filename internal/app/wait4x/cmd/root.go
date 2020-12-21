@@ -53,6 +53,7 @@ func Execute() {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewTCPCommand())
 	rootCmd.AddCommand(NewHTTPCommand())
+	rootCmd.AddCommand(NewPostgresqlCommand())
 	rootCmd.AddCommand(NewMysqlCommand())
 	rootCmd.AddCommand(NewRedisCommand())
 	rootCmd.AddCommand(NewVersionCommand())

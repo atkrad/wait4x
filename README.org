@@ -17,6 +17,7 @@
  - Checking HTTP connection and also status code and response body
  - Checking Redis connection (Ping request) and key existence
  - Checking MySQL connection
+ - Checking PostgreSQL connection
 
 ** Installation
 There are many different methods to install *Wait4X*
