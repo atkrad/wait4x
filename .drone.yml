@@ -126,18 +126,18 @@ steps:
     depends_on:
       - build
 
-  - name: quay
-    image: plugins/docker
-    settings:
-      registry: quay.io
-      repo: quay.io/atkrad/wait4x
-      auto_tag: true
-      username:
-        from_secret: QUAY_USERNAME
-      password:
-        from_secret: QUAY_PASSWORD
-    depends_on:
-      - build
+#  - name: quay
+#    image: plugins/docker
+#    settings:
+#      registry: quay.io
+#      repo: quay.io/atkrad/wait4x
+#      auto_tag: true
+#      username:
+#        from_secret: QUAY_USERNAME
+#      password:
+#        from_secret: QUAY_PASSWORD
+#    depends_on:
+#      - build
 
   - name: pre-release
     image: plugins/github-release
