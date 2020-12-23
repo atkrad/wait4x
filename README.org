@@ -39,14 +39,14 @@ docker run --rm --name='wait4x' \
 *** From binary
 Choose the file matching the destination platform from the [[https://github.com/atkrad/wait4x/releases][release page]], copy the URL and replace the URL within the commands below:
 #+BEGIN_SRC sh
-curl -L https://github.com/atkrad/wait4x/releases/download/v0.3.0/wait4x-linux-amd64 -o /usr/local/bin/wait4x
+curl -L https://github.com/atkrad/wait4x/releases/download/v0.4.0/wait4x-linux-amd64 -o /usr/local/bin/wait4x
 chmod +x /usr/local/bin/wait4x
 #+END_SRC
 
 **** Verify SHA256 Checksum
 *Wait4X* generates checksum for all binaries with ~sha256sum~ to prevent against unwanted modification of binaries. To validate the binary, download the checksum file which ends in ~.sha256sum~ for the binary you downloaded and use the ~sha256sum~ command line tool.
 #+BEGIN_SRC sh
-curl -SLO https://github.com/atkrad/wait4x/releases/download/v0.3.0/wait4x-linux-amd64.sha256sum
+curl -SLO https://github.com/atkrad/wait4x/releases/download/v0.4.0/wait4x-linux-amd64.sha256sum
 sha256sum --check wait4x-linux-amd64.sha256sum
 #+END_SRC
 
@@ -56,5 +56,5 @@ You can install *Wait4X* from package, currentlly we only support *Alpine Linux*
 **** Alpine Linux
 Currently you can find it in [[https://pkgs.alpinelinux.org/packages?name=wait4x&branch=edge][@edge]] repository so you have to ensure the repository has enabled. ([[https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management#Repository_pinning][Repository pinning]])
 #+BEGIN_SRC sh
-apk add wait4x@testing
+apk add wait4x@edge
 #+END_SRC
