@@ -1,5 +1,5 @@
 #+OPTIONS: toc:nil
-* Wait4X [[https://cloud.drone.io/atkrad/wait4x][https://img.shields.io/drone/build/atkrad/wait4x/master.svg]] [[https://codecov.io/gh/atkrad/wait4x][https://img.shields.io/codecov/c/github/atkrad/wait4x/master.svg]] [[https://goreportcard.com/report/github.com/atkrad/wait4x][https://goreportcard.com/badge/github.com/atkrad/wait4x?.svg]]
+* Wait4X [[https://cloud.drone.io/atkrad/wait4x][https://img.shields.io/drone/build/atkrad/wait4x/master.svg]] [[https://hub.docker.com/r/atkrad/wait4x][https://img.shields.io/docker/pulls/atkrad/wait4x.svg]] [[https://codecov.io/gh/atkrad/wait4x][https://img.shields.io/codecov/c/github/atkrad/wait4x/master.svg]] [[https://goreportcard.com/report/github.com/atkrad/wait4x][https://goreportcard.com/badge/github.com/atkrad/wait4x?.svg]]
 
 - [[#introduction][Introduction]]
 - [[#installation][Installation]]
