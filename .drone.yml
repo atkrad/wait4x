@@ -129,7 +129,7 @@ steps:
   - name: dockerhub-description
     image: peterevans/dockerhub-description:2
     environment:
-      README_FILEPATH: 'README.md'
+      README_FILEPATH: './README.md'
       DOCKERHUB_REPOSITORY: 'atkrad/wait4x'
       DOCKERHUB_USERNAME:
         from_secret: DOCKER_USERNAME
