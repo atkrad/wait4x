@@ -21,7 +21,7 @@
 **Features:**
 - Checking TCP connection
 - Checking HTTP connection and also status code and response body
-- Checking Redis connection (Ping request) and key existence
+- Checking Redis connection (Ping request) and key existence.
 - Checking MySQL connection
 - Checking PostgreSQL connection
 

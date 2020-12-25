@@ -126,17 +126,17 @@ steps:
     depends_on:
       - build
 
-  - name: dockerhub-description
-    image: peterevans/dockerhub-description:2
-    environment:
-      README_FILEPATH: './README.md'
-      DOCKERHUB_REPOSITORY: 'atkrad/wait4x'
-      DOCKERHUB_USERNAME:
-        from_secret: DOCKER_USERNAME
-      DOCKERHUB_PASSWORD:
-        from_secret: DOCKER_PASSWORD
-    depends_on:
-      - docker
+#  - name: dockerhub-description
+#    image: peterevans/dockerhub-description:2
+#    environment:
+#      README_FILEPATH: './README.md'
+#      DOCKERHUB_REPOSITORY: 'atkrad/wait4x'
+#      DOCKERHUB_USERNAME:
+#        from_secret: DOCKER_USERNAME
+#      DOCKERHUB_PASSWORD:
+#        from_secret: DOCKER_PASSWORD
+#    depends_on:
+#      - docker
 
 #  - name: quay
 #    image: plugins/docker
