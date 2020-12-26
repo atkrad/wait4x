@@ -127,17 +127,8 @@ steps:
       - build
 
   - name: dockerhub-description
-    image: peterevans/dockerhub-description:2
-    commands:
-      # Execute the action code and output to file
-      - node index.js > action.log 2>&1
-      # Remove lines containing sensitive information from the log
-      - sed -i '/::debug::/d' ./action.log
-      - sed -i '/::add-mask::/d' ./action.log
-      # Output the log
-      - cat action.log
+    image: peterevans/dockerhub-description:2.0.0
     environment:
-      README_FILEPATH: './README.md'
       DOCKERHUB_REPOSITORY: 'atkrad/wait4x'
       DOCKERHUB_USERNAME:
         from_secret: DOCKER_USERNAME
