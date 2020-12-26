@@ -123,6 +123,10 @@ steps:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
+    when:
+      event:
+        exclude:
+          - pull_request
     depends_on:
       - build
 
@@ -134,6 +138,10 @@ steps:
         from_secret: DOCKER_USERNAME
       DOCKERHUB_PASSWORD:
         from_secret: DOCKER_PASSWORD
+    when:
+      event:
+        exclude:
+          - pull_request
     depends_on:
       - docker
 
