@@ -26,7 +26,7 @@ func NewMysqlCommand() *cobra.Command {
   wait4x mysql user:password@tcp(localhost:5555)/dbname?tls=skip-verify
 
   # Checking MySQL UNIX Socket existence
-  wait4x mysql usernname:password@unix(/tmp/mysql.sock)/myDatabase
+  wait4x mysql username:password@unix(/tmp/mysql.sock)/myDatabase
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
