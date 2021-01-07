@@ -37,7 +37,12 @@ func (m *MySQL) Check() bool {
 
 		return false
 	}
-	defer db.Close()
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			m.logger.Debug(err)
+		}
+	}()
 
 	err = db.Ping()
 	if err != nil {

@@ -37,7 +37,12 @@ func (p *PostgreSQL) Check() bool {
 
 		return false
 	}
-	defer db.Close()
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			p.logger.Debug(err)
+		}
+	}()
 
 	err = db.Ping()
 	if err != nil {

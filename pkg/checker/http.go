@@ -51,7 +51,11 @@ func (h *HTTP) Check() bool {
 		return false
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			h.logger.Debug(err)
+		}
+	}()
 
 	if h.httpResponseCodeExpectation(h.expectStatusCode, resp) && h.httpResponseBodyExpectation(h.expectBody, resp) {
 		return true
