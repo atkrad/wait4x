@@ -8,7 +8,7 @@ LABEL maintainer="Mohammad Abdolirad <m.abdolirad@gmail.com>" \
     org.label-schema.license="MIT"
 
 COPY .docker/root/ /
-COPY wait4x-linux-musl-amd64 /usr/local/bin/wait4x
+COPY wait4x /usr/local/bin/wait4x
 
 RUN apk --update --no-cache add ca-certificates
 
