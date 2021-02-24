@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.13
 
 LABEL maintainer="Mohammad Abdolirad <m.abdolirad@gmail.com>" \
     org.label-schema.name="wait4x" \
