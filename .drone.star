@@ -182,7 +182,7 @@ def build_pipeline(os, arch):
           "api_key": {
             "from_secret": "github_token"
           },
-          "prerelease": "true",
+          "prerelease": "false",
           "files": [
             "wait4x-%s-%s" % (os, arch)
           ],
