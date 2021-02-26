@@ -1,8 +1,26 @@
-BUILD_OUTPUT ?= bin/wait4x
+WAIT4X_BINARY_NAME ?= wait4x
+
+# build output path
+WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/bin
+
+# commit ref slug used for `wait4x version`
+WAIT4X_COMMIT_REF_SLUG ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
+# commit short SHA (8 char) used for `wait4x version`
+WAIT4X_COMMIT_SHORT_SHA ?= $(shell git rev-parse --verify --short=8 HEAD)
+# commit datetime used for `wait4x version`
+WAIT4X_COMMIT_DATETIME ?= $(shell git log -1 --format="%at" | TZ=UTC xargs -I{} date -d @{} '+%FT%TZ')
+
+# build flags for the Wait4X binary
+# - reproducible builds: -trimpath and -ldflags=-buildid=
+# - smaller binaries: -w (trim debugger data, but not panics)
+# - metadata: -X=... to bake in git commit
+WAIT4X_BUILD_FLAGS ?= -trimpath -ldflags="-buildid= -w -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_COMMIT_DATETIME)"
+
+# run flags for run target
+WAIT4X_RUN_FLAGS ?= -ldflags="-X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_COMMIT_DATETIME)"
+
+# flags for wait4x
 WAIT4X_FLAGS ?=
-COMMIT_REF_SLUG = $(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
-COMMIT_SHORT_SHA = $(shell git rev-parse --verify --short=8 HEAD)
-COMMIT_DATETIME = $(shell git log -1 --format="%at" | TZ=UTC xargs -I{} date -d @{} '+%FT%TZ')
 
 help:
 	@echo " __      __        .__  __     _________  ___"
@@ -34,11 +52,7 @@ check-revive:
 	revive -config .revive.toml -formatter friendly ./...
 
 build:
-	go build -v \
-	-ldflags "-X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
-	-o $(BUILD_OUTPUT) cmd/wait4x/main.go
+	go build -v $(WAIT4X_BUILD_FLAGS) -o $(WAIT4X_BUILD_OUTPUT)/$(WAIT4X_BINARY_NAME) cmd/wait4x/main.go
 
 run:
-	go run \
-	-ldflags "-X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(COMMIT_DATETIME)" \
-	cmd/wait4x/main.go $(WAIT4X_FLAGS)
+	go run $(WAIT4X_RUN_FLAGS) cmd/wait4x/main.go $(WAIT4X_FLAGS)

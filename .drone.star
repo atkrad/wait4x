@@ -63,7 +63,8 @@ def main(ctx):
           "environment": {
             "GOOS": "linux",
             "GOARCH": "amd64",
-            "BUILD_OUTPUT": "wait4x"
+            "WAIT4X_BUILD_OUTPUT": ".",
+            "WAIT4X_BINARY_NAME": "wait4x"
           }
         },
         {
@@ -138,7 +139,8 @@ def build_pipeline(os, arch):
         "environment": {
           "GOOS": os,
           "GOARCH": arch,
-          "BUILD_OUTPUT": "wait4x-%s-%s" % (os, arch)
+          "WAIT4X_BUILD_OUTPUT": ".",
+          "WAIT4X_BINARY_NAME": "wait4x-%s-%s" % (os, arch)
         }
       },
       {
