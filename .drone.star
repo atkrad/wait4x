@@ -57,7 +57,7 @@ def main(ctx):
           "name": "build",
           "image": "golang:1.13-alpine",
           "commands": [
-            "apk --update add build-base",
+            "apk --update add build-base git",
             "make build"
           ],
           "environment": {
