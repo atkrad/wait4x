@@ -153,7 +153,10 @@ def build_pipeline(os, arch):
           "GOARCH": arch,
           "WAIT4X_BUILD_OUTPUT": ".",
           "WAIT4X_BINARY_NAME": "wait4x-%s-%s" % (os, arch)
-        }
+        },
+        "depends_on": [
+          "fetch"
+        ]
       },
       {
         "name": "pre-release",
