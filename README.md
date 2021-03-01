@@ -45,14 +45,14 @@ docker run --rm --name='wait4x' \
 ### From binary
 Choose the file matching the destination platform from the [release page](https://github.com/atkrad/wait4x/releases), copy the URL and replace the URL within the commands below:
 ```bash
-curl -L https://github.com/atkrad/wait4x/releases/download/v0.5.0/wait4x-linux-amd64 -o /usr/local/bin/wait4x
+curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64 -o /usr/local/bin/wait4x
 chmod +x /usr/local/bin/wait4x
 ```
 
 #### Verify SHA256 Checksum
 **Wait4X** generates checksum for all binaries with **sha256sum** to prevent against unwanted modification of binaries. To validate the binary, download the checksum file which ends in `.sha256sum` for the binary you downloaded and use the `sha256sum` command line tool.
 ```bash
-curl -SLO https://github.com/atkrad/wait4x/releases/download/v0.5.0/wait4x-linux-amd64.sha256sum
+curl -SLO https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64.sha256sum
 sha256sum --check wait4x-linux-amd64.sha256sum
 ```
 
