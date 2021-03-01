@@ -131,6 +131,18 @@ def build_pipeline(os, arch):
     "name": "build-%s-%s" % (os, arch),
     "steps": [
       {
+        "name": "fetch",
+        "image": "alpine/git",
+        "commands": [
+          "git fetch --tags"
+        ],
+        "when": {
+          "event": [
+            "tag"
+          ]
+        }
+      },
+      {
         "name": "build",
         "image": "golang:1.13-buster",
         "commands": [
