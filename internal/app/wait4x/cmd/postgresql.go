@@ -15,10 +15,8 @@
 package cmd
 
 import (
-	"context"
-	"time"
-
 	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"github.com/atkrad/wait4x/internal/pkg/waiter"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
@@ -44,21 +42,10 @@ func NewPostgresqlCommand() *cobra.Command {
 			interval, _ := cmd.Flags().GetDuration("interval")
 			timeout, _ := cmd.Flags().GetDuration("timeout")
 
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-
 			pc := checker.NewPostgreSQL(args[0])
 			pc.SetLogger(Logger)
 
-			for !pc.Check() {
-				select {
-				case <-ctx.Done():
-					return errors.NewTimedOutError()
-				case <-time.After(interval):
-				}
-			}
-
-			return nil
+			return waiter.Wait(pc.Check, timeout, interval)
 		},
 	}
 

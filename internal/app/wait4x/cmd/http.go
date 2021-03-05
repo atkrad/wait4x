@@ -15,11 +15,11 @@
 package cmd
 
 import (
-	"context"
 	"net/url"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"github.com/atkrad/wait4x/internal/pkg/waiter"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
@@ -57,21 +57,10 @@ func NewHTTPCommand() *cobra.Command {
 			expectBody, _ := cmd.Flags().GetString("expect-body")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-
 			hc := checker.NewHTTP(args[0], expectStatusCode, expectBody, connectionTimeout)
 			hc.SetLogger(Logger)
 
-			for !hc.Check() {
-				select {
-				case <-ctx.Done():
-					return errors.NewTimedOutError()
-				case <-time.After(interval):
-				}
-			}
-
-			return nil
+			return waiter.Wait(hc.Check, timeout, interval)
 		},
 	}
 

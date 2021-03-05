@@ -15,10 +15,8 @@
 package cmd
 
 import (
-	"context"
-	"time"
-
 	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"github.com/atkrad/wait4x/internal/pkg/waiter"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
@@ -46,21 +44,10 @@ func NewMysqlCommand() *cobra.Command {
 			interval, _ := cmd.Flags().GetDuration("interval")
 			timeout, _ := cmd.Flags().GetDuration("timeout")
 
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-
 			mc := checker.NewMySQL(args[0])
 			mc.SetLogger(Logger)
 
-			for !mc.Check() {
-				select {
-				case <-ctx.Done():
-					return errors.NewTimedOutError()
-				case <-time.After(interval):
-				}
-			}
-
-			return nil
+			return waiter.Wait(mc.Check, timeout, interval)
 		},
 	}
 
