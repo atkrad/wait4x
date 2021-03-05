@@ -54,7 +54,7 @@ help:
 	@echo ""
 
 test:
-	go test -race -coverprofile=coverage.txt -covermode=atomic ./internal/app/wait4x/cmd
+	go test -race -coverprofile=coverage.txt -covermode=atomic ./internal/app/wait4x/cmd ./pkg/checker
 
 check-gofmt:
 	@ if [ -n "$(shell gofmt -s -l .)" ]; then \
