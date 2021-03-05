@@ -40,19 +40,22 @@ func NewTCPCommand() *cobra.Command {
   wait4x tcp 127.0.0.1:9090
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			timeout, _ := cmd.Flags().GetDuration("connection-timeout")
+			interval, _ := cmd.Flags().GetDuration("interval")
+			timeout, _ := cmd.Flags().GetDuration("timeout")
 
-			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
-			tc := checker.NewTCP(args[0], timeout)
+			tc := checker.NewTCP(args[0], conTimeout)
 			tc.SetLogger(Logger)
 
 			for !tc.Check() {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
-				case <-time.After(Interval):
+				case <-time.After(interval):
 				}
 			}
 

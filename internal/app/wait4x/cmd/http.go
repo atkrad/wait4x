@@ -50,11 +50,14 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http http://ifconfig.co --expect-status-code 200
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			interval, _ := cmd.Flags().GetDuration("interval")
+			timeout, _ := cmd.Flags().GetDuration("timeout")
+
 			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 			expectBody, _ := cmd.Flags().GetString("expect-body")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
-			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
 			hc := checker.NewHTTP(args[0], expectStatusCode, expectBody, connectionTimeout)
@@ -64,7 +67,7 @@ func NewHTTPCommand() *cobra.Command {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
-				case <-time.After(Interval):
+				case <-time.After(interval):
 				}
 			}
 

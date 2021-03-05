@@ -52,20 +52,23 @@ func NewRedisCommand() *cobra.Command {
   wait4x redis redis://127.0.0.1:6379 --expect-key "FOO=^b[A-Z]r$"
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			timeout, _ := cmd.Flags().GetDuration("connection-timeout")
+			interval, _ := cmd.Flags().GetDuration("interval")
+			timeout, _ := cmd.Flags().GetDuration("timeout")
+
+			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 			expectKey, _ := cmd.Flags().GetString("expect-key")
 
-			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
-			rc := checker.NewRedis(args[0], expectKey, timeout)
+			rc := checker.NewRedis(args[0], expectKey, conTimeout)
 			rc.SetLogger(Logger)
 
 			for !rc.Check() {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
-				case <-time.After(Interval):
+				case <-time.After(interval):
 				}
 			}
 

@@ -41,7 +41,10 @@ func NewPostgresqlCommand() *cobra.Command {
   wait4x postgresql postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+			interval, _ := cmd.Flags().GetDuration("interval")
+			timeout, _ := cmd.Flags().GetDuration("timeout")
+
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
 			mc := checker.NewPostgreSQL(args[0])
@@ -51,7 +54,7 @@ func NewPostgresqlCommand() *cobra.Command {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
-				case <-time.After(Interval):
+				case <-time.After(interval):
 				}
 			}
 

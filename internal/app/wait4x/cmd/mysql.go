@@ -43,7 +43,10 @@ func NewMysqlCommand() *cobra.Command {
   wait4x mysql username:password@unix(/tmp/mysql.sock)/myDatabase
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+			interval, _ := cmd.Flags().GetDuration("interval")
+			timeout, _ := cmd.Flags().GetDuration("timeout")
+
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
 			mc := checker.NewMySQL(args[0])
@@ -53,7 +56,7 @@ func NewMysqlCommand() *cobra.Command {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
-				case <-time.After(Interval):
+				case <-time.After(interval):
 				}
 			}
 

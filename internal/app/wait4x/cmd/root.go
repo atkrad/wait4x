@@ -25,16 +25,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	// Interval represents time between each loop
-	Interval time.Duration
-	// Timeout represents the maximum amount of time that Wait4X will wait for a checking operation
-	Timeout time.Duration
-	// LogLevel represents logging level e.g. info, warn, error, debug
-	LogLevel string
-	// Logger is the global logger.
-	Logger log.Logger
-)
+// Logger is the global logger.
+var Logger log.Logger
 
 // NewRootCommand creates the root command
 func NewRootCommand() *cobra.Command {
@@ -43,10 +35,12 @@ func NewRootCommand() *cobra.Command {
 		Short: "Wait4X allows waiting for a port or a service to enter into specify state",
 		Long:  `Wait4X allows waiting for a port to enter into specify state or waiting for a service e.g. redis, mysql, postgres, ... to enter inter ready state`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
+			logLevel, _ := cmd.Flags().GetString("log-level")
+
 			// Prevent showing usage when subcommand return error.
 			cmd.SilenceUsage = true
 
-			Logger, err = log.NewLogrus(LogLevel, os.Stdout)
+			Logger, err = log.NewLogrus(logLevel, os.Stdout)
 			if err != nil {
 				return err
 			}
@@ -55,9 +49,9 @@ func NewRootCommand() *cobra.Command {
 		},
 	}
 
-	rootCmd.PersistentFlags().DurationVarP(&Interval, "interval", "i", 1*time.Second, "Interval time between each loop.")
-	rootCmd.PersistentFlags().DurationVarP(&Timeout, "timeout", "t", 10*time.Second, "Timeout is the maximum amount of time that Wait4X will wait for a checking operation.")
-	rootCmd.PersistentFlags().StringVarP(&LogLevel, "log-level", "l", logrus.InfoLevel.String(), "Set the logging level (\"debug\"|\"info\"|\"warn\"|\"error\"|\"fatal\")")
+	rootCmd.PersistentFlags().DurationP("interval", "i", 1*time.Second, "Interval time between each loop.")
+	rootCmd.PersistentFlags().DurationP("timeout", "t", 10*time.Second, "Timeout is the maximum amount of time that Wait4X will wait for a checking operation.")
+	rootCmd.PersistentFlags().StringP("log-level", "l", logrus.InfoLevel.String(), "Set the logging level (\"debug\"|\"info\"|\"warn\"|\"error\"|\"fatal\")")
 
 	return rootCmd
 }
