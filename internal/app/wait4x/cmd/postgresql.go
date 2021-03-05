@@ -47,10 +47,10 @@ func NewPostgresqlCommand() *cobra.Command {
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
-			mc := checker.NewPostgreSQL(args[0])
-			mc.SetLogger(Logger)
+			pc := checker.NewPostgreSQL(args[0])
+			pc.SetLogger(Logger)
 
-			for !mc.Check() {
+			for !pc.Check() {
 				select {
 				case <-ctx.Done():
 					return errors.NewTimedOutError()
