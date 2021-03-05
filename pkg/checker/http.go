@@ -19,8 +19,6 @@ import (
 	"net/http"
 	"regexp"
 	"time"
-
-	"github.com/atkrad/wait4x/pkg/log"
 )
 
 // HTTP represents HTTP checker
@@ -29,7 +27,7 @@ type HTTP struct {
 	timeout          time.Duration
 	expectStatusCode int
 	expectBody       string
-	logger           log.Logger
+	*LogAware
 }
 
 // NewHTTP creates the HTTP checker
@@ -39,14 +37,10 @@ func NewHTTP(address string, expectStatusCode int, expectBody string, timeout ti
 		expectStatusCode: expectStatusCode,
 		expectBody:       expectBody,
 		timeout:          timeout,
+		LogAware:         &LogAware{},
 	}
 
 	return h
-}
-
-// SetLogger sets default logger
-func (h *HTTP) SetLogger(logger log.Logger) {
-	h.logger = logger
 }
 
 // Check checks HTTP connection

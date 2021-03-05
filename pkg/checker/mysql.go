@@ -17,29 +17,24 @@ package checker
 import (
 	"database/sql"
 
-	"github.com/atkrad/wait4x/pkg/log"
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // MySQL represents MySQL checker
 type MySQL struct {
-	dsn    string
-	logger log.Logger
+	dsn string
+	*LogAware
 }
 
 // NewMySQL creates the MySQL checker
 func NewMySQL(dsn string) Checker {
 	m := &MySQL{
-		dsn: dsn,
+		dsn:      dsn,
+		LogAware: &LogAware{},
 	}
 
 	return m
-}
-
-// SetLogger sets default logger
-func (m *MySQL) SetLogger(logger log.Logger) {
-	m.logger = logger
 }
 
 // Check checks MySQL connection

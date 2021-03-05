@@ -17,30 +17,24 @@ package checker
 import (
 	"net"
 	"time"
-
-	"github.com/atkrad/wait4x/pkg/log"
 )
 
 // TCP represents TCP checker
 type TCP struct {
-	logger  log.Logger
 	address string
 	timeout time.Duration
+	*LogAware
 }
 
 // NewTCP creates the TCP checker
 func NewTCP(address string, timeout time.Duration) Checker {
 	t := &TCP{
-		address: address,
-		timeout: timeout,
+		address:  address,
+		timeout:  timeout,
+		LogAware: &LogAware{},
 	}
 
 	return t
-}
-
-// SetLogger sets default logger
-func (t *TCP) SetLogger(logger log.Logger) {
-	t.logger = logger
 }
 
 // Check checks TCP connection

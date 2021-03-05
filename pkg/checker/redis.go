@@ -19,16 +19,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/atkrad/wait4x/pkg/log"
 	"github.com/go-redis/redis/v7"
 )
 
 // Redis represents Redis checker
 type Redis struct {
-	logger    log.Logger
 	address   string
 	expectKey string
 	timeout   time.Duration
+	*LogAware
 }
 
 // NewRedis creates the Redis checker
@@ -37,14 +36,10 @@ func NewRedis(address string, expectKey string, timeout time.Duration) Checker {
 		address:   address,
 		expectKey: expectKey,
 		timeout:   timeout,
+		LogAware:  &LogAware{},
 	}
 
 	return r
-}
-
-// SetLogger sets default logger
-func (r *Redis) SetLogger(logger log.Logger) {
-	r.logger = logger
 }
 
 // Check checks Redis connection

@@ -19,5 +19,21 @@ import "github.com/atkrad/wait4x/pkg/log"
 // Checker is the interface that wraps the basic checker methods.
 type Checker interface {
 	SetLogger(logger log.Logger)
+	Logger() log.Logger
 	Check() bool
+}
+
+// LogAware represents log object.
+type LogAware struct {
+	logger log.Logger
+}
+
+// SetLogger sets default logger
+func (la *LogAware) SetLogger(logger log.Logger) {
+	la.logger = logger
+}
+
+// Logger gets default logger
+func (la *LogAware) Logger() log.Logger {
+	return la.logger
 }
