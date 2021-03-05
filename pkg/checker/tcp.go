@@ -41,14 +41,11 @@ func NewTCP(address string, timeout time.Duration) Checker {
 func (t *TCP) Check() bool {
 	d := net.Dialer{Timeout: t.timeout}
 
-	if t.logger != nil {
-		t.logger.Info("Checking TCP connection ...")
-	}
+	t.logger.Info("Checking TCP connection ...")
+
 	_, err := d.Dial("tcp", t.address)
 	if err != nil {
-		if t.logger != nil {
-			t.logger.Debug(err)
-		}
+		t.logger.Debug(err)
 
 		return false
 	}
