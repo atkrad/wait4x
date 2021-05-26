@@ -1,5 +1,6 @@
 # Wait4X 
 [![Build Status](https://cloud.drone.io/api/badges/atkrad/wait4x/status.svg)](https://cloud.drone.io/atkrad/wait4x) [![codecov](https://img.shields.io/codecov/c/github/atkrad/wait4x)](https://codecov.io/gh/atkrad/wait4x) [![Go Report Card](https://goreportcard.com/badge/github.com/atkrad/wait4x)](https://goreportcard.com/report/github.com/atkrad/wait4x) [![Docker Pulls](https://img.shields.io/docker/pulls/atkrad/wait4x)](https://hub.docker.com/r/atkrad/wait4x) [![Go Reference](https://pkg.go.dev/badge/github.com/atkrad/wait4x.svg)](https://pkg.go.dev/github.com/atkrad/wait4x)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fatkrad%2Fwait4x.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fatkrad%2Fwait4x?ref=badge_shield)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -64,3 +65,7 @@ Currently you can find it in [edge](https://pkgs.alpinelinux.org/packages?name=w
 ```bash
 apk add wait4x@edgecommunity
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fatkrad%2Fwait4x.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fatkrad%2Fwait4x?ref=badge_large)
