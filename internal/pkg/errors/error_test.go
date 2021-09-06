@@ -26,18 +26,23 @@ func TestMain(m *testing.M) {
 
 func TestCommandError(t *testing.T) {
 	var commandError *CommandError
-	err := NewCommandError("error message")
+	errMsg := "error message"
+
+	err := NewCommandError(errMsg)
 
 	assert.ErrorAs(t, err, &commandError)
 	assert.Equal(t, ExitError, commandError.ExitCode)
-	assert.Equal(t, "error message", commandError.Message)
+	assert.Equal(t, errMsg, commandError.Message)
+	assert.Equal(t, errMsg, commandError.Error())
 }
 
 func TestTimedOutError(t *testing.T) {
 	var commandError *CommandError
+
 	err := NewTimedOutError()
 
 	assert.ErrorAs(t, err, &commandError)
 	assert.Equal(t, ExitTimedOut, commandError.ExitCode)
 	assert.Equal(t, TimedOutErrorMessage, commandError.Message)
+	assert.Equal(t, TimedOutErrorMessage, commandError.Error())
 }
