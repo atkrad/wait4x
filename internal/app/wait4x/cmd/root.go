@@ -51,6 +51,7 @@ func NewRootCommand() *cobra.Command {
 
 	rootCmd.PersistentFlags().DurationP("interval", "i", 1*time.Second, "Interval time between each loop.")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 10*time.Second, "Timeout is the maximum amount of time that Wait4X will wait for a checking operation.")
+	rootCmd.PersistentFlags().BoolP("invert-check", "v", false, "Invert the sense of checking.")
 	rootCmd.PersistentFlags().StringP("log-level", "l", logrus.InfoLevel.String(), "Set the logging level (\"debug\"|\"info\"|\"warn\"|\"error\"|\"fatal\")")
 
 	return rootCmd

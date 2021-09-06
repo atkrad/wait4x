@@ -52,6 +52,7 @@ func NewHTTPCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
 			timeout, _ := cmd.Flags().GetDuration("timeout")
+			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 			expectBody, _ := cmd.Flags().GetString("expect-body")
@@ -60,7 +61,7 @@ func NewHTTPCommand() *cobra.Command {
 			hc := checker.NewHTTP(args[0], expectStatusCode, expectBody, connectionTimeout)
 			hc.SetLogger(Logger)
 
-			return waiter.Wait(hc.Check, timeout, interval)
+			return waiter.Wait(hc.Check, timeout, interval, invertCheck)
 		},
 	}
 

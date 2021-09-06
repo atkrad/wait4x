@@ -54,6 +54,7 @@ func NewRedisCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
 			timeout, _ := cmd.Flags().GetDuration("timeout")
+			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 			expectKey, _ := cmd.Flags().GetString("expect-key")
@@ -61,7 +62,7 @@ func NewRedisCommand() *cobra.Command {
 			rc := checker.NewRedis(args[0], expectKey, conTimeout)
 			rc.SetLogger(Logger)
 
-			return waiter.Wait(rc.Check, timeout, interval)
+			return waiter.Wait(rc.Check, timeout, interval, invertCheck)
 		},
 	}
 

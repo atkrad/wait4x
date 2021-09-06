@@ -41,11 +41,12 @@ func NewPostgresqlCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
 			timeout, _ := cmd.Flags().GetDuration("timeout")
+			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			pc := checker.NewPostgreSQL(args[0])
 			pc.SetLogger(Logger)
 
-			return waiter.Wait(pc.Check, timeout, interval)
+			return waiter.Wait(pc.Check, timeout, interval, invertCheck)
 		},
 	}
 

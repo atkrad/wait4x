@@ -42,13 +42,14 @@ func NewTCPCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
 			timeout, _ := cmd.Flags().GetDuration("timeout")
+			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
 			tc := checker.NewTCP(args[0], conTimeout)
 			tc.SetLogger(Logger)
 
-			return waiter.Wait(tc.Check, timeout, interval)
+			return waiter.Wait(tc.Check, timeout, interval, invertCheck)
 		},
 	}
 
