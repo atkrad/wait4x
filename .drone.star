@@ -36,12 +36,16 @@ def main(ctx):
         },
         {
           "name": "coverage",
-          "image": "plugins/codecov",
-          "settings": {
-            "token": {
-              "from_secret": "CODECOV_TOKEN"
+          "image": "golang:1.13-buster",
+          "environment": {
+            "COVERALLS_TOKEN": {
+              "from_secret": "COVERALLS_TOKEN"
             }
-          }
+          },
+          "commands": [
+            "go get github.com/mattn/goveralls",
+            "goveralls -coverprofile=coverage.out -service=drone -repotoken $${COVERALLS_TOKEN}"
+          ]
         }
       ],
       "depends_on": [
