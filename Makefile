@@ -54,7 +54,7 @@ help:
 	@echo ""
 
 test:
-	go test -race -v -covermode=count -coverprofile=coverage.out ./...
+	go test -v -covermode=count -coverprofile=coverage.out ./...
 
 check-gofmt:
 	@ if [ -n "$(shell gofmt -s -l .)" ]; then \
