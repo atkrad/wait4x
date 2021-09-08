@@ -1,5 +1,5 @@
 # Wait4X 
-[![Build Status](https://cloud.drone.io/api/badges/atkrad/wait4x/status.svg)](https://cloud.drone.io/atkrad/wait4x) [![codecov](https://img.shields.io/codecov/c/github/atkrad/wait4x)](https://codecov.io/gh/atkrad/wait4x) [![Go Report Card](https://goreportcard.com/badge/github.com/atkrad/wait4x)](https://goreportcard.com/report/github.com/atkrad/wait4x) [![Docker Pulls](https://img.shields.io/docker/pulls/atkrad/wait4x)](https://hub.docker.com/r/atkrad/wait4x) [![Go Reference](https://pkg.go.dev/badge/github.com/atkrad/wait4x.svg)](https://pkg.go.dev/github.com/atkrad/wait4x)
+[![Build Status](https://cloud.drone.io/api/badges/atkrad/wait4x/status.svg)](https://cloud.drone.io/atkrad/wait4x) [![Coverage Status](https://coveralls.io/repos/github/atkrad/wait4x/badge.svg?branch=master)](https://coveralls.io/github/atkrad/wait4x?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/atkrad/wait4x)](https://goreportcard.com/report/github.com/atkrad/wait4x) [![Docker Pulls](https://img.shields.io/docker/pulls/atkrad/wait4x)](https://hub.docker.com/r/atkrad/wait4x) [![Go Reference](https://pkg.go.dev/badge/github.com/atkrad/wait4x.svg)](https://pkg.go.dev/github.com/atkrad/wait4x)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
