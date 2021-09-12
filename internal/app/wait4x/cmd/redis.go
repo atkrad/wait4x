@@ -15,11 +15,11 @@
 package cmd
 
 import (
+	"github.com/atkrad/wait4x/pkg/checker/redis"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/atkrad/wait4x/internal/pkg/waiter"
-	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
 
@@ -59,7 +59,7 @@ func NewRedisCommand() *cobra.Command {
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 			expectKey, _ := cmd.Flags().GetString("expect-key")
 
-			rc := checker.NewRedis(args[0], expectKey, conTimeout)
+			rc := redis.NewRedis(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
 			rc.SetLogger(Logger)
 
 			return waiter.Wait(rc.Check, timeout, interval, invertCheck)

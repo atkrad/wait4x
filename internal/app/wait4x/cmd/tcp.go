@@ -15,11 +15,11 @@
 package cmd
 
 import (
+	"github.com/atkrad/wait4x/pkg/checker/tcp"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/atkrad/wait4x/internal/pkg/waiter"
-	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +46,7 @@ func NewTCPCommand() *cobra.Command {
 
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
-			tc := checker.NewTCP(args[0], conTimeout)
+			tc := tcp.NewTCP(args[0], tcp.WithTimeout(conTimeout))
 			tc.SetLogger(Logger)
 
 			return waiter.Wait(tc.Check, timeout, interval, invertCheck)

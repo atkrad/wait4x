@@ -1,16 +1,14 @@
-package checker
+package http
 
 import (
+	"github.com/atkrad/wait4x/pkg/log"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
-
-	"github.com/atkrad/wait4x/pkg/log"
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -20,7 +18,7 @@ func TestMain(m *testing.M) {
 func TestHttpInvalidAddress(t *testing.T) {
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP("http://not-exists.tld", 0, "", time.Second*5)
+	hc := NewHTTP("http://not-exists.tld")
 	hc.SetLogger(logger)
 
 	assert.Equal(t, false, hc.Check())
@@ -34,7 +32,7 @@ func TestHttpValidAddress(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, 0, "", time.Second*5)
+	hc := NewHTTP(ts.URL)
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check())
@@ -48,7 +46,7 @@ func TestHttpInvalidStatusCode(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, http.StatusCreated, "", time.Second*5)
+	hc := NewHTTP(ts.URL, WithExpectStatusCode(http.StatusCreated))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, false, hc.Check())
@@ -62,7 +60,7 @@ func TestHttpValidStatusCode(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, http.StatusOK, "", time.Second*5)
+	hc := NewHTTP(ts.URL, WithExpectStatusCode(http.StatusOK))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check())
@@ -77,7 +75,7 @@ func TestHttpInvalidBody(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, 0, "FooBar", time.Second*5)
+	hc := NewHTTP(ts.URL, WithExpectBody("FooBar"))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, false, hc.Check())
@@ -92,7 +90,7 @@ func TestHttpValidBody(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, 0, "Wait4X.+best.+tools", time.Second*5)
+	hc := NewHTTP(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check())

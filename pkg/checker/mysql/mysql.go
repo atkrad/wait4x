@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package checker
+package mysql
 
 import (
 	"database/sql"
+	"github.com/atkrad/wait4x/pkg/checker"
 
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
@@ -24,14 +25,14 @@ import (
 // MySQL represents MySQL checker
 type MySQL struct {
 	dsn string
-	*LogAware
+	*checker.LogAware
 }
 
 // NewMySQL creates the MySQL checker
-func NewMySQL(dsn string) Checker {
+func NewMySQL(dsn string) checker.Checker {
 	m := &MySQL{
 		dsn:      dsn,
-		LogAware: &LogAware{},
+		LogAware: &checker.LogAware{},
 	}
 
 	return m
@@ -39,28 +40,28 @@ func NewMySQL(dsn string) Checker {
 
 // Check checks MySQL connection
 func (m *MySQL) Check() bool {
-	m.logger.Info("Checking MySQL connection ...")
+	m.Logger().Info("Checking MySQL connection ...")
 	db, err := sql.Open("mysql", m.dsn)
 	if err != nil {
-		m.logger.Debug(err)
+		m.Logger().Debug(err)
 
 		return false
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			m.logger.Debug(err)
+			m.Logger().Debug(err)
 		}
 	}()
 
 	err = db.Ping()
 	if err != nil {
-		m.logger.Debug(err)
+		m.Logger().Debug(err)
 
 		return false
 	}
 
-	m.logger.Info("Connection established successfully.")
+	m.Logger().Info("Connection established successfully.")
 
 	return true
 }

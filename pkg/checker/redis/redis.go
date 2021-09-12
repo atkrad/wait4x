@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package checker
+package redis
 
 import (
+	"github.com/atkrad/wait4x/pkg/checker"
 	"regexp"
 	"strings"
 	"time"
@@ -22,33 +23,54 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
+// Option configures a Redis.
+type Option func(s *Redis)
+
 // Redis represents Redis checker
 type Redis struct {
 	address   string
 	expectKey string
 	timeout   time.Duration
-	*LogAware
+	*checker.LogAware
 }
 
 // NewRedis creates the Redis checker
-func NewRedis(address string, expectKey string, timeout time.Duration) Checker {
+func NewRedis(address string, opts ...func(h *Redis)) checker.Checker {
 	r := &Redis{
-		address:   address,
-		expectKey: expectKey,
-		timeout:   timeout,
-		LogAware:  &LogAware{},
+		address:  address,
+		timeout:  time.Second * 5,
+		LogAware: &checker.LogAware{},
+	}
+
+	// apply the list of options to Redis
+	for _, opt := range opts {
+		opt(r)
 	}
 
 	return r
 }
 
+// WithTimeout configures a timeout for establishing new connections
+func WithTimeout(timeout time.Duration) Option {
+	return func(r *Redis) {
+		r.timeout = timeout
+	}
+}
+
+// WithExpectKey configures a key expectation
+func WithExpectKey(key string) Option {
+	return func(r *Redis) {
+		r.expectKey = key
+	}
+}
+
 // Check checks Redis connection
 func (r *Redis) Check() bool {
-	r.logger.Info("Checking Redis connection ...")
+	r.Logger().Info("Checking Redis connection ...")
 
 	opts, err := redis.ParseURL(r.address)
 	if err != nil {
-		r.logger.Debug(err)
+		r.Logger().Debug(err)
 
 		return false
 	}
@@ -59,7 +81,7 @@ func (r *Redis) Check() bool {
 	// Check Redis connection
 	_, err = client.Ping().Result()
 	if err != nil {
-		r.logger.Debug(err)
+		r.Logger().Debug(err)
 
 		return false
 	}
@@ -75,14 +97,14 @@ func (r *Redis) Check() bool {
 	val, err := client.Get(splittedKey[0]).Result()
 	if err == redis.Nil {
 		// Redis key does not exist.
-		r.logger.InfoWithFields("Key does not exist.", map[string]interface{}{"key": splittedKey[0]})
+		r.Logger().InfoWithFields("Key does not exist.", map[string]interface{}{"key": splittedKey[0]})
 
 		return false
 	}
 
 	if err != nil {
 		// Error occurred on get Redis key
-		r.logger.Debug(err)
+		r.Logger().Debug(err)
 
 		return false
 	}
@@ -98,7 +120,7 @@ func (r *Redis) Check() bool {
 		return true
 	}
 
-	r.logger.InfoWithFields("Checking value expectation of the key", map[string]interface{}{"key": splittedKey[0], "actual": val, "expect": splittedKey[1]})
+	r.Logger().InfoWithFields("Checking value expectation of the key", map[string]interface{}{"key": splittedKey[0], "actual": val, "expect": splittedKey[1]})
 
 	return false
 }

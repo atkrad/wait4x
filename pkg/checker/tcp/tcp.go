@@ -12,40 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package checker
+package tcp
 
 import (
+	"github.com/atkrad/wait4x/pkg/checker"
 	"net"
 	"time"
 )
+
+// Option configures a TCP.
+type Option func(s *TCP)
 
 // TCP represents TCP checker
 type TCP struct {
 	address string
 	timeout time.Duration
-	*LogAware
+	*checker.LogAware
 }
 
 // NewTCP creates the TCP checker
-func NewTCP(address string, timeout time.Duration) Checker {
+func NewTCP(address string, opts ...func(h *TCP)) checker.Checker {
 	t := &TCP{
 		address:  address,
-		timeout:  timeout,
-		LogAware: &LogAware{},
+		timeout:  time.Second * 5,
+		LogAware: &checker.LogAware{},
+	}
+
+	// apply the list of options to TCP
+	for _, opt := range opts {
+		opt(t)
 	}
 
 	return t
+}
+
+// WithTimeout configures a timeout for maximum amount of time a dial will wait for a connection to complete
+func WithTimeout(timeout time.Duration) Option {
+	return func(h *TCP) {
+		h.timeout = timeout
+	}
 }
 
 // Check checks TCP connection
 func (t *TCP) Check() bool {
 	d := net.Dialer{Timeout: t.timeout}
 
-	t.logger.Info("Checking TCP connection ...")
+	t.Logger().Info("Checking TCP connection ...")
 
 	_, err := d.Dial("tcp", t.address)
 	if err != nil {
-		t.logger.Debug(err)
+		t.Logger().Debug(err)
 
 		return false
 	}

@@ -17,7 +17,7 @@ package cmd
 import (
 	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/atkrad/wait4x/internal/pkg/waiter"
-	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/postgresql"
 	"github.com/spf13/cobra"
 )
 
@@ -43,7 +43,7 @@ func NewPostgresqlCommand() *cobra.Command {
 			timeout, _ := cmd.Flags().GetDuration("timeout")
 			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
-			pc := checker.NewPostgreSQL(args[0])
+			pc := postgresql.NewPostgreSQL(args[0])
 			pc.SetLogger(Logger)
 
 			return waiter.Wait(pc.Check, timeout, interval, invertCheck)

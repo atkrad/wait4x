@@ -1,4 +1,4 @@
-package checker
+package tcp
 
 import (
 	"github.com/atkrad/wait4x/pkg/log"
@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net"
 	"testing"
-	"time"
 )
 
 func TestTcpValidAddress(t *testing.T) {
@@ -20,7 +19,7 @@ func TestTcpValidAddress(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	tc := NewTCP(ln.Addr().String(), time.Second*5)
+	tc := NewTCP(ln.Addr().String())
 	tc.SetLogger(logger)
 
 	assert.Equal(t, true, tc.Check())
@@ -36,7 +35,7 @@ func TestTcpInvalidAddress(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	tc := NewTCP(ln.Addr().String()+"0", time.Second*5)
+	tc := NewTCP(ln.Addr().String()+"0")
 	tc.SetLogger(logger)
 
 	assert.Equal(t, false, tc.Check())

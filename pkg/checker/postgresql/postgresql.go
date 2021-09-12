@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package checker
+package postgresql
 
 import (
 	"database/sql"
+	"github.com/atkrad/wait4x/pkg/checker"
 
 	// Needed for the PostgreSQL driver
 	_ "github.com/lib/pq"
@@ -24,14 +25,14 @@ import (
 // PostgreSQL represents PostgreSQL checker
 type PostgreSQL struct {
 	dsn string
-	*LogAware
+	*checker.LogAware
 }
 
 // NewPostgreSQL creates the PostgreSQL checker
-func NewPostgreSQL(dsn string) Checker {
+func NewPostgreSQL(dsn string) checker.Checker {
 	p := &PostgreSQL{
 		dsn:      dsn,
-		LogAware: &LogAware{},
+		LogAware: &checker.LogAware{},
 	}
 
 	return p
@@ -39,23 +40,23 @@ func NewPostgreSQL(dsn string) Checker {
 
 // Check checks PostgreSQL connection
 func (p *PostgreSQL) Check() bool {
-	p.logger.Info("Checking PostgreSQL connection ...")
+	p.Logger().Info("Checking PostgreSQL connection ...")
 	db, err := sql.Open("postgres", p.dsn)
 	if err != nil {
-		p.logger.Debug(err)
+		p.Logger().Debug(err)
 
 		return false
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			p.logger.Debug(err)
+			p.Logger().Debug(err)
 		}
 	}()
 
 	err = db.Ping()
 	if err != nil {
-		p.logger.Debug(err)
+		p.Logger().Debug(err)
 
 		return false
 	}

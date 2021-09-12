@@ -12,35 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package checker
+package http
 
 import (
+	"github.com/atkrad/wait4x/pkg/checker"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"time"
 )
 
+// Option configures an HTTP.
+type Option func(s *HTTP)
+
 // HTTP represents HTTP checker
 type HTTP struct {
 	address          string
 	timeout          time.Duration
-	expectStatusCode int
 	expectBody       string
-	*LogAware
+	expectStatusCode int
+	*checker.LogAware
 }
 
 // NewHTTP creates the HTTP checker
-func NewHTTP(address string, expectStatusCode int, expectBody string, timeout time.Duration) Checker {
+func NewHTTP(address string, opts ...func(h *HTTP)) checker.Checker {
 	h := &HTTP{
-		address:          address,
-		expectStatusCode: expectStatusCode,
-		expectBody:       expectBody,
-		timeout:          timeout,
-		LogAware:         &LogAware{},
+		address:  address,
+		timeout:  time.Second * 5,
+		LogAware: &checker.LogAware{},
+	}
+
+	// apply the list of options to HTTP
+	for _, opt := range opts {
+		opt(h)
 	}
 
 	return h
+}
+
+// WithTimeout configures a time limit for requests made by the HTTP client
+func WithTimeout(timeout time.Duration) Option {
+	return func(h *HTTP) {
+		h.timeout = timeout
+	}
+}
+
+// WithExpectBody configures response body expectation
+func WithExpectBody(body string) Option {
+	return func(h *HTTP) {
+		h.expectBody = body
+	}
+}
+
+// WithExpectStatusCode configures response status code expectation
+func WithExpectStatusCode(code int) Option {
+	return func(h *HTTP) {
+		h.expectStatusCode = code
+	}
 }
 
 // Check checks HTTP connection
@@ -49,19 +77,19 @@ func (h *HTTP) Check() bool {
 		Timeout: h.timeout,
 	}
 
-	h.logger.Info("Checking HTTP connection ...")
+	h.Logger().Info("Checking HTTP connection ...")
 
 	resp, err := httpClient.Get(h.address)
 
 	if err != nil {
-		h.logger.Debug(err)
+		h.Logger().Debug(err)
 
 		return false
 	}
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			h.logger.Debug(err)
+			h.Logger().Debug(err)
 		}
 	}()
 
@@ -77,7 +105,7 @@ func (h *HTTP) httpResponseCodeExpectation(expectStatusCode int, resp *http.Resp
 		return true
 	}
 
-	h.logger.InfoWithFields("Checking http response code expectation", map[string]interface{}{"actual": resp.StatusCode, "expect": expectStatusCode})
+	h.Logger().InfoWithFields("Checking http response code expectation", map[string]interface{}{"actual": resp.StatusCode, "expect": expectStatusCode})
 
 	return expectStatusCode == resp.StatusCode
 }
@@ -89,14 +117,14 @@ func (h *HTTP) httpResponseBodyExpectation(expectBody string, resp *http.Respons
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		h.logger.Fatal(err)
+		h.Logger().Fatal(err)
 	}
 
 	bodyString := string(bodyBytes)
 
 	// TODO: Logging full body response in debug level.
 
-	h.logger.InfoWithFields("Checking http response body expectation", map[string]interface{}{"actual": h.truncateString(bodyString, 50), "expect": expectBody})
+	h.Logger().InfoWithFields("Checking http response body expectation", map[string]interface{}{"actual": h.truncateString(bodyString, 50), "expect": expectBody})
 
 	matched, _ := regexp.MatchString(expectBody, bodyString)
 	return matched
