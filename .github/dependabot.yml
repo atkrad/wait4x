@@ -7,5 +7,4 @@ updates:
     assignees:
       - "atkrad"
     labels:
-      - "golang"
       - "dependencies"
