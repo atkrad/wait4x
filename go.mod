@@ -7,7 +7,6 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/lib/pq v1.9.0
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/cobra v1.1.3
+	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
 )
