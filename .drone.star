@@ -44,8 +44,15 @@ def main(ctx):
           },
           "commands": [
             "go get github.com/mattn/goveralls",
-            "goveralls -coverprofile=coverage.out -service=drone -repotoken ${COVERALLS_TOKEN}"
-          ]
+            "goveralls -coverprofile=coverage.out -service=drone -repotoken $${COVERALLS_TOKEN}"
+          ],
+          "when": {
+            "event": {
+              "exclude": [
+                "pull_request"
+              ]
+            }
+          }
         }
       ],
       "depends_on": [
