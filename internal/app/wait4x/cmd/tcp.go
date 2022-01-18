@@ -16,10 +16,10 @@ package cmd
 
 import (
 	"github.com/atkrad/wait4x/pkg/checker/tcp"
+	"github.com/atkrad/wait4x/pkg/waiter"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
-	"github.com/atkrad/wait4x/internal/pkg/waiter"
 	"github.com/spf13/cobra"
 )
 

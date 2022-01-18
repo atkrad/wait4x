@@ -16,11 +16,11 @@ package cmd
 
 import (
 	"github.com/atkrad/wait4x/pkg/checker/http"
+	"github.com/atkrad/wait4x/pkg/waiter"
 	"net/url"
 	"time"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
-	"github.com/atkrad/wait4x/internal/pkg/waiter"
 	"github.com/spf13/cobra"
 )
 
