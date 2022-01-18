@@ -5,7 +5,7 @@ LABEL maintainer="Mohammad Abdolirad <m.abdolirad@gmail.com>" \
     org.label-schema.vendor="atkrad" \
     org.label-schema.description="Wait4X is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested state." \
     org.label-schema.vcs-url="https://github.com/atkrad/wait4x" \
-    org.label-schema.license="MIT"
+    org.label-schema.license="Apache"
 
 COPY .docker/root/ /
 COPY wait4x /usr/local/bin/wait4x
