@@ -18,7 +18,7 @@ WAIT4X_BINARY_NAME ?= wait4x
 WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/bin
 
 # commit ref slug used for `wait4x version`
-WAIT4X_COMMIT_REF_SLUG ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags)
+WAIT4X_COMMIT_REF_SLUG ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --always)
 # commit short SHA (8 char) used for `wait4x version`
 WAIT4X_COMMIT_SHORT_SHA ?= $(shell git rev-parse --verify --short=8 HEAD)
 # commit datetime used for `wait4x version`
