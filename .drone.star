@@ -7,14 +7,14 @@ def main(ctx):
       "steps": [
         {
           "name": "gofmt",
-          "image": "golang:1.13-buster",
+          "image": "golang:1.17-buster",
           "commands": [
             "make check-gofmt"
           ]
         },
         {
           "name": "revive",
-          "image": "golang:1.13-buster",
+          "image": "golang:1.17-buster",
           "commands": [
             "go get -u github.com/mgechev/revive",
             "make check-revive"
@@ -29,14 +29,14 @@ def main(ctx):
       "steps": [
         {
           "name": "test",
-          "image": "golang:1.13-buster",
+          "image": "golang:1.17-buster",
           "commands": [
             "make test"
           ]
         },
         {
           "name": "coverage",
-          "image": "golang:1.13-buster",
+          "image": "golang:1.17-buster",
           "environment": {
             "COVERALLS_TOKEN": {
               "from_secret": "COVERALLS_TOKEN"
@@ -66,7 +66,7 @@ def main(ctx):
       "steps": [
         {
           "name": "build",
-          "image": "golang:1.13-alpine",
+          "image": "golang:1.17-alpine",
           "commands": [
             "apk --update add build-base git",
             "make build"
@@ -155,7 +155,7 @@ def build_pipeline(os, arch):
       },
       {
         "name": "build",
-        "image": "golang:1.13-buster",
+        "image": "golang:1.17-buster",
         "commands": [
           "make build"
         ],
