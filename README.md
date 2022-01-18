@@ -57,10 +57,18 @@ sha256sum --check wait4x-linux-amd64.sha256sum
 ```
 
 ### From package
-You can install **Wait4X** from package, currentlly we only support **Alpine Linux**.
+You can find the **Wait4X** package in some Linux distributions.
 
-#### Alpine Linux
-Currently you can find it in [edge](https://pkgs.alpinelinux.org/packages?name=wait4x&branch=edge) repository so you have to ensure the repository has enabled. ([Repository pinning](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management#Repository_pinning))
-```bash
-apk add wait4x@edgecommunity
+[![Packaging status](https://repology.org/badge/vertical-allrepos/wait4x.svg)](https://repology.org/project/wait4x/versions)
+
+#### On Alpine Linux
+You can install the [wait4x](https://pkgs.alpinelinux.org/packages?name=wait4x) package from the official sources:
+```shell
+apk add wait4x
+```
+
+#### On Arch Linux (AUR)
+You can install the [wait4x](https://aur.archlinux.org/packages/wait4x/) package from the Arch User Repository:
+```shell
+yay -S wait4x
 ```
