@@ -16,7 +16,7 @@ def main(ctx):
           "name": "revive",
           "image": "golang:1.17-buster",
           "commands": [
-            "go get -u github.com/mgechev/revive",
+            "go install github.com/mgechev/revive@v1.1.2",
             "make check-revive"
           ]
         }
@@ -43,7 +43,7 @@ def main(ctx):
             }
           },
           "commands": [
-            "go get github.com/mattn/goveralls",
+            "go install github.com/mattn/goveralls@v0.0.11",
             "goveralls -coverprofile=coverage.out -service=drone -repotoken $${COVERALLS_TOKEN}"
           ],
           "when": {
