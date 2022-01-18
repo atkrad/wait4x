@@ -49,7 +49,12 @@ func NewTCPCommand() *cobra.Command {
 			tc := tcp.NewTCP(args[0], tcp.WithTimeout(conTimeout))
 			tc.SetLogger(Logger)
 
-			return waiter.Wait(tc.Check, timeout, interval, invertCheck)
+			return waiter.Wait(
+				tc.Check,
+				waiter.WithTimeout(timeout),
+				waiter.WithInterval(interval),
+				waiter.WithInvertCheck(invertCheck),
+			)
 		},
 	}
 

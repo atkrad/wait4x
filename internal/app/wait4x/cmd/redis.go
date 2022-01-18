@@ -62,7 +62,12 @@ func NewRedisCommand() *cobra.Command {
 			rc := redis.NewRedis(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
 			rc.SetLogger(Logger)
 
-			return waiter.Wait(rc.Check, timeout, interval, invertCheck)
+			return waiter.Wait(
+				rc.Check,
+				waiter.WithTimeout(timeout),
+				waiter.WithInterval(interval),
+				waiter.WithInvertCheck(invertCheck),
+			)
 		},
 	}
 

@@ -46,7 +46,12 @@ func NewPostgresqlCommand() *cobra.Command {
 			pc := postgresql.NewPostgreSQL(args[0])
 			pc.SetLogger(Logger)
 
-			return waiter.Wait(pc.Check, timeout, interval, invertCheck)
+			return waiter.Wait(
+				pc.Check,
+				waiter.WithTimeout(timeout),
+				waiter.WithInterval(interval),
+				waiter.WithInvertCheck(invertCheck),
+			)
 		},
 	}
 

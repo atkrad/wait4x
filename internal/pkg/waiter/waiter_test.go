@@ -27,15 +27,18 @@ func TestMain(m *testing.M) {
 }
 
 func TestWaitSuccessful(t *testing.T) {
-	alwaysTrue := func() bool { return true }
-	err := Wait(alwaysTrue, time.Second*10, time.Second, false)
+	alwaysTrue := func() bool {
+		time.Sleep(3 * time.Second)
+		return true
+	}
+	err := Wait(alwaysTrue, WithInterval(time.Second))
 
 	assert.Nil(t, err)
 }
 
 func TestWaitTimedOut(t *testing.T) {
 	alwaysFalse := func() bool { return false }
-	err := Wait(alwaysFalse, time.Second, time.Second, false)
+	err := Wait(alwaysFalse, WithTimeout(time.Second))
 
 	assert.Equal(t, errors.NewTimedOutError(), err)
 }
@@ -44,9 +47,9 @@ func TestWaitInvertCheck(t *testing.T) {
 	alwaysTrue := func() bool { return true }
 	alwaysFalse := func() bool { return false }
 
-	err := Wait(alwaysTrue, time.Second, time.Second, true)
+	err := Wait(alwaysTrue, WithTimeout(time.Second), WithInvertCheck(true))
 	assert.Equal(t, errors.NewTimedOutError(), err)
 
-	err = Wait(alwaysFalse, time.Second, time.Second, true)
+	err = Wait(alwaysFalse, WithTimeout(time.Second), WithInvertCheck(true))
 	assert.Nil(t, err)
 }

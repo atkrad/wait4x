@@ -65,7 +65,12 @@ func NewHTTPCommand() *cobra.Command {
 			)
 			hc.SetLogger(Logger)
 
-			return waiter.Wait(hc.Check, timeout, interval, invertCheck)
+			return waiter.Wait(
+				hc.Check,
+				waiter.WithTimeout(timeout),
+				waiter.WithInterval(interval),
+				waiter.WithInvertCheck(invertCheck),
+			)
 		},
 	}
 
