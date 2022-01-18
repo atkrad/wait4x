@@ -66,7 +66,7 @@ def main(ctx):
       "steps": [
         {
           "name": "build",
-          "image": "golang:1.17-alpine",
+          "image": "golang:1.17-alpine3.14",
           "commands": [
             "apk --update add build-base git",
             "make build"
