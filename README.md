@@ -11,7 +11,8 @@
         - [From binary](#from-binary)
             - [Verify SHA256 Checksum](#verify-sha256-checksum)
         - [From package](#from-package)
-            - [Alpine Linux](#alpine-linux)
+            - [Alpine Linux](#on-alpine-linux)
+            - [Arch Linux (AUR)](#on-arch-linux-aur)
 
 <!-- markdown-toc end -->
 
