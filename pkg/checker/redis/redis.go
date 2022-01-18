@@ -15,6 +15,7 @@
 package redis
 
 import (
+	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"regexp"
 	"strings"
@@ -65,7 +66,7 @@ func WithExpectKey(key string) Option {
 }
 
 // Check checks Redis connection
-func (r *Redis) Check() bool {
+func (r *Redis) Check(ctx context.Context) bool {
 	r.Logger().Info("Checking Redis connection ...")
 
 	opts, err := redis.ParseURL(r.address)
@@ -79,7 +80,7 @@ func (r *Redis) Check() bool {
 	client := redis.NewClient(opts)
 
 	// Check Redis connection
-	_, err = client.Ping().Result()
+	_, err = client.WithContext(ctx).Ping().Result()
 	if err != nil {
 		r.Logger().Debug(err)
 
@@ -94,7 +95,7 @@ func (r *Redis) Check() bool {
 	splittedKey := strings.Split(r.expectKey, "=")
 	keyHasValue := len(splittedKey) == 2
 
-	val, err := client.Get(splittedKey[0]).Result()
+	val, err := client.WithContext(ctx).Get(splittedKey[0]).Result()
 	if err == redis.Nil {
 		// Redis key does not exist.
 		r.Logger().InfoWithFields("Key does not exist.", map[string]interface{}{"key": splittedKey[0]})

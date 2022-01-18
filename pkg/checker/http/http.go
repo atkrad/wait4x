@@ -15,6 +15,7 @@
 package http
 
 import (
+	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"io/ioutil"
 	"net/http"
@@ -72,15 +73,21 @@ func WithExpectStatusCode(code int) Option {
 }
 
 // Check checks HTTP connection
-func (h *HTTP) Check() bool {
+func (h *HTTP) Check(ctx context.Context) bool {
 	var httpClient = &http.Client{
 		Timeout: h.timeout,
 	}
 
 	h.Logger().Info("Checking HTTP connection ...")
 
-	resp, err := httpClient.Get(h.address)
+	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
+	if err != nil {
+		h.Logger().Debug(err)
 
+		return false
+	}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		h.Logger().Debug(err)
 

@@ -14,13 +14,16 @@
 
 package checker
 
-import "github.com/atkrad/wait4x/pkg/log"
+import (
+	"context"
+	"github.com/atkrad/wait4x/pkg/log"
+)
 
 // Checker is the interface that wraps the basic checker methods.
 type Checker interface {
 	SetLogger(logger log.Logger)
 	Logger() log.Logger
-	Check() bool
+	Check(ctx context.Context) bool
 }
 
 // LogAware represents log object.

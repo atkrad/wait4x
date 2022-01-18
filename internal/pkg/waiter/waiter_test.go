@@ -15,6 +15,7 @@
 package waiter
 
 import (
+	"context"
 	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -27,7 +28,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestWaitSuccessful(t *testing.T) {
-	alwaysTrue := func() bool {
+	alwaysTrue := func(ctx context.Context) bool {
 		time.Sleep(3 * time.Second)
 		return true
 	}
@@ -37,15 +38,15 @@ func TestWaitSuccessful(t *testing.T) {
 }
 
 func TestWaitTimedOut(t *testing.T) {
-	alwaysFalse := func() bool { return false }
+	alwaysFalse := func(ctx context.Context) bool { return false }
 	err := Wait(alwaysFalse, WithTimeout(time.Second))
 
 	assert.Equal(t, errors.NewTimedOutError(), err)
 }
 
 func TestWaitInvertCheck(t *testing.T) {
-	alwaysTrue := func() bool { return true }
-	alwaysFalse := func() bool { return false }
+	alwaysTrue := func(ctx context.Context) bool { return true }
+	alwaysFalse := func(ctx context.Context) bool { return false }
 
 	err := Wait(alwaysTrue, WithTimeout(time.Second), WithInvertCheck(true))
 	assert.Equal(t, errors.NewTimedOutError(), err)

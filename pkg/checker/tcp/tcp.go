@@ -15,6 +15,7 @@
 package tcp
 
 import (
+	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"net"
 	"time"
@@ -54,12 +55,12 @@ func WithTimeout(timeout time.Duration) Option {
 }
 
 // Check checks TCP connection
-func (t *TCP) Check() bool {
+func (t *TCP) Check(ctx context.Context) bool {
 	d := net.Dialer{Timeout: t.timeout}
 
 	t.Logger().Info("Checking TCP connection ...")
 
-	_, err := d.Dial("tcp", t.address)
+	_, err := d.DialContext(ctx, "tcp", t.address)
 	if err != nil {
 		t.Logger().Debug(err)
 

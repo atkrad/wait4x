@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"github.com/atkrad/wait4x/pkg/log"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +22,7 @@ func TestHttpInvalidAddress(t *testing.T) {
 	hc := NewHTTP("http://not-exists.tld")
 	hc.SetLogger(logger)
 
-	assert.Equal(t, false, hc.Check())
+	assert.Equal(t, false, hc.Check(context.TODO()))
 }
 
 func TestHttpValidAddress(t *testing.T) {
@@ -35,7 +36,7 @@ func TestHttpValidAddress(t *testing.T) {
 	hc := NewHTTP(ts.URL)
 	hc.SetLogger(logger)
 
-	assert.Equal(t, true, hc.Check())
+	assert.Equal(t, true, hc.Check(context.TODO()))
 }
 
 func TestHttpInvalidStatusCode(t *testing.T) {
@@ -49,7 +50,7 @@ func TestHttpInvalidStatusCode(t *testing.T) {
 	hc := NewHTTP(ts.URL, WithExpectStatusCode(http.StatusCreated))
 	hc.SetLogger(logger)
 
-	assert.Equal(t, false, hc.Check())
+	assert.Equal(t, false, hc.Check(context.TODO()))
 }
 
 func TestHttpValidStatusCode(t *testing.T) {
@@ -63,7 +64,7 @@ func TestHttpValidStatusCode(t *testing.T) {
 	hc := NewHTTP(ts.URL, WithExpectStatusCode(http.StatusOK))
 	hc.SetLogger(logger)
 
-	assert.Equal(t, true, hc.Check())
+	assert.Equal(t, true, hc.Check(context.TODO()))
 }
 
 func TestHttpInvalidBody(t *testing.T) {
@@ -78,7 +79,7 @@ func TestHttpInvalidBody(t *testing.T) {
 	hc := NewHTTP(ts.URL, WithExpectBody("FooBar"))
 	hc.SetLogger(logger)
 
-	assert.Equal(t, false, hc.Check())
+	assert.Equal(t, false, hc.Check(context.TODO()))
 }
 
 func TestHttpValidBody(t *testing.T) {
@@ -93,5 +94,5 @@ func TestHttpValidBody(t *testing.T) {
 	hc := NewHTTP(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
 	hc.SetLogger(logger)
 
-	assert.Equal(t, true, hc.Check())
+	assert.Equal(t, true, hc.Check(context.TODO()))
 }

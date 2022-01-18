@@ -15,6 +15,7 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
 	"github.com/atkrad/wait4x/pkg/checker"
 
@@ -39,7 +40,7 @@ func NewMySQL(dsn string) checker.Checker {
 }
 
 // Check checks MySQL connection
-func (m *MySQL) Check() bool {
+func (m *MySQL) Check(ctx context.Context) bool {
 	m.Logger().Info("Checking MySQL connection ...")
 	db, err := sql.Open("mysql", m.dsn)
 	if err != nil {
@@ -54,7 +55,7 @@ func (m *MySQL) Check() bool {
 		}
 	}()
 
-	err = db.Ping()
+	err = db.PingContext(ctx)
 	if err != nil {
 		m.Logger().Debug(err)
 

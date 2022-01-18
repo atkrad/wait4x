@@ -8,7 +8,7 @@ import (
 )
 
 // Check represents the checker's check method.
-type Check func() bool
+type Check func(ctx context.Context) bool
 
 // Option configures an options
 type Option func(s *options)
@@ -59,10 +59,10 @@ func Wait(check Check, opts ...Option) error {
 
 	checking := check
 	if options.invertCheck == true {
-		checking = func() bool { return !check() }
+		checking = func(ctx context.Context) bool { return !check(ctx) }
 	}
 
-	for !checking() {
+	for !checking(ctx) {
 		select {
 		case <-ctx.Done():
 			return errors.NewTimedOutError()

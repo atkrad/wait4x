@@ -15,6 +15,7 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"github.com/atkrad/wait4x/pkg/checker"
 
@@ -39,7 +40,7 @@ func NewPostgreSQL(dsn string) checker.Checker {
 }
 
 // Check checks PostgreSQL connection
-func (p *PostgreSQL) Check() bool {
+func (p *PostgreSQL) Check(ctx context.Context) bool {
 	p.Logger().Info("Checking PostgreSQL connection ...")
 	db, err := sql.Open("postgres", p.dsn)
 	if err != nil {
@@ -54,7 +55,7 @@ func (p *PostgreSQL) Check() bool {
 		}
 	}()
 
-	err = db.Ping()
+	err = db.PingContext(ctx)
 	if err != nil {
 		p.Logger().Debug(err)
 

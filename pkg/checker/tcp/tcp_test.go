@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"context"
 	"github.com/atkrad/wait4x/pkg/log"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +23,7 @@ func TestTcpValidAddress(t *testing.T) {
 	tc := NewTCP(ln.Addr().String())
 	tc.SetLogger(logger)
 
-	assert.Equal(t, true, tc.Check())
+	assert.Equal(t, true, tc.Check(context.TODO()))
 }
 
 func TestTcpInvalidAddress(t *testing.T) {
@@ -38,5 +39,5 @@ func TestTcpInvalidAddress(t *testing.T) {
 	tc := NewTCP(ln.Addr().String() + "0")
 	tc.SetLogger(logger)
 
-	assert.Equal(t, false, tc.Check())
+	assert.Equal(t, false, tc.Check(context.TODO()))
 }
