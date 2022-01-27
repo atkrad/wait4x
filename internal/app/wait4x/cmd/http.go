@@ -44,10 +44,10 @@ func NewHTTPCommand() *cobra.Command {
 		},
 		Example: `
   # If you want checking just http connection
-  wait4x http http://ifconfig.co
+  wait4x http https://ifconfig.co
 
   # If you want checking http connection and expect specify http status code
-  wait4x http http://ifconfig.co --expect-status-code 200
+  wait4x http https://ifconfig.co --expect-status-code 200
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
