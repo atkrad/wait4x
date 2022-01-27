@@ -36,7 +36,7 @@ type HTTP struct {
 }
 
 // NewHTTP creates the HTTP checker
-func NewHTTP(address string, opts ...func(h *HTTP)) checker.Checker {
+func NewHTTP(address string, opts ...Option) checker.Checker {
 	h := &HTTP{
 		address:  address,
 		timeout:  time.Second * 5,

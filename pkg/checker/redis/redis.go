@@ -36,7 +36,7 @@ type Redis struct {
 }
 
 // NewRedis creates the Redis checker
-func NewRedis(address string, opts ...func(h *Redis)) checker.Checker {
+func NewRedis(address string, opts ...Option) checker.Checker {
 	r := &Redis{
 		address:  address,
 		timeout:  time.Second * 5,
