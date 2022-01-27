@@ -35,8 +35,8 @@ type Redis struct {
 	*checker.LogAware
 }
 
-// NewRedis creates the Redis checker
-func NewRedis(address string, opts ...Option) checker.Checker {
+// New creates the Redis checker
+func New(address string, opts ...Option) checker.Checker {
 	r := &Redis{
 		address:  address,
 		timeout:  time.Second * 5,

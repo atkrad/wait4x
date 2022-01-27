@@ -31,8 +31,8 @@ type TCP struct {
 	*checker.LogAware
 }
 
-// NewTCP creates the TCP checker
-func NewTCP(address string, opts ...Option) checker.Checker {
+// New creates the TCP checker
+func New(address string, opts ...Option) checker.Checker {
 	t := &TCP{
 		address:  address,
 		timeout:  time.Second * 5,

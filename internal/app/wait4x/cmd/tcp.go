@@ -46,7 +46,7 @@ func NewTCPCommand() *cobra.Command {
 
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
-			tc := tcp.NewTCP(args[0], tcp.WithTimeout(conTimeout))
+			tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
 			tc.SetLogger(Logger)
 
 			return waiter.Wait(

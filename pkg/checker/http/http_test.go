@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 func TestHttpInvalidAddress(t *testing.T) {
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP("http://not-exists.tld")
+	hc := New("http://not-exists.tld")
 	hc.SetLogger(logger)
 
 	assert.Equal(t, false, hc.Check(context.TODO()))
@@ -47,7 +47,7 @@ func TestHttpValidAddress(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL)
+	hc := New(ts.URL)
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check(context.TODO()))
@@ -61,7 +61,7 @@ func TestHttpInvalidStatusCode(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, WithExpectStatusCode(http.StatusCreated))
+	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, false, hc.Check(context.TODO()))
@@ -75,7 +75,7 @@ func TestHttpValidStatusCode(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, WithExpectStatusCode(http.StatusOK))
+	hc := New(ts.URL, WithExpectStatusCode(http.StatusOK))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check(context.TODO()))
@@ -90,7 +90,7 @@ func TestHttpInvalidBody(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, WithExpectBody("FooBar"))
+	hc := New(ts.URL, WithExpectBody("FooBar"))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, false, hc.Check(context.TODO()))
@@ -105,7 +105,7 @@ func TestHttpValidBody(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	hc := NewHTTP(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
+	hc := New(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check(context.TODO()))

@@ -45,7 +45,7 @@ func NewMysqlCommand() *cobra.Command {
 			timeout, _ := cmd.Flags().GetDuration("timeout")
 			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
-			mc := mysql.NewMySQL(args[0])
+			mc := mysql.New(args[0])
 			mc.SetLogger(Logger)
 
 			return waiter.Wait(

@@ -29,8 +29,8 @@ type PostgreSQL struct {
 	*checker.LogAware
 }
 
-// NewPostgreSQL creates the PostgreSQL checker
-func NewPostgreSQL(dsn string) checker.Checker {
+// New creates the PostgreSQL checker
+func New(dsn string) checker.Checker {
 	p := &PostgreSQL{
 		dsn:      dsn,
 		LogAware: &checker.LogAware{},

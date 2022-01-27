@@ -58,7 +58,7 @@ func NewHTTPCommand() *cobra.Command {
 			expectBody, _ := cmd.Flags().GetString("expect-body")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
-			hc := http.NewHTTP(args[0],
+			hc := http.New(args[0],
 				http.WithExpectStatusCode(expectStatusCode),
 				http.WithExpectBody(expectBody),
 				http.WithTimeout(connectionTimeout),

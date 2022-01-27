@@ -29,8 +29,8 @@ type MySQL struct {
 	*checker.LogAware
 }
 
-// NewMySQL creates the MySQL checker
-func NewMySQL(dsn string) checker.Checker {
+// New creates the MySQL checker
+func New(dsn string) checker.Checker {
 	m := &MySQL{
 		dsn:      dsn,
 		LogAware: &checker.LogAware{},

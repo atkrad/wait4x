@@ -59,7 +59,7 @@ func NewRedisCommand() *cobra.Command {
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 			expectKey, _ := cmd.Flags().GetString("expect-key")
 
-			rc := redis.NewRedis(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
+			rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
 			rc.SetLogger(Logger)
 
 			return waiter.Wait(

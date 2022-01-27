@@ -35,8 +35,8 @@ type HTTP struct {
 	*checker.LogAware
 }
 
-// NewHTTP creates the HTTP checker
-func NewHTTP(address string, opts ...Option) checker.Checker {
+// New creates the HTTP checker
+func New(address string, opts ...Option) checker.Checker {
 	h := &HTTP{
 		address:  address,
 		timeout:  time.Second * 5,

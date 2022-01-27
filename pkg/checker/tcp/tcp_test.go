@@ -34,7 +34,7 @@ func TestTcpValidAddress(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	tc := NewTCP(ln.Addr().String())
+	tc := New(ln.Addr().String())
 	tc.SetLogger(logger)
 
 	assert.Equal(t, true, tc.Check(context.TODO()))
@@ -50,7 +50,7 @@ func TestTcpInvalidAddress(t *testing.T) {
 
 	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
 
-	tc := NewTCP(ln.Addr().String() + "0")
+	tc := New(ln.Addr().String() + "0")
 	tc.SetLogger(logger)
 
 	assert.Equal(t, false, tc.Check(context.TODO()))
