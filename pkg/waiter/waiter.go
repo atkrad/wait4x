@@ -57,6 +57,11 @@ func WithInvertCheck(invertCheck bool) Option {
 
 // Wait waits for end up of check execution.
 func Wait(check Check, opts ...Option) error {
+	return WaitWithContext(context.Background(), check, opts...)
+}
+
+// WaitWithContext waits for end up of check execution.
+func WaitWithContext(ctx context.Context, check Check, opts ...Option) error {
 	options := &options{
 		timeout:     10 * time.Second,
 		interval:    time.Second,
@@ -68,7 +73,7 @@ func Wait(check Check, opts ...Option) error {
 		opt(options)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), options.timeout)
+	ctx, cancel := context.WithTimeout(ctx, options.timeout)
 	defer cancel()
 
 	checking := check
