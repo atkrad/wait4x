@@ -1,33 +1,33 @@
 # Wait4X 
 [![Build Status](https://cloud.drone.io/api/badges/atkrad/wait4x/status.svg)](https://cloud.drone.io/atkrad/wait4x) [![Coverage Status](https://coveralls.io/repos/github/atkrad/wait4x/badge.svg?branch=master)](https://coveralls.io/github/atkrad/wait4x?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/atkrad/wait4x)](https://goreportcard.com/report/github.com/atkrad/wait4x) [![Docker Pulls](https://img.shields.io/docker/pulls/atkrad/wait4x)](https://hub.docker.com/r/atkrad/wait4x) [![Go Reference](https://pkg.go.dev/badge/github.com/atkrad/wait4x.svg)](https://pkg.go.dev/github.com/atkrad/wait4x)
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Wait4X** allows you to wait for a port or a service to enter the requested state, with a customizable timeout and interval time.
+
 **Table of Contents**
+- [Features](#features)
+- [Installation](#installation)
+    - [with Docker](#with-docker)
+    - [From binary](#from-binary)
+        - [Verify SHA256 Checksum](#verify-sha256-checksum)
+    - [From package](#from-package)
+        - [Alpine Linux](#on-alpine-linux)
+        - [Arch Linux (AUR)](#on-arch-linux-aur)
 
-- [Wait4X](#wait4x)
-    - [Introduction](#introduction)
-    - [Installation](#installation)
-        - [with Docker](#with-docker)
-        - [From binary](#from-binary)
-            - [Verify SHA256 Checksum](#verify-sha256-checksum)
-        - [From package](#from-package)
-            - [Alpine Linux](#on-alpine-linux)
-            - [Arch Linux (AUR)](#on-arch-linux-aur)
-
-<!-- markdown-toc end -->
-
-## Introduction
-**Wait4X** is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested state.
-
-**Features:**
-- Checking TCP connection
-- Checking HTTP connection and also status code and response body
-- Checking Redis connection (Ping request) and key existence
-- Checking MySQL connection
-- Checking PostgreSQL connection
+## Features:
+- **Supports various protocols:**
+  - **TCP**
+  - **HTTP**
+- **Supports various services:**
+  - **Redis**
+  - **MySQL**
+  - **PostgreSQL**
+- **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
+- **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
+- **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
+- **Importable:** Beside the CLI tool, Wait4X can be imported as a pkg in your Go app
 
 ## Installation
-There are many different methods to install **Wait4X**
+There are many different ways to install **Wait4X**
 
 ### with Docker
 **Wait4X** provides automatically updated Docker images within Docker Hub. It is possible to always use the latest stable tag.
@@ -45,9 +45,22 @@ docker run --rm --name='wait4x' \
 
 ### From binary
 Choose the file matching the destination platform from the [release page](https://github.com/atkrad/wait4x/releases), copy the URL and replace the URL within the commands below:
+
+#### Linux
 ```bash
 curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64 -o /usr/local/bin/wait4x
 chmod +x /usr/local/bin/wait4x
+```
+
+#### Mac OSX
+```bash
+curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-darwin-amd64 -o /usr/local/bin/wait4x
+chmod +x /usr/local/bin/wait4x
+```
+
+#### Windows
+```bash
+curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-windows-amd64 -o wait4x.exe
 ```
 
 #### Verify SHA256 Checksum
