@@ -89,13 +89,13 @@ yay -S wait4x
 
 ## Examples
 
-###TCP
+### TCP
 ```shell
 # If you want checking just tcp connection
 wait4x tcp 127.0.0.1:9090
 ```
 
-###HTTP
+### HTTP
 ```shell
 # If you want checking just http connection
 wait4x http https://ifconfig.co
@@ -104,6 +104,6 @@ wait4x http https://ifconfig.co
 wait4x http https://ifconfig.co --expect-status-code 200
 
 # If you want checking http connection, status code and match the response body.
-# Note: You can write any regex that compatible with [Golang syntax](https://pkg.go.dev/regexp/syntax#hdr-Syntax)
+# Note: You can write any regex that compatible with Golang syntax (https://pkg.go.dev/regexp/syntax#hdr-Syntax)
 wait4x http https://ifconfig.co/json --expect-status-code 200 --expect-body='"country":\s"Netherlands"'
 ```
