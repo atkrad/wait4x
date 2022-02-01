@@ -23,6 +23,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var OpenDatabaseErr = checker.NewError("open database error", "debug")
+var PingErr = checker.NewError("ping error", "debug")
+
 // PostgreSQL represents PostgreSQL checker
 type PostgreSQL struct {
 	dsn string
@@ -40,13 +43,11 @@ func New(dsn string) checker.Checker {
 }
 
 // Check checks PostgreSQL connection
-func (p *PostgreSQL) Check(ctx context.Context) bool {
+func (p *PostgreSQL) Check(ctx context.Context) error {
 	p.Logger().Info("Checking PostgreSQL connection ...")
 	db, err := sql.Open("postgres", p.dsn)
 	if err != nil {
-		p.Logger().Debug(err)
-
-		return false
+		return OpenDatabaseErr.WithWrap(err)
 	}
 
 	defer func() {
@@ -57,10 +58,8 @@ func (p *PostgreSQL) Check(ctx context.Context) bool {
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		p.Logger().Debug(err)
-
-		return false
+		return PingErr.WithWrap(err)
 	}
 
-	return true
+	return nil
 }

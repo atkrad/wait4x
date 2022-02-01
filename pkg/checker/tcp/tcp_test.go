@@ -37,7 +37,7 @@ func TestTcpValidAddress(t *testing.T) {
 	tc := New(ln.Addr().String())
 	tc.SetLogger(logger)
 
-	assert.Equal(t, true, tc.Check(context.TODO()))
+	assert.Equal(t, nil, tc.Check(context.TODO()))
 }
 
 func TestTcpInvalidAddress(t *testing.T) {
@@ -53,5 +53,5 @@ func TestTcpInvalidAddress(t *testing.T) {
 	tc := New(ln.Addr().String() + "0")
 	tc.SetLogger(logger)
 
-	assert.Equal(t, false, tc.Check(context.TODO()))
+	assert.Error(t, DialErr, tc.Check(context.TODO()))
 }

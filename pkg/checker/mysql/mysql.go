@@ -23,6 +23,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var OpenDatabaseErr = checker.NewError("open database error", "debug")
+var PingErr = checker.NewError("ping error", "debug")
+
 // MySQL represents MySQL checker
 type MySQL struct {
 	dsn string
@@ -40,13 +43,10 @@ func New(dsn string) checker.Checker {
 }
 
 // Check checks MySQL connection
-func (m *MySQL) Check(ctx context.Context) bool {
-	m.Logger().Info("Checking MySQL connection ...")
+func (m *MySQL) Check(ctx context.Context) error {
 	db, err := sql.Open("mysql", m.dsn)
 	if err != nil {
-		m.Logger().Debug(err)
-
-		return false
+		return OpenDatabaseErr.WithWrap(err)
 	}
 
 	defer func() {
@@ -57,12 +57,8 @@ func (m *MySQL) Check(ctx context.Context) bool {
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		m.Logger().Debug(err)
-
-		return false
+		return PingErr.WithWrap(err)
 	}
 
-	m.Logger().Info("Connection established successfully.")
-
-	return true
+	return nil
 }

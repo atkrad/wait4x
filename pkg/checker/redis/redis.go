@@ -24,6 +24,12 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
+var ParseURLErr = checker.NewError("parse url error", "debug")
+var PingErr = checker.NewError("ping error", "debug")
+var KeyExistenceErr = checker.NewError("the key doesn't exist", "info")
+var GetKeyErr = checker.NewError("get key", "debug")
+var KeyValueExistenceErr = checker.NewError("the key and desired value doesn't exist", "info")
+
 // Option configures a Redis.
 type Option func(s *Redis)
 
@@ -66,14 +72,12 @@ func WithExpectKey(key string) Option {
 }
 
 // Check checks Redis connection
-func (r *Redis) Check(ctx context.Context) bool {
+func (r *Redis) Check(ctx context.Context) error {
 	r.Logger().Info("Checking Redis connection ...")
 
 	opts, err := redis.ParseURL(r.address)
 	if err != nil {
-		r.Logger().Debug(err)
-
-		return false
+		return ParseURLErr.WithWrap(err)
 	}
 	opts.DialTimeout = r.timeout
 
@@ -82,14 +86,12 @@ func (r *Redis) Check(ctx context.Context) bool {
 	// Check Redis connection
 	_, err = client.WithContext(ctx).Ping().Result()
 	if err != nil {
-		r.Logger().Debug(err)
-
-		return false
+		return PingErr.WithWrap(err)
 	}
 
 	// It can connect to Redis successfully
 	if r.expectKey == "" {
-		return true
+		return nil
 	}
 
 	splittedKey := strings.Split(r.expectKey, "=")
@@ -98,30 +100,24 @@ func (r *Redis) Check(ctx context.Context) bool {
 	val, err := client.WithContext(ctx).Get(splittedKey[0]).Result()
 	if err == redis.Nil {
 		// Redis key does not exist.
-		r.Logger().InfoWithFields("Key does not exist.", map[string]interface{}{"key": splittedKey[0]})
-
-		return false
+		return KeyExistenceErr.WithFields(map[string]interface{}{"key": splittedKey[0]})
 	}
 
 	if err != nil {
 		// Error occurred on get Redis key
-		r.Logger().Debug(err)
-
-		return false
+		return GetKeyErr.WithWrap(err)
 	}
 
 	// The Redis key exists and user doesn't want to match value
 	if !keyHasValue {
-		return true
+		return nil
 	}
 
 	// When the user expect a key with value
 	matched, _ := regexp.MatchString(splittedKey[1], val)
 	if matched {
-		return true
+		return nil
 	}
 
-	r.Logger().InfoWithFields("Checking value expectation of the key", map[string]interface{}{"key": splittedKey[0], "actual": val, "expect": splittedKey[1]})
-
-	return false
+	return KeyValueExistenceErr.WithFields(map[string]interface{}{"key": splittedKey[0], "actual": val, "expect": splittedKey[1]})
 }

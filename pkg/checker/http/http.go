@@ -23,6 +23,12 @@ import (
 	"time"
 )
 
+var CreateRequestErr = checker.NewError("create the request error", "debug")
+var DoCallErr = checker.NewError("do call error", "debug")
+var KeyExistenceErr = checker.NewError("the key doesn't exist", "info")
+var GetKeyErr = checker.NewError("get key", "debug")
+var KeyValueExistenceErr = checker.NewError("the key and desired value doesn't exist", "info")
+
 // Option configures an HTTP.
 type Option func(s *HTTP)
 
@@ -73,25 +79,19 @@ func WithExpectStatusCode(code int) Option {
 }
 
 // Check checks HTTP connection
-func (h *HTTP) Check(ctx context.Context) bool {
+func (h *HTTP) Check(ctx context.Context) error {
 	var httpClient = &http.Client{
 		Timeout: h.timeout,
 	}
 
-	h.Logger().Info("Checking HTTP connection ...")
-
 	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
 	if err != nil {
-		h.Logger().Debug(err)
-
-		return false
+		return CreateRequestErr.WithWrap(err)
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		h.Logger().Debug(err)
-
-		return false
+		return DoCallErr.WithWrap(err)
 	}
 
 	defer func() {
@@ -100,11 +100,13 @@ func (h *HTTP) Check(ctx context.Context) bool {
 		}
 	}()
 
-	if h.httpResponseCodeExpectation(h.expectStatusCode, resp) && h.httpResponseBodyExpectation(h.expectBody, resp) {
-		return true
-	}
+	//if h.httpResponseCodeExpectation(h.expectStatusCode, resp) && h.httpResponseBodyExpectation(h.expectBody, resp) {
+	//	return nil
+	//}
 
-	return false
+	//return false
+
+	return nil
 }
 
 func (h *HTTP) httpResponseCodeExpectation(expectStatusCode int, resp *http.Response) bool {

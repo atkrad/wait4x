@@ -16,6 +16,7 @@ package waiter
 
 import (
 	"context"
+	"fmt"
 	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -28,9 +29,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestWaitSuccessful(t *testing.T) {
-	alwaysTrue := func(ctx context.Context) bool {
+	alwaysTrue := func(ctx context.Context) error {
 		time.Sleep(3 * time.Second)
-		return true
+		return nil
 	}
 	err := Wait(alwaysTrue, WithInterval(time.Second))
 
@@ -38,15 +39,15 @@ func TestWaitSuccessful(t *testing.T) {
 }
 
 func TestWaitTimedOut(t *testing.T) {
-	alwaysFalse := func(ctx context.Context) bool { return false }
-	err := Wait(alwaysFalse, WithTimeout(time.Second))
+	alwaysFalse := func(ctx context.Context) error { return fmt.Errorf("error") }
+	err := Wait(alwaysFalse, WithTimeout(time.Second), WithCheckerErrorChannel(make(chan error, 1)))
 
 	assert.Equal(t, errors.NewTimedOutError(), err)
 }
 
 func TestWaitInvertCheck(t *testing.T) {
-	alwaysTrue := func(ctx context.Context) bool { return true }
-	alwaysFalse := func(ctx context.Context) bool { return false }
+	alwaysTrue := func(ctx context.Context) error { return nil }
+	alwaysFalse := func(ctx context.Context) error { return fmt.Errorf("error") }
 
 	err := Wait(alwaysTrue, WithTimeout(time.Second), WithInvertCheck(true))
 	assert.Equal(t, errors.NewTimedOutError(), err)

@@ -16,22 +16,22 @@ package waiter
 
 import (
 	"context"
-	"time"
-
 	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"time"
 )
 
 // Check represents the checker's check method.
-type Check func(ctx context.Context) bool
+type Check func(ctx context.Context) error
 
 // Option configures an options
 type Option func(s *options)
 
 // options represents waiter options
 type options struct {
-	timeout     time.Duration
-	interval    time.Duration
-	invertCheck bool
+	timeout             time.Duration
+	interval            time.Duration
+	invertCheck         bool
+	checkerErrorChannel chan error
 }
 
 // WithTimeout configures a time limit for whole of checking
@@ -52,6 +52,13 @@ func WithInterval(interval time.Duration) Option {
 func WithInvertCheck(invertCheck bool) Option {
 	return func(o *options) {
 		o.invertCheck = invertCheck
+	}
+}
+
+// WithCheckerErrorChannel configures checker errors
+func WithCheckerErrorChannel(errChan chan error) Option {
+	return func(o *options) {
+		o.checkerErrorChannel = errChan
 	}
 }
 
@@ -77,13 +84,21 @@ func WaitWithContext(ctx context.Context, check Check, opts ...Option) error {
 	defer cancel()
 
 	checking := check
-	if options.invertCheck == true {
-		checking = func(ctx context.Context) bool { return !check(ctx) }
-	}
+	//if options.invertCheck == true {
+	//	checking = func(ctx context.Context) error { return !check(ctx) }
+	//}
 
-	for !checking(ctx) {
+	for {
+		err := checking(ctx)
+		if err == nil {
+			break
+		}
+
+		options.checkerErrorChannel <- err
+
 		select {
 		case <-ctx.Done():
+			//return ctx.Err()
 			return errors.NewTimedOutError()
 		case <-time.After(options.interval):
 		}

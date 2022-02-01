@@ -36,7 +36,7 @@ func TestHttpInvalidAddress(t *testing.T) {
 	hc := New("http://not-exists.tld")
 	hc.SetLogger(logger)
 
-	assert.Equal(t, false, hc.Check(context.TODO()))
+	assert.ErrorIs(t, DoCallErr, hc.Check(context.TODO()))
 }
 
 func TestHttpValidAddress(t *testing.T) {
@@ -50,7 +50,7 @@ func TestHttpValidAddress(t *testing.T) {
 	hc := New(ts.URL)
 	hc.SetLogger(logger)
 
-	assert.Equal(t, true, hc.Check(context.TODO()))
+	assert.Nil(t, hc.Check(context.TODO()))
 }
 
 func TestHttpInvalidStatusCode(t *testing.T) {

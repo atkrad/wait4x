@@ -21,6 +21,8 @@ import (
 	"time"
 )
 
+var DialErr = checker.NewError("dial error", "debug")
+
 // Option configures a TCP.
 type Option func(s *TCP)
 
@@ -55,17 +57,15 @@ func WithTimeout(timeout time.Duration) Option {
 }
 
 // Check checks TCP connection
-func (t *TCP) Check(ctx context.Context) bool {
+func (t *TCP) Check(ctx context.Context) error {
 	d := net.Dialer{Timeout: t.timeout}
 
 	t.Logger().Info("Checking TCP connection ...")
 
 	_, err := d.DialContext(ctx, "tcp", t.address)
 	if err != nil {
-		t.Logger().Debug(err)
-
-		return false
+		return DialErr.WithWrap(err)
 	}
 
-	return true
+	return nil
 }

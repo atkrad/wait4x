@@ -23,7 +23,7 @@ import (
 type Checker interface {
 	SetLogger(logger log.Logger)
 	Logger() log.Logger
-	Check(ctx context.Context) bool
+	Check(ctx context.Context) error
 }
 
 // LogAware represents log object.
