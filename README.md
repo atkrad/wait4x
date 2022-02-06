@@ -21,6 +21,8 @@ interval time.
     - [Redis](#redis)
     - [MySQL](#mysql)
     - [PostgreSQL](#postgresql)
+    - [InfluxDB](#influxdb)
+    - [MongoDB](#mongodb)
 
 ## Features
 
@@ -31,6 +33,8 @@ interval time.
     - Redis
     - MySQL
     - PostgreSQL
+    - InfluxDB
+    - MongoDB
 - **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
 - **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
@@ -177,4 +181,21 @@ wait4x postgresql 'postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full'
 
 # Checking PostgreSQL Unix socket connection
 wait4x postgresql 'postgres://bob:secret@/mydb?host=/var/run/postgresql'
+```
+
+### InfluxDB
+
+```shell
+# Checking InfluxDB connection
+wait4x influxdb http://localhost:8086
+```
+
+### MongoDB
+
+```shell
+# Checking MongoDB connection
+wait4x mongodb 'mongodb://127.0.0.1:27017'
+
+# Checking MongoDB connection with credentials and options
+wait4x mongodb 'mongodb://user:pass@127.0.0.1:27017/?maxPoolSize=20&w=majority'
 ```

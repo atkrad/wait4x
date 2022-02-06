@@ -65,6 +65,8 @@ func Execute() {
 	rootCmd.AddCommand(NewPostgresqlCommand())
 	rootCmd.AddCommand(NewMysqlCommand())
 	rootCmd.AddCommand(NewRedisCommand())
+	rootCmd.AddCommand(NewInfluxDBCommand())
+	rootCmd.AddCommand(NewMongoDBCommand())
 	rootCmd.AddCommand(NewVersionCommand())
 
 	if err := rootCmd.Execute(); err != nil {
