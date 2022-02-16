@@ -110,3 +110,49 @@ func TestHttpValidBody(t *testing.T) {
 
 	assert.Equal(t, true, hc.Check(context.TODO()))
 }
+
+func TestHttpValidHeader(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Test-Header", "test-value")
+		w.Header().Add("Test-Header-New", "test-value-new")
+	}))
+	defer ts.Close()
+
+	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
+
+	hc := New(ts.URL, WithExpectHeader("Test-Header"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+
+	// Regex.
+	hc = New(ts.URL, WithExpectHeader(".+New"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+
+	// Key value.
+	hc = New(ts.URL, WithExpectHeader("Test-Header=test-value"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+}
+
+func TestHttpInvalidHeader(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Test-Header", "test-value")
+	}))
+	defer ts.Close()
+
+	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
+
+	hc := New(ts.URL, WithExpectHeader("Test-Header-New"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, false, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectHeader("Test-.+=test-value"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, false, hc.Check(context.TODO()))
+}
