@@ -126,7 +126,7 @@ func TestHttpValidHeader(t *testing.T) {
 	assert.Equal(t, true, hc.Check(context.TODO()))
 
 	// Regex.
-	hc = New(ts.URL, WithExpectHeader(".+New"))
+	hc = New(ts.URL, WithExpectHeader("Test-Header=test-.+"))
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check(context.TODO()))

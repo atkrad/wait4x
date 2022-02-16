@@ -158,20 +158,13 @@ func (h *HTTP) httpResponseHeaderExpectation(expectHeader string, resp *http.Res
 		if resp.Header[expectedHeaderParsed[0]] == nil {
 			return false
 		}
-		return resp.Header[expectedHeaderParsed[0]][0] == expectedHeaderParsed[1]
+		matched, _ := regexp.MatchString(expectedHeaderParsed[1], resp.Header[expectedHeaderParsed[0]][0])
+		return matched
 	}
 
 	// Only key.
 	if resp.Header[expectHeader] != nil {
 		return true
-	}
-
-	// By regex.
-	for respHeader := range resp.Header {
-		matched, _ := regexp.MatchString(expectHeader, respHeader)
-		if matched {
-			return matched
-		}
 	}
 
 	return false
