@@ -15,10 +15,11 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/pkg/checker/http"
-	"github.com/atkrad/wait4x/pkg/waiter"
 	"net/url"
 	"time"
+
+	"github.com/atkrad/wait4x/pkg/checker/http"
+	"github.com/atkrad/wait4x/pkg/waiter"
 
 	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/spf13/cobra"
@@ -49,11 +50,19 @@ func NewHTTPCommand() *cobra.Command {
   # If you want checking http connection and expect specify http status code
   wait4x http https://ifconfig.co --expect-status-code 200
 
-  # If you want to check a http response header and expected a specific header
-  wait4x http https://ifconfig.co --expect-header Authorization
+  # If you want to check a http response header
+  # NOTE: the value in the expected header is regex.
+  # Sample response header: Authorization Token 1234ABCD
+  # You can match it by these ways:
 
-  # If you want to check a http response header and expected a specific header with a specific value
-  wait4x http https://ifconfig.co --expect-header Authorization=token
+  # Full key value:
+  wait4x http https://ifconfig.co --expect-header "Authorization=Token 1234ABCD"
+
+  # Value starts with:
+  wait4x http https://ifconfig.co --expect-header "Authorization=Token"
+
+  # Regex value:
+  wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")

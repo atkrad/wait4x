@@ -155,19 +155,16 @@ func (h *HTTP) httpResponseHeaderExpectation(expectHeader string, resp *http.Res
 	// Key value. e.g. Content-Type=application/json
 	if strings.Contains(expectHeader, "=") {
 		expectedHeaderParsed := strings.SplitN(expectHeader, "=", 2)
-		if resp.Header[expectedHeaderParsed[0]] == nil {
+		headerValue := resp.Header.Get(expectedHeaderParsed[0])
+		if headerValue == "" {
 			return false
 		}
-		matched, _ := regexp.MatchString(expectedHeaderParsed[1], resp.Header[expectedHeaderParsed[0]][0])
+		matched, _ := regexp.MatchString(expectedHeaderParsed[1], headerValue)
 		return matched
 	}
 
 	// Only key.
-	if resp.Header[expectHeader] != nil {
-		return true
-	}
-
-	return false
+	return resp.Header.Get(expectHeader) != ""
 }
 
 func (h *HTTP) truncateString(str string, num int) string {
