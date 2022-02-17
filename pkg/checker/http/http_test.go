@@ -16,14 +16,15 @@ package http
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/pkg/log"
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/atkrad/wait4x/pkg/log"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -109,4 +110,57 @@ func TestHttpValidBody(t *testing.T) {
 	hc.SetLogger(logger)
 
 	assert.Equal(t, true, hc.Check(context.TODO()))
+}
+
+func TestHttpValidHeader(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Test-Header", "test-value")
+		w.Header().Add("Test-Header-New", "test-value-new")
+		w.Header().Add("Authorization", "Token 1234")
+	}))
+	defer ts.Close()
+
+	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
+
+	hc := New(ts.URL, WithExpectHeader("Test-Header"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+
+	// Regex.
+	hc = New(ts.URL, WithExpectHeader("Test-Header=test-.+"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+
+	//hc = New(ts.URL, WithExpectHeader("Authorization=^Token\\s.+"))
+	hc = New(ts.URL, WithExpectHeader("Authorization=^Token\\s.+"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+
+	// Key value.
+	hc = New(ts.URL, WithExpectHeader("Test-Header=test-value"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, true, hc.Check(context.TODO()))
+}
+
+func TestHttpInvalidHeader(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Test-Header", "test-value")
+	}))
+	defer ts.Close()
+
+	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
+
+	hc := New(ts.URL, WithExpectHeader("Test-Header-New"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, false, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectHeader("Test-.+=test-value"))
+	hc.SetLogger(logger)
+
+	assert.Equal(t, false, hc.Check(context.TODO()))
 }

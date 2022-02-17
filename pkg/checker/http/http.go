@@ -16,11 +16,13 @@ package http
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/pkg/checker"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
+
+	"github.com/atkrad/wait4x/pkg/checker"
 )
 
 // Option configures an HTTP.
@@ -31,6 +33,7 @@ type HTTP struct {
 	address          string
 	timeout          time.Duration
 	expectBody       string
+	expectHeader     string
 	expectStatusCode int
 	*checker.LogAware
 }
@@ -62,6 +65,13 @@ func WithTimeout(timeout time.Duration) Option {
 func WithExpectBody(body string) Option {
 	return func(h *HTTP) {
 		h.expectBody = body
+	}
+}
+
+// WithExpectHeader configures response header expectation
+func WithExpectHeader(header string) Option {
+	return func(h *HTTP) {
+		h.expectHeader = header
 	}
 }
 
@@ -100,7 +110,7 @@ func (h *HTTP) Check(ctx context.Context) bool {
 		}
 	}()
 
-	if h.httpResponseCodeExpectation(h.expectStatusCode, resp) && h.httpResponseBodyExpectation(h.expectBody, resp) {
+	if h.httpResponseCodeExpectation(h.expectStatusCode, resp) && h.httpResponseBodyExpectation(h.expectBody, resp) && h.httpResponseHeaderExpectation(h.expectHeader, resp) {
 		return true
 	}
 
@@ -135,6 +145,26 @@ func (h *HTTP) httpResponseBodyExpectation(expectBody string, resp *http.Respons
 
 	matched, _ := regexp.MatchString(expectBody, bodyString)
 	return matched
+}
+
+func (h *HTTP) httpResponseHeaderExpectation(expectHeader string, resp *http.Response) bool {
+	if expectHeader == "" {
+		return true
+	}
+
+	// Key value. e.g. Content-Type=application/json
+	if strings.Contains(expectHeader, "=") {
+		expectedHeaderParsed := strings.SplitN(expectHeader, "=", 2)
+		headerValue := resp.Header.Get(expectedHeaderParsed[0])
+		if headerValue == "" {
+			return false
+		}
+		matched, _ := regexp.MatchString(expectedHeaderParsed[1], headerValue)
+		return matched
+	}
+
+	// Only key.
+	return resp.Header.Get(expectHeader) != ""
 }
 
 func (h *HTTP) truncateString(str string, num int) string {
