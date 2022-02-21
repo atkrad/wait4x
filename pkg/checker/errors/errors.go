@@ -87,9 +87,11 @@ func (e *Error) Fields() []interface{} {
 }
 
 func (e *Error) Error() string {
-	msg := e.msg
+	var msg strimg
 	if e.err != nil {
 		msg = e.err.Error()
+	} else {
+	    msg = e.msg
 	}
 
 	return msg
