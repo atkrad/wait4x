@@ -16,12 +16,13 @@ package http
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/pkg/checker/errors"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -29,9 +30,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestHttpInvalidAddress(t *testing.T) {
-	hc := New("http://not-exists.tld")
-
 	var checkerError *errors.Error
+
+	hc := New("http://not-exists.tld")
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
 
@@ -92,4 +93,52 @@ func TestHttpValidBody(t *testing.T) {
 	hc := New(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
 
 	assert.Nil(t, hc.Check(context.TODO()))
+}
+
+func TestHttpValidHeader(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Test-Header", "test-value")
+		w.Header().Add("Test-Header-New", "test-value-new")
+		w.Header().Add("Authorization", "Token 1234")
+		w.Header().Add("X-Foo", "")
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithExpectHeader("Test-Header"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectHeader("X-Foo"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectHeader("X-Foo=.*"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	// Regex.
+	hc = New(ts.URL, WithExpectHeader("Test-Header=test-.+"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectHeader("Authorization=^Token\\s.+"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	// Key value.
+	hc = New(ts.URL, WithExpectHeader("Test-Header=test-value"))
+	assert.Nil(t, hc.Check(context.TODO()))
+}
+
+func TestHttpInvalidHeader(t *testing.T) {
+	var checkerError *errors.Error
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Test-Header", "test-value")
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithExpectHeader("Test-Header-New"))
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+
+	hc = New(ts.URL, WithExpectHeader("Test-.+=test-value"))
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+
+	hc = New(ts.URL, WithExpectHeader("Test-Header=[A-Z]"))
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }

@@ -15,12 +15,13 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/pkg/checker/http"
-	"github.com/atkrad/wait4x/pkg/waiter"
+	"errors"
 	"net/url"
 	"time"
 
-	"errors"
+	"github.com/atkrad/wait4x/pkg/checker/http"
+	"github.com/atkrad/wait4x/pkg/waiter"
+
 	"github.com/spf13/cobra"
 )
 
@@ -48,6 +49,20 @@ func NewHTTPCommand() *cobra.Command {
 
   # If you want checking http connection and expect specify http status code
   wait4x http https://ifconfig.co --expect-status-code 200
+
+  # If you want to check a http response header
+  # NOTE: the value in the expected header is regex.
+  # Sample response header: Authorization Token 1234ABCD
+  # You can match it by these ways:
+
+  # Full key value:
+  wait4x http https://ifconfig.co --expect-header "Authorization=Token 1234ABCD"
+
+  # Value starts with:
+  wait4x http https://ifconfig.co --expect-header "Authorization=Token"
+
+  # Regex value:
+  wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
@@ -56,11 +71,13 @@ func NewHTTPCommand() *cobra.Command {
 
 			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 			expectBody, _ := cmd.Flags().GetString("expect-body")
+			expectHeader, _ := cmd.Flags().GetString("expect-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
 			hc := http.New(args[0],
 				http.WithExpectStatusCode(expectStatusCode),
 				http.WithExpectBody(expectBody),
+				http.WithExpectHeader(expectHeader),
 				http.WithTimeout(connectionTimeout),
 			)
 
@@ -76,6 +93,7 @@ func NewHTTPCommand() *cobra.Command {
 
 	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
 	httpCommand.Flags().String("expect-body", "", "Expect response body pattern.")
+	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 
 	return httpCommand

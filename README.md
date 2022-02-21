@@ -141,6 +141,20 @@ wait4x http https://ifconfig.co --expect-status-code 200
 # If you want checking http connection, status code and match the response body.
 # Note: You can write any regex that compatible with Golang syntax (https://pkg.go.dev/regexp/syntax#hdr-Syntax)
 wait4x http https://ifconfig.co/json --expect-status-code 200 --expect-body='"country":\s"Netherlands"'
+
+# If you want to check a http response header
+# NOTE: the value in the expected header is regex.
+# Sample response header: Authorization Token 1234ABCD
+# You can match it by these ways:
+
+# Full key value:
+wait4x http https://ifconfig.co --expect-header "Authorization=Token 1234ABCD"
+
+# Value starts with:
+wait4x http https://ifconfig.co --expect-header "Authorization=Token"
+
+# Regex value:
+wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 ```
 
 ### Redis
