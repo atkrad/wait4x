@@ -21,9 +21,11 @@ type Level int
 type Option func(s *Error)
 
 const (
-	// InfoLevel info error level
+	// InfoLevel defines info log level
 	InfoLevel Level = iota
+	// DebugLevel defines debug log level
 	DebugLevel
+	// TraceLevel defines trace log level
 	TraceLevel
 )
 
