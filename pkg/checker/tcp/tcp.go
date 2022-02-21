@@ -17,28 +17,25 @@ package tcp
 import (
 	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"net"
 	"time"
 )
 
-var DialErr = checker.NewError("dial error", "debug")
-
 // Option configures a TCP.
-type Option func(s *TCP)
+type Option func(t *TCP)
 
 // TCP represents TCP checker
 type TCP struct {
 	address string
 	timeout time.Duration
-	*checker.LogAware
 }
 
 // New creates the TCP checker
 func New(address string, opts ...Option) checker.Checker {
 	t := &TCP{
-		address:  address,
-		timeout:  time.Second * 5,
-		LogAware: &checker.LogAware{},
+		address: address,
+		timeout: time.Second * 5,
 	}
 
 	// apply the list of options to TCP
@@ -51,8 +48,8 @@ func New(address string, opts ...Option) checker.Checker {
 
 // WithTimeout configures a timeout for maximum amount of time a dial will wait for a connection to complete
 func WithTimeout(timeout time.Duration) Option {
-	return func(h *TCP) {
-		h.timeout = timeout
+	return func(t *TCP) {
+		t.timeout = timeout
 	}
 }
 
@@ -60,11 +57,9 @@ func WithTimeout(timeout time.Duration) Option {
 func (t *TCP) Check(ctx context.Context) error {
 	d := net.Dialer{Timeout: t.timeout}
 
-	t.Logger().Info("Checking TCP connection ...")
-
 	_, err := d.DialContext(ctx, "tcp", t.address)
 	if err != nil {
-		return DialErr.WithWrap(err)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	return nil

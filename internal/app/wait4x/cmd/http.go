@@ -20,7 +20,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"errors"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,7 @@ func NewHTTPCommand() *cobra.Command {
 		Long:  "",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.NewCommandError("ADDRESS is required argument for the http command")
+				return errors.New("ADDRESS is required argument for the http command")
 			}
 
 			_, err := url.Parse(args[0])
@@ -63,13 +63,13 @@ func NewHTTPCommand() *cobra.Command {
 				http.WithExpectBody(expectBody),
 				http.WithTimeout(connectionTimeout),
 			)
-			hc.SetLogger(Logger)
 
 			return waiter.Wait(
 				hc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
 				waiter.WithInvertCheck(invertCheck),
+				waiter.WithLogger(&Logger),
 			)
 		},
 	}

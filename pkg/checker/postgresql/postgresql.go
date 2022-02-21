@@ -18,47 +18,42 @@ import (
 	"context"
 	"database/sql"
 	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 
 	// Needed for the PostgreSQL driver
 	_ "github.com/lib/pq"
 )
 
-var OpenDatabaseErr = checker.NewError("open database error", "debug")
-var PingErr = checker.NewError("ping error", "debug")
-
 // PostgreSQL represents PostgreSQL checker
 type PostgreSQL struct {
 	dsn string
-	*checker.LogAware
 }
 
 // New creates the PostgreSQL checker
 func New(dsn string) checker.Checker {
 	p := &PostgreSQL{
-		dsn:      dsn,
-		LogAware: &checker.LogAware{},
+		dsn: dsn,
 	}
 
 	return p
 }
 
 // Check checks PostgreSQL connection
-func (p *PostgreSQL) Check(ctx context.Context) error {
-	p.Logger().Info("Checking PostgreSQL connection ...")
+func (p *PostgreSQL) Check(ctx context.Context) (err error) {
 	db, err := sql.Open("postgres", p.dsn)
 	if err != nil {
-		return OpenDatabaseErr.WithWrap(err)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			p.Logger().Debug(err)
+			err = errors.Wrap(err, errors.DebugLevel)
 		}
 	}()
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		return PingErr.WithWrap(err)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	return nil

@@ -16,10 +16,8 @@ package http
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/pkg/log"
-	"github.com/sirupsen/logrus"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -31,12 +29,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestHttpInvalidAddress(t *testing.T) {
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	hc := New("http://not-exists.tld")
-	hc.SetLogger(logger)
 
-	assert.ErrorIs(t, DoCallErr, hc.Check(context.TODO()))
+	var checkerError *errors.Error
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
 
 func TestHttpValidAddress(t *testing.T) {
@@ -45,10 +41,7 @@ func TestHttpValidAddress(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	hc := New(ts.URL)
-	hc.SetLogger(logger)
 
 	assert.Nil(t, hc.Check(context.TODO()))
 }
@@ -59,12 +52,10 @@ func TestHttpInvalidStatusCode(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated))
-	hc.SetLogger(logger)
 
-	assert.Equal(t, false, hc.Check(context.TODO()))
+	var checkerError *errors.Error
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
 
 func TestHttpValidStatusCode(t *testing.T) {
@@ -73,12 +64,9 @@ func TestHttpValidStatusCode(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	hc := New(ts.URL, WithExpectStatusCode(http.StatusOK))
-	hc.SetLogger(logger)
 
-	assert.Equal(t, true, hc.Check(context.TODO()))
+	assert.Nil(t, hc.Check(context.TODO()))
 }
 
 func TestHttpInvalidBody(t *testing.T) {
@@ -88,12 +76,10 @@ func TestHttpInvalidBody(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	hc := New(ts.URL, WithExpectBody("FooBar"))
-	hc.SetLogger(logger)
 
-	assert.Equal(t, false, hc.Check(context.TODO()))
+	var checkerError *errors.Error
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
 
 func TestHttpValidBody(t *testing.T) {
@@ -103,10 +89,7 @@ func TestHttpValidBody(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	hc := New(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
-	hc.SetLogger(logger)
 
-	assert.Equal(t, true, hc.Check(context.TODO()))
+	assert.Nil(t, hc.Check(context.TODO()))
 }

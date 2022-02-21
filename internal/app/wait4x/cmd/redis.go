@@ -19,7 +19,7 @@ import (
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"time"
 
-	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"errors"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ func NewRedisCommand() *cobra.Command {
 		Short: "Check Redis connection or key existence.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.NewCommandError("ADDRESS is required argument for the redis command")
+				return errors.New("ADDRESS is required argument for the redis command")
 			}
 
 			return nil
@@ -60,13 +60,13 @@ func NewRedisCommand() *cobra.Command {
 			expectKey, _ := cmd.Flags().GetString("expect-key")
 
 			rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
-			rc.SetLogger(Logger)
 
 			return waiter.Wait(
 				rc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
 				waiter.WithInvertCheck(invertCheck),
+				waiter.WithLogger(&Logger),
 			)
 		},
 	}
