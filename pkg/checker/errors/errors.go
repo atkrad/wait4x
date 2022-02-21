@@ -14,17 +14,20 @@
 
 package errors
 
+// Level represents error level
 type Level int
 
 // Option configures an Error.
 type Option func(s *Error)
 
 const (
+	// InfoLevel info error level
 	InfoLevel Level = iota
 	DebugLevel
 	TraceLevel
 )
 
+// Error represents checker error
 type Error struct {
 	msg    string
 	err    error
@@ -32,6 +35,7 @@ type Error struct {
 	fields []interface{}
 }
 
+// New creates the Error
 func New(msg string, level Level, opts ...Option) error {
 	e := &Error{
 		msg:    msg,
@@ -47,6 +51,7 @@ func New(msg string, level Level, opts ...Option) error {
 	return e
 }
 
+// Wrap wraps an error in the Error
 func Wrap(err error, level Level, opts ...Option) *Error {
 	e := &Error{
 		err:    err,
@@ -69,10 +74,12 @@ func WithFields(fields ...interface{}) Option {
 	}
 }
 
+// Level returns the error level
 func (e *Error) Level() Level {
 	return e.level
 }
 
+// Fields returns the error fields
 func (e *Error) Fields() []interface{} {
 	return e.fields
 }
