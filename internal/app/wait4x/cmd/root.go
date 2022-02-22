@@ -29,7 +29,10 @@ import (
 // Logger is the global logger.
 var Logger logr.Logger
 
+// ExitError is the error exit code
 const ExitError = 1
+
+// ExitTimedOut is the timed out exit code
 const ExitTimedOut = 124
 
 // NewRootCommand creates the root command
