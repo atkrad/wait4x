@@ -9,7 +9,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/influxdata/influxdb-client-go/v2 v2.7.0
 	github.com/lib/pq v1.10.4
-	github.com/rs/zerolog v1.25.0
+	github.com/rs/zerolog v1.26.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
