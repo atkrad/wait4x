@@ -15,11 +15,11 @@
 package cmd
 
 import (
+	"errors"
 	"github.com/atkrad/wait4x/pkg/checker/tcp"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"time"
 
-	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ func NewTCPCommand() *cobra.Command {
 		Short: "Check TCP connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.NewCommandError("ADDRESS is required argument for the tcp command")
+				return errors.New("ADDRESS is required argument for the tcp command")
 			}
 
 			return nil
@@ -47,13 +47,13 @@ func NewTCPCommand() *cobra.Command {
 			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
 			tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
-			tc.SetLogger(Logger)
 
 			return waiter.Wait(
 				tc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
 				waiter.WithInvertCheck(invertCheck),
+				waiter.WithLogger(&Logger),
 			)
 		},
 	}

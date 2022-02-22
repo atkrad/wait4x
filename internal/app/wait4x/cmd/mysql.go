@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"errors"
 	"github.com/atkrad/wait4x/pkg/checker/mysql"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -28,7 +28,7 @@ func NewMysqlCommand() *cobra.Command {
 		Short: "Check MySQL connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.NewCommandError("DSN is required argument for the mysql command")
+				return errors.New("DSN is required argument for the mysql command")
 			}
 
 			return nil
@@ -46,13 +46,13 @@ func NewMysqlCommand() *cobra.Command {
 			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			mc := mysql.New(args[0])
-			mc.SetLogger(Logger)
 
 			return waiter.Wait(
 				mc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
 				waiter.WithInvertCheck(invertCheck),
+				waiter.WithLogger(&Logger),
 			)
 		},
 	}

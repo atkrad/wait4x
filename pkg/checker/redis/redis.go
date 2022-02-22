@@ -17,6 +17,7 @@ package redis
 import (
 	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"regexp"
 	"strings"
 	"time"
@@ -25,22 +26,20 @@ import (
 )
 
 // Option configures a Redis.
-type Option func(s *Redis)
+type Option func(r *Redis)
 
 // Redis represents Redis checker
 type Redis struct {
 	address   string
 	expectKey string
 	timeout   time.Duration
-	*checker.LogAware
 }
 
 // New creates the Redis checker
 func New(address string, opts ...Option) checker.Checker {
 	r := &Redis{
-		address:  address,
-		timeout:  time.Second * 5,
-		LogAware: &checker.LogAware{},
+		address: address,
+		timeout: time.Second * 5,
 	}
 
 	// apply the list of options to Redis
@@ -66,14 +65,10 @@ func WithExpectKey(key string) Option {
 }
 
 // Check checks Redis connection
-func (r *Redis) Check(ctx context.Context) bool {
-	r.Logger().Info("Checking Redis connection ...")
-
+func (r *Redis) Check(ctx context.Context) error {
 	opts, err := redis.ParseURL(r.address)
 	if err != nil {
-		r.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 	opts.DialTimeout = r.timeout
 
@@ -82,14 +77,12 @@ func (r *Redis) Check(ctx context.Context) bool {
 	// Check Redis connection
 	_, err = client.WithContext(ctx).Ping().Result()
 	if err != nil {
-		r.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	// It can connect to Redis successfully
 	if r.expectKey == "" {
-		return true
+		return nil
 	}
 
 	splittedKey := strings.Split(r.expectKey, "=")
@@ -98,30 +91,32 @@ func (r *Redis) Check(ctx context.Context) bool {
 	val, err := client.WithContext(ctx).Get(splittedKey[0]).Result()
 	if err == redis.Nil {
 		// Redis key does not exist.
-		r.Logger().InfoWithFields("Key does not exist.", map[string]interface{}{"key": splittedKey[0]})
-
-		return false
+		return errors.New(
+			"the key doesn't exist",
+			errors.InfoLevel,
+			errors.WithFields("key", splittedKey[0]),
+		)
 	}
 
 	if err != nil {
 		// Error occurred on get Redis key
-		r.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	// The Redis key exists and user doesn't want to match value
 	if !keyHasValue {
-		return true
+		return nil
 	}
 
 	// When the user expect a key with value
 	matched, _ := regexp.MatchString(splittedKey[1], val)
 	if matched {
-		return true
+		return nil
 	}
 
-	r.Logger().InfoWithFields("Checking value expectation of the key", map[string]interface{}{"key": splittedKey[0], "actual": val, "expect": splittedKey[1]})
-
-	return false
+	return errors.New(
+		"the key and desired value doesn't exist",
+		errors.InfoLevel,
+		errors.WithFields("key", splittedKey[0], "actual", val, "expect", splittedKey[1]),
+	)
 }

@@ -15,11 +15,11 @@
 package cmd
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/atkrad/wait4x/internal/pkg/errors"
 	"github.com/atkrad/wait4x/internal/pkg/test"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -55,5 +55,5 @@ func TestTcpConnectionFail(t *testing.T) {
 
 	_, err := test.ExecuteCommand(rootCmd, "tcp", "127.0.0.1:8080", "-t", "2s")
 
-	assert.Equal(t, errors.TimedOutErrorMessage, err.Error())
+	assert.Equal(t, context.DeadlineExceeded, err)
 }

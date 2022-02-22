@@ -17,39 +17,34 @@ package influxdb
 import (
 	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
 // InfluxDB represents InfluxDB checker
 type InfluxDB struct {
 	serverURL string
-	*checker.LogAware
 }
 
 // New creates the InfluxDB checker
 func New(serverURL string) checker.Checker {
 	i := &InfluxDB{
 		serverURL: serverURL,
-		LogAware:  &checker.LogAware{},
 	}
 
 	return i
 }
 
 // Check checks InfluxDB connection
-func (i *InfluxDB) Check(ctx context.Context) bool {
+func (i *InfluxDB) Check(ctx context.Context) error {
 	// InfluxDB doesn't validate authentication params on Ping and Health requests.
-	i.Logger().Info("Checking InfluxDB connection ...")
-
 	ic := influxdb2.NewClient(i.serverURL, "")
 	defer ic.Close()
 
 	res, err := ic.Ping(ctx)
 	if res == false {
-		i.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
-	return true
+	return nil
 }

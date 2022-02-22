@@ -23,10 +23,11 @@ import (
 	"time"
 
 	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 )
 
 // Option configures an HTTP.
-type Option func(s *HTTP)
+type Option func(h *HTTP)
 
 // HTTP represents HTTP checker
 type HTTP struct {
@@ -35,15 +36,13 @@ type HTTP struct {
 	expectBody       string
 	expectHeader     string
 	expectStatusCode int
-	*checker.LogAware
 }
 
 // New creates the HTTP checker
 func New(address string, opts ...Option) checker.Checker {
 	h := &HTTP{
-		address:  address,
-		timeout:  time.Second * 5,
-		LogAware: &checker.LogAware{},
+		address: address,
+		timeout: time.Second * 5,
 	}
 
 	// apply the list of options to HTTP
@@ -83,88 +82,99 @@ func WithExpectStatusCode(code int) Option {
 }
 
 // Check checks HTTP connection
-func (h *HTTP) Check(ctx context.Context) bool {
+func (h *HTTP) Check(ctx context.Context) (err error) {
 	var httpClient = &http.Client{
 		Timeout: h.timeout,
 	}
 
-	h.Logger().Info("Checking HTTP connection ...")
-
 	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
 	if err != nil {
-		h.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		h.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			h.Logger().Debug(err)
+			err = errors.Wrap(err, errors.DebugLevel)
 		}
 	}()
 
-	if h.httpResponseCodeExpectation(h.expectStatusCode, resp) && h.httpResponseBodyExpectation(h.expectBody, resp) && h.httpResponseHeaderExpectation(h.expectHeader, resp) {
-		return true
+	if h.expectStatusCode != 0 {
+		return h.checkingStatusCodeExpectation(resp)
 	}
 
-	return false
+	if h.expectBody != "" {
+		return h.checkingBodyExpectation(resp)
+	}
+
+	if h.expectHeader != "" {
+		return h.checkingHeaderExpectation(resp)
+	}
+
+	return nil
 }
 
-func (h *HTTP) httpResponseCodeExpectation(expectStatusCode int, resp *http.Response) bool {
-	if expectStatusCode == 0 {
-		return true
+func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
+	if h.expectStatusCode != resp.StatusCode {
+		return errors.New(
+			"the status code doesn't expect",
+			errors.InfoLevel,
+			errors.WithFields("actual", resp.StatusCode, "expect", h.expectStatusCode),
+		)
 	}
 
-	h.Logger().InfoWithFields("Checking http response code expectation", map[string]interface{}{"actual": resp.StatusCode, "expect": expectStatusCode})
-
-	return expectStatusCode == resp.StatusCode
+	return nil
 }
 
-func (h *HTTP) httpResponseBodyExpectation(expectBody string, resp *http.Response) bool {
-	if expectBody == "" {
-		return true
-	}
-
+func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		h.Logger().Fatal(err)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	bodyString := string(bodyBytes)
+	matched, _ := regexp.MatchString(h.expectBody, bodyString)
 
-	// TODO: Logging full body response in debug level.
-
-	h.Logger().InfoWithFields("Checking http response body expectation", map[string]interface{}{"actual": h.truncateString(bodyString, 50), "expect": expectBody})
-
-	matched, _ := regexp.MatchString(expectBody, bodyString)
-	return matched
-}
-
-func (h *HTTP) httpResponseHeaderExpectation(expectHeader string, resp *http.Response) bool {
-	if expectHeader == "" {
-		return true
+	if !matched {
+		return errors.New(
+			"the body doesn't expect",
+			errors.InfoLevel,
+			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBody),
+		)
 	}
 
+	return nil
+}
+
+func (h *HTTP) checkingHeaderExpectation(resp *http.Response) error {
 	// Key value. e.g. Content-Type=application/json
-	if strings.Contains(expectHeader, "=") {
-		expectedHeaderParsed := strings.SplitN(expectHeader, "=", 2)
+	expectedHeaderParsed := strings.SplitN(h.expectHeader, "=", 2)
+	if len(expectedHeaderParsed) == 2 {
 		headerValue := resp.Header.Get(expectedHeaderParsed[0])
-		if headerValue == "" {
-			return false
-		}
 		matched, _ := regexp.MatchString(expectedHeaderParsed[1], headerValue)
-		return matched
+		if !matched {
+			return errors.New(
+				"the http header key and value doesn't expect",
+				errors.InfoLevel,
+				errors.WithFields("actual", headerValue, "expect", h.expectHeader),
+			)
+		}
 	}
 
 	// Only key.
-	return resp.Header.Get(expectHeader) != ""
+	if _, ok := resp.Header[expectedHeaderParsed[0]]; !ok {
+		return errors.New(
+			"the http header key doesn't expect",
+			errors.InfoLevel,
+			errors.WithFields("actual", resp.Header, "expect", h.expectHeader),
+		)
+	}
+
+	return nil
 }
 
 func (h *HTTP) truncateString(str string, num int) string {

@@ -17,6 +17,7 @@ package mongodb
 import (
 	"context"
 	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -25,44 +26,36 @@ import (
 // MongoDB represents MongoDB checker
 type MongoDB struct {
 	dsn string
-	*checker.LogAware
 }
 
 // New creates the MongoDB checker
 func New(dsn string) checker.Checker {
 	i := &MongoDB{
-		dsn:      dsn,
-		LogAware: &checker.LogAware{},
+		dsn: dsn,
 	}
 
 	return i
 }
 
 // Check checks MongoDB connection
-func (m *MongoDB) Check(ctx context.Context) bool {
-	m.Logger().Info("Checking MongoDB connection ...")
-
-	// Create a new c and connect to the server
+func (m *MongoDB) Check(ctx context.Context) (err error) {
+	// Creates a new Client and then initializes it using the Connect method.
 	c, err := mongo.Connect(ctx, options.Client().ApplyURI(m.dsn))
 	if err != nil {
-		m.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	defer func() {
 		if err := c.Disconnect(ctx); err != nil {
-			m.Logger().Debug(err)
+			err = errors.Wrap(err, errors.DebugLevel)
 		}
 	}()
 
 	// Ping the primary
 	err = c.Ping(ctx, readpref.Primary())
 	if err != nil {
-		m.Logger().Debug(err)
-
-		return false
+		return errors.Wrap(err, errors.DebugLevel)
 	}
 
-	return true
+	return nil
 }

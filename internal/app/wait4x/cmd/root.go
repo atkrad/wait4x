@@ -15,18 +15,25 @@
 package cmd
 
 import (
+	"context"
 	"errors"
+	"github.com/go-logr/logr"
+	"github.com/go-logr/zerologr"
 	"os"
 	"time"
 
-	errs "github.com/atkrad/wait4x/internal/pkg/errors"
-	"github.com/atkrad/wait4x/pkg/log"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
 // Logger is the global logger.
-var Logger log.Logger
+var Logger logr.Logger
+
+// ExitError is the error exit code
+const ExitError = 1
+
+// ExitTimedOut is the timed out exit code
+const ExitTimedOut = 124
 
 // NewRootCommand creates the root command
 func NewRootCommand() *cobra.Command {
@@ -36,14 +43,25 @@ func NewRootCommand() *cobra.Command {
 		Long:  `Wait4X allows waiting for a port to enter into specify state or waiting for a service e.g. redis, mysql, postgres, ... to enter inter ready state`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			logLevel, _ := cmd.Flags().GetString("log-level")
+			lvl, err := zerolog.ParseLevel(logLevel)
+			if err != nil {
+				return err
+			}
 
 			// Prevent showing usage when subcommand return error.
 			cmd.SilenceUsage = true
 
-			Logger, err = log.NewLogrus(logLevel, os.Stdout)
-			if err != nil {
-				return err
-			}
+			zl := zerolog.New(
+				zerolog.ConsoleWriter{
+					Out:        os.Stderr,
+					NoColor:    false,
+					TimeFormat: time.RFC3339,
+				},
+			).Level(lvl).
+				With().
+				Timestamp().
+				Logger()
+			Logger = zerologr.New(&zl)
 
 			return nil
 		},
@@ -52,7 +70,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().DurationP("interval", "i", 1*time.Second, "Interval time between each loop.")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 10*time.Second, "Timeout is the maximum amount of time that Wait4X will wait for a checking operation.")
 	rootCmd.PersistentFlags().BoolP("invert-check", "v", false, "Invert the sense of checking.")
-	rootCmd.PersistentFlags().StringP("log-level", "l", logrus.InfoLevel.String(), "Set the logging level (\"debug\"|\"info\"|\"warn\"|\"error\"|\"fatal\")")
+	rootCmd.PersistentFlags().StringP("log-level", "l", zerolog.InfoLevel.String(), "Set the logging level (\"trace\"|\"debug\"|\"info\")")
 
 	return rootCmd
 }
@@ -70,11 +88,10 @@ func Execute() {
 	rootCmd.AddCommand(NewVersionCommand())
 
 	if err := rootCmd.Execute(); err != nil {
-		var commandError *errs.CommandError
-		if errors.As(err, &commandError) {
-			os.Exit(commandError.ExitCode)
+		if errors.Is(err, context.DeadlineExceeded) {
+			os.Exit(ExitTimedOut)
 		}
 
-		os.Exit(errs.ExitError)
+		os.Exit(ExitError)
 	}
 }

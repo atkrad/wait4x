@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"errors"
 	"github.com/atkrad/wait4x/pkg/checker/postgresql"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -29,7 +29,7 @@ func NewPostgresqlCommand() *cobra.Command {
 		Short:   "Check PostgreSQL connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.NewCommandError("DSN is required argument for the postgresql command")
+				return errors.New("DSN is required argument for the postgresql command")
 			}
 
 			return nil
@@ -44,13 +44,13 @@ func NewPostgresqlCommand() *cobra.Command {
 			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			pc := postgresql.New(args[0])
-			pc.SetLogger(Logger)
 
 			return waiter.Wait(
 				pc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
 				waiter.WithInvertCheck(invertCheck),
+				waiter.WithLogger(&Logger),
 			)
 		},
 	}

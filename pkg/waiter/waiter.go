@@ -16,13 +16,14 @@ package waiter
 
 import (
 	"context"
+	"errors"
+	errors2 "github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/go-logr/logr"
 	"time"
-
-	"github.com/atkrad/wait4x/internal/pkg/errors"
 )
 
 // Check represents the checker's check method.
-type Check func(ctx context.Context) bool
+type Check func(ctx context.Context) error
 
 // Option configures an options
 type Option func(s *options)
@@ -32,6 +33,7 @@ type options struct {
 	timeout     time.Duration
 	interval    time.Duration
 	invertCheck bool
+	logger      *logr.Logger
 }
 
 // WithTimeout configures a time limit for whole of checking
@@ -52,6 +54,13 @@ func WithInterval(interval time.Duration) Option {
 func WithInvertCheck(invertCheck bool) Option {
 	return func(o *options) {
 		o.invertCheck = invertCheck
+	}
+}
+
+// WithLogger configures waiter logger
+func WithLogger(logger *logr.Logger) Option {
+	return func(o *options) {
+		o.logger = logger
 	}
 }
 
@@ -76,15 +85,38 @@ func WaitWithContext(ctx context.Context, check Check, opts ...Option) error {
 	ctx, cancel := context.WithTimeout(ctx, options.timeout)
 	defer cancel()
 
-	checking := check
-	if options.invertCheck == true {
-		checking = func(ctx context.Context) bool { return !check(ctx) }
-	}
+	for {
+		if options.logger != nil {
+			options.logger.Info("Checking the service ...")
+		}
 
-	for !checking(ctx) {
+		err := check(ctx)
+		if options.logger != nil {
+			var cError *errors2.Error
+			if errors.As(err, &cError) {
+				options.logger.V(int(cError.Level())).
+					WithValues(cError.Fields()...).
+					Info(err.Error())
+			}
+		}
+
+		if options.invertCheck == true {
+			if err == nil {
+				goto CONTINUE
+			}
+
+			break
+		}
+
+		if err == nil {
+			break
+		}
+
+	CONTINUE:
+
 		select {
 		case <-ctx.Done():
-			return errors.NewTimedOutError()
+			return ctx.Err()
 		case <-time.After(options.interval):
 		}
 	}

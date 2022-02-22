@@ -16,10 +16,8 @@ package tcp
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/pkg/log"
-	"github.com/sirupsen/logrus"
+	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"net"
 	"testing"
 )
@@ -32,12 +30,9 @@ func TestTcpValidAddress(t *testing.T) {
 		_, _ = ln.Accept()
 	}()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	tc := New(ln.Addr().String())
-	tc.SetLogger(logger)
 
-	assert.Equal(t, true, tc.Check(context.TODO()))
+	assert.Equal(t, nil, tc.Check(context.TODO()))
 }
 
 func TestTcpInvalidAddress(t *testing.T) {
@@ -48,10 +43,8 @@ func TestTcpInvalidAddress(t *testing.T) {
 		_, _ = ln.Accept()
 	}()
 
-	logger, _ := log.NewLogrus(logrus.DebugLevel.String(), ioutil.Discard)
-
 	tc := New(ln.Addr().String() + "0")
-	tc.SetLogger(logger)
 
-	assert.Equal(t, false, tc.Check(context.TODO()))
+	var checkerError *errors.Error
+	assert.ErrorAs(t, tc.Check(context.TODO()), &checkerError)
 }

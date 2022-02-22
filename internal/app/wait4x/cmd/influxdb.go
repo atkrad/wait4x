@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/atkrad/wait4x/internal/pkg/errors"
+	"errors"
 	"github.com/atkrad/wait4x/pkg/checker/influxdb"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -28,7 +28,7 @@ func NewInfluxDBCommand() *cobra.Command {
 		Short: "Check InfluxDB connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.NewCommandError("SERVER_URL is required argument for the influxdb command")
+				return errors.New("SERVER_URL is required argument for the influxdb command")
 			}
 
 			return nil
@@ -43,13 +43,13 @@ func NewInfluxDBCommand() *cobra.Command {
 			invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 			ic := influxdb.New(args[0])
-			ic.SetLogger(Logger)
 
 			return waiter.Wait(
 				ic.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
 				waiter.WithInvertCheck(invertCheck),
+				waiter.WithLogger(&Logger),
 			)
 		},
 	}
