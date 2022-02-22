@@ -29,6 +29,9 @@ import (
 // Logger is the global logger.
 var Logger logr.Logger
 
+const ExitError = 1
+const ExitTimedOut = 124
+
 // NewRootCommand creates the root command
 func NewRootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
@@ -83,9 +86,9 @@ func Execute() {
 
 	if err := rootCmd.Execute(); err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
-			os.Exit(124)
+			os.Exit(ExitTimedOut)
 		}
 
-		os.Exit(1)
+		os.Exit(ExitError)
 	}
 }
