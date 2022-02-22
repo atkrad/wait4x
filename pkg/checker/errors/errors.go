@@ -86,15 +86,14 @@ func (e *Error) Fields() []interface{} {
 	return e.fields
 }
 
-func (e *Error) Error() string {
-	var msg strimg
+func (e *Error) Error() (msg string) {
 	if e.err != nil {
 		msg = e.err.Error()
 	} else {
-	    msg = e.msg
+		msg = e.msg
 	}
 
-	return msg
+	return
 }
 
 func (e *Error) Unwrap() error {
