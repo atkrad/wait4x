@@ -45,7 +45,8 @@ func NewPostgresqlCommand() *cobra.Command {
 
 			pc := postgresql.New(args[0])
 
-			return waiter.Wait(
+			return waiter.WaitWithContext(
+				cmd.Context(),
 				pc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),

@@ -47,7 +47,8 @@ func NewMysqlCommand() *cobra.Command {
 
 			mc := mysql.New(args[0])
 
-			return waiter.Wait(
+			return waiter.WaitWithContext(
+				cmd.Context(),
 				mc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),

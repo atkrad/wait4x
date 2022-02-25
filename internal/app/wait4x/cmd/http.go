@@ -81,7 +81,8 @@ func NewHTTPCommand() *cobra.Command {
 				http.WithTimeout(connectionTimeout),
 			)
 
-			return waiter.Wait(
+			return waiter.WaitWithContext(
+				cmd.Context(),
 				hc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),

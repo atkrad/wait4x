@@ -48,7 +48,8 @@ func NewTCPCommand() *cobra.Command {
 
 			tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
 
-			return waiter.Wait(
+			return waiter.WaitWithContext(
+				cmd.Context(),
 				tc.Check,
 				waiter.WithTimeout(timeout),
 				waiter.WithInterval(interval),
