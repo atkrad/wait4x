@@ -16,18 +16,14 @@ package cmd
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/atkrad/wait4x/internal/pkg/test"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	log.SetOutput(ioutil.Discard)
-
 	os.Exit(m.Run())
 }
 
