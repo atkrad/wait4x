@@ -41,6 +41,9 @@ func NewRootCommand() *cobra.Command {
 		Use:   "wait4x",
 		Short: "Wait4X allows waiting for a port or a service to enter into specify state",
 		Long:  `Wait4X allows waiting for a port to enter into specify state or waiting for a service e.g. redis, mysql, postgres, ... to enter inter ready state`,
+		CompletionOptions: cobra.CompletionOptions{
+			HiddenDefaultCmd: true,
+		},
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			logLevel, _ := cmd.Flags().GetString("log-level")
 			lvl, err := zerolog.ParseLevel(logLevel)
