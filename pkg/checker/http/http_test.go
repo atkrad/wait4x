@@ -142,3 +142,29 @@ func TestHttpInvalidHeader(t *testing.T) {
 	hc = New(ts.URL, WithExpectHeader("Test-Header=[A-Z]"))
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
+
+func TestHttpInvalidCombinationFeatures(t *testing.T) {
+	var checkerError *errors.Error
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Test-Header", "test-value")
+		w.Write([]byte("Wait4X"))
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBody("FooBar"))
+	err := hc.Check(context.TODO())
+	assert.ErrorAs(t, err, &checkerError)
+	assert.Equal(t, "the body doesn't expect", err.Error())
+
+	hc = New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBody("Wait4X"), WithExpectHeader("X-Foo"))
+	err = hc.Check(context.TODO())
+	assert.ErrorAs(t, err, &checkerError)
+	assert.Equal(t, "the http header key doesn't expect", err.Error())
+
+	hc = New(ts.URL, WithExpectStatusCode(http.StatusOK), WithExpectBody("Wait4X"), WithExpectHeader("Test-Header"))
+	err = hc.Check(context.TODO())
+	assert.ErrorAs(t, err, &checkerError)
+	assert.Equal(t, "the status code doesn't expect", err.Error())
+}

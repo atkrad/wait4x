@@ -104,11 +104,19 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	}()
 
 	if h.expectStatusCode != 0 {
-		return h.checkingStatusCodeExpectation(resp)
+		err := h.checkingStatusCodeExpectation(resp)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	if h.expectBody != "" {
-		return h.checkingBodyExpectation(resp)
+		err := h.checkingBodyExpectation(resp)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	if h.expectHeader != "" {
