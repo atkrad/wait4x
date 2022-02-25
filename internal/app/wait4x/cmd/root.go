@@ -20,6 +20,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -90,7 +91,10 @@ func Execute() {
 	rootCmd.AddCommand(NewMongoDBCommand())
 	rootCmd.AddCommand(NewVersionCommand())
 
-	if err := rootCmd.Execute(); err != nil {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			os.Exit(ExitTimedOut)
 		}
