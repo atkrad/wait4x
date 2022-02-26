@@ -155,6 +155,10 @@ wait4x http https://ifconfig.co --expect-header "Authorization=Token"
 
 # Regex value:
 wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
+
+# JSON value:
+wait4x http https://ifconfig.co/json --expect-json "user_agent.product"
+To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
 ```
 
 ### Redis

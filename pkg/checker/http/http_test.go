@@ -95,6 +95,36 @@ func TestHttpValidBody(t *testing.T) {
 	assert.Nil(t, hc.Check(context.TODO()))
 }
 
+func TestHttpValidJson(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"user": {"name": "test"}, "is_active": true}`))
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithExpectJson("user"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectJson("user.name"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectJson("is_active"))
+	assert.Nil(t, hc.Check(context.TODO()))
+}
+
+func TestHttpInvalidJson(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"user": {"name": "test"}, "is_active": true}`))
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithExpectJson("test"))
+
+	var checkerError *errors.Error
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+}
+
 func TestHttpValidHeader(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Test-Header", "test-value")
