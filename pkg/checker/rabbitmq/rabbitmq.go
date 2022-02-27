@@ -28,9 +28,13 @@ import (
 type Option func(r *RabbitMQ)
 
 const (
-	DefaultHeartbeat             = 10 * time.Second
-	DefaultConnectionTimeout     = 3 * time.Second
-	DefaultLocale                = "en_US"
+	// DefaultHeartbeat is the default heartbeat duration
+	DefaultHeartbeat = 10 * time.Second
+	// DefaultConnectionTimeout is the default connection timeout duration
+	DefaultConnectionTimeout = 3 * time.Second
+	// DefaultLocale is the default connection locale
+	DefaultLocale = "en_US"
+	// DefaultInsecureSkipTLSVerify is the default insecure skip tls verify
 	DefaultInsecureSkipTLSVerify = false
 )
 
