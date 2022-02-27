@@ -75,14 +75,14 @@ func NewHTTPCommand() *cobra.Command {
 
 			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 			expectBody, _ := cmd.Flags().GetString("expect-body")
-			expectJson, _ := cmd.Flags().GetString("expect-json")
+			expectJSON, _ := cmd.Flags().GetString("expect-json")
 			expectHeader, _ := cmd.Flags().GetString("expect-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
 			hc := http.New(args[0],
 				http.WithExpectStatusCode(expectStatusCode),
 				http.WithExpectBody(expectBody),
-				http.WithExpectJSON(expectJson),
+				http.WithExpectJSON(expectJSON),
 				http.WithExpectHeader(expectHeader),
 				http.WithTimeout(connectionTimeout),
 			)
