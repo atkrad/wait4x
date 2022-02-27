@@ -31,6 +31,15 @@ func TestHTTPCommandInvalidArgument(t *testing.T) {
 	assert.Equal(t, "ADDRESS is required argument for the http command", err.Error())
 }
 
+func TestHTTPCommandInvalidAddress(t *testing.T) {
+	rootCmd := NewRootCommand()
+	rootCmd.AddCommand(NewHTTPCommand())
+
+	_, err := test.ExecuteCommand(rootCmd, "http", "http://local host")
+
+	assert.Contains(t, err.Error(), "invalid character \" \" in host name")
+}
+
 func TestHTTPConnectionSuccess(t *testing.T) {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewHTTPCommand())
