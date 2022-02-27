@@ -35,7 +35,7 @@ type HTTP struct {
 	address          string
 	timeout          time.Duration
 	expectBody       string
-	expectJson       string
+	expectJSON       string
 	expectHeader     string
 	expectStatusCode int
 }
@@ -69,10 +69,10 @@ func WithExpectBody(body string) Option {
 	}
 }
 
-// WithExpectJson configures response json expectation
-func WithExpectJson(json string) Option {
+// WithExpectJSON configures response json expectation
+func WithExpectJSON(json string) Option {
 	return func(h *HTTP) {
-		h.expectJson = json
+		h.expectJSON = json
 	}
 }
 
@@ -128,8 +128,8 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		}
 	}
 
-	if h.expectJson != "" {
-		err := h.checkingJsonExpectation(resp)
+	if h.expectJSON != "" {
+		err := h.checkingJSONExpectation(resp)
 
 		if err != nil {
 			return err
@@ -175,20 +175,20 @@ func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 	return nil
 }
 
-func (h *HTTP) checkingJsonExpectation(resp *http.Response) error {
+func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
 
 	bodyString := string(bodyBytes)
-	value := gjson.Get(bodyString, h.expectJson)
+	value := gjson.Get(bodyString, h.expectJSON)
 
 	if !value.Exists() {
 		return errors.New(
 			"the JSON doesn't match",
 			errors.InfoLevel,
-			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectJson),
+			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectJSON),
 		)
 	}
 

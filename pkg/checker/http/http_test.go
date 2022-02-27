@@ -102,13 +102,13 @@ func TestHttpValidJson(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithExpectJson("user"))
+	hc := New(ts.URL, WithExpectJSON("user"))
 	assert.Nil(t, hc.Check(context.TODO()))
 
-	hc = New(ts.URL, WithExpectJson("user.name"))
+	hc = New(ts.URL, WithExpectJSON("user.name"))
 	assert.Nil(t, hc.Check(context.TODO()))
 
-	hc = New(ts.URL, WithExpectJson("is_active"))
+	hc = New(ts.URL, WithExpectJSON("is_active"))
 	assert.Nil(t, hc.Check(context.TODO()))
 }
 
@@ -119,7 +119,7 @@ func TestHttpInvalidJson(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithExpectJson("test"))
+	hc := New(ts.URL, WithExpectJSON("test"))
 
 	var checkerError *errors.Error
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)

@@ -82,7 +82,7 @@ func NewHTTPCommand() *cobra.Command {
 			hc := http.New(args[0],
 				http.WithExpectStatusCode(expectStatusCode),
 				http.WithExpectBody(expectBody),
-				http.WithExpectJson(expectJson),
+				http.WithExpectJSON(expectJson),
 				http.WithExpectHeader(expectHeader),
 				http.WithTimeout(connectionTimeout),
 			)
