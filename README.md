@@ -23,6 +23,7 @@ interval time.
     - [PostgreSQL](#postgresql)
     - [InfluxDB](#influxdb)
     - [MongoDB](#mongodb)
+    - [RabbitMQ](#rabbitmq)
 
 ## Features
 
@@ -35,6 +36,7 @@ interval time.
     - PostgreSQL
     - InfluxDB
     - MongoDB
+    - RabbitMQ
 - **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
 - **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
@@ -212,4 +214,14 @@ wait4x mongodb 'mongodb://127.0.0.1:27017'
 
 # Checking MongoDB connection with credentials and options
 wait4x mongodb 'mongodb://user:pass@127.0.0.1:27017/?maxPoolSize=20&w=majority'
+```
+
+### RabbitMQ
+
+```shell
+# Checking RabbitMQ connection
+wait4x rabbitmq 'amqp://127.0.0.1:5672'
+
+# Checking RabbitMQ connection with credentials and vhost
+wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
 ```

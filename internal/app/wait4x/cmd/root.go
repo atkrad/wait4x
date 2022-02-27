@@ -89,6 +89,7 @@ func Execute() {
 	rootCmd.AddCommand(NewRedisCommand())
 	rootCmd.AddCommand(NewInfluxDBCommand())
 	rootCmd.AddCommand(NewMongoDBCommand())
+	rootCmd.AddCommand(NewRabbitMQCommand())
 	rootCmd.AddCommand(NewVersionCommand())
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
