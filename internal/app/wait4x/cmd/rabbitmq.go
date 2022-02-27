@@ -66,7 +66,7 @@ func NewRabbitMQCommand() *cobra.Command {
 	}
 
 	rabbitmqCommand.Flags().Duration("connection-timeout", rabbitmq.DefaultConnectionTimeout, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
-	rabbitmqCommand.Flags().Bool("insecure-skip-tls-verify", rabbitmq.DefaultInsecureSkipTLSVerify, "InsecureSkipTLSVerify controls whether a client verifies the server's certificate chain and host name.")
+	rabbitmqCommand.Flags().Bool("insecure-skip-tls-verify", rabbitmq.DefaultInsecureSkipTLSVerify, "InsecureSkipTLSVerify controls whether a client verifies the server's certificate chain and hostname.")
 
 	return rabbitmqCommand
 }
