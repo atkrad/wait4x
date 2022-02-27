@@ -37,8 +37,8 @@ func NewRabbitMQCommand() *cobra.Command {
   # Checking RabbitMQ connection
   wait4x rabbitmq 'amqp://127.0.0.1:5672'
 
-  # Checking RabbitMQ connection with credentials
-  wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672'
+  # Checking RabbitMQ connection with credentials and vhost
+  wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")

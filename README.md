@@ -222,6 +222,6 @@ wait4x mongodb 'mongodb://user:pass@127.0.0.1:27017/?maxPoolSize=20&w=majority'
 # Checking RabbitMQ connection
 wait4x rabbitmq 'amqp://127.0.0.1:5672'
 
-# Checking RabbitMQ connection with credentials
-wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672'
+# Checking RabbitMQ connection with credentials and vhost
+wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
 ```
