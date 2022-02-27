@@ -64,7 +64,7 @@ func WithTimeout(timeout time.Duration) Option {
 	}
 }
 
-// WithInsecureSkipTLSVerify controls whether a client verifies the server's certificate chain and host name
+// WithInsecureSkipTLSVerify controls whether a client verifies the server's certificate chain and hostname
 func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
 	return func(r *RabbitMQ) {
 		r.insecureSkipTLSVerify = insecureSkipTLSVerify
