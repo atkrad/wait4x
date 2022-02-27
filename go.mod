@@ -13,5 +13,6 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.0
+	github.com/tidwall/gjson v1.14.0
 	go.mongodb.org/mongo-driver v1.8.3
 )

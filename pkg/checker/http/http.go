@@ -24,6 +24,7 @@ import (
 
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/tidwall/gjson"
 )
 
 // Option configures an HTTP.
@@ -34,6 +35,7 @@ type HTTP struct {
 	address          string
 	timeout          time.Duration
 	expectBody       string
+	expectBodyJSON   string
 	expectHeader     string
 	expectStatusCode int
 }
@@ -64,6 +66,13 @@ func WithTimeout(timeout time.Duration) Option {
 func WithExpectBody(body string) Option {
 	return func(h *HTTP) {
 		h.expectBody = body
+	}
+}
+
+// WithExpectBodyJSON configures response json expectation
+func WithExpectBodyJSON(json string) Option {
+	return func(h *HTTP) {
+		h.expectBodyJSON = json
 	}
 }
 
@@ -119,6 +128,14 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		}
 	}
 
+	if h.expectBodyJSON != "" {
+		err := h.checkingJSONExpectation(resp)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	if h.expectHeader != "" {
 		return h.checkingHeaderExpectation(resp)
 	}
@@ -152,6 +169,26 @@ func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 			"the body doesn't expect",
 			errors.InfoLevel,
 			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBody),
+		)
+	}
+
+	return nil
+}
+
+func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, errors.DebugLevel)
+	}
+
+	bodyString := string(bodyBytes)
+	value := gjson.Get(bodyString, h.expectBodyJSON)
+
+	if !value.Exists() {
+		return errors.New(
+			"the JSON doesn't match",
+			errors.InfoLevel,
+			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyJSON),
 		)
 	}
 
