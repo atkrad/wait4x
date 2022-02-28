@@ -67,6 +67,9 @@ func NewHTTPCommand() *cobra.Command {
   # Body JSON
    wait4x http https://ifconfig.co/json --expect-body-json "user_agent.product"
    To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
+
+  # Body XPath
+   wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
@@ -76,6 +79,7 @@ func NewHTTPCommand() *cobra.Command {
 			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 			expectBody, _ := cmd.Flags().GetString("expect-body")
 			expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
+			expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 			expectHeader, _ := cmd.Flags().GetString("expect-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
@@ -83,6 +87,7 @@ func NewHTTPCommand() *cobra.Command {
 				http.WithExpectStatusCode(expectStatusCode),
 				http.WithExpectBody(expectBody),
 				http.WithExpectBodyJSON(expectBodyJSON),
+				http.WithExpectBodyXPath(expectBodyXPath),
 				http.WithExpectHeader(expectHeader),
 				http.WithTimeout(connectionTimeout),
 			)
@@ -101,6 +106,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
 	httpCommand.Flags().String("expect-body", "", "Expect response body pattern.")
 	httpCommand.Flags().String("expect-body-json", "", "Expect response body JSON pattern.")
+	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 

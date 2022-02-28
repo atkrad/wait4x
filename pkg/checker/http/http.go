@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"github.com/tidwall/gjson"
@@ -36,6 +37,7 @@ type HTTP struct {
 	timeout          time.Duration
 	expectBody       string
 	expectBodyJSON   string
+	expectBodyXPath  string
 	expectHeader     string
 	expectStatusCode int
 }
@@ -73,6 +75,13 @@ func WithExpectBody(body string) Option {
 func WithExpectBodyJSON(json string) Option {
 	return func(h *HTTP) {
 		h.expectBodyJSON = json
+	}
+}
+
+// WithExpectBodyXPath configures response xpath expectation
+func WithExpectBodyXPath(xpath string) Option {
+	return func(h *HTTP) {
+		h.expectBodyXPath = xpath
 	}
 }
 
@@ -136,6 +145,14 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		}
 	}
 
+	if h.expectBodyXPath != "" {
+		err := h.checkingXPathExpectation(resp)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	if h.expectHeader != "" {
 		return h.checkingHeaderExpectation(resp)
 	}
@@ -189,6 +206,33 @@ func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
 			"the JSON doesn't match",
 			errors.InfoLevel,
 			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyJSON),
+		)
+	}
+
+	return nil
+}
+
+func (h *HTTP) checkingXPathExpectation(resp *http.Response) error {
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, errors.DebugLevel)
+	}
+
+	bodyString := string(bodyBytes)
+	doc, err := htmlquery.Parse(strings.NewReader(bodyString))
+	if err != nil {
+		return errors.Wrap(err, errors.DebugLevel)
+	}
+
+	node, err := htmlquery.Query(doc, h.expectBodyXPath)
+	if err != nil {
+		return errors.Wrap(err, errors.DebugLevel)
+	}
+	if node == nil {
+		return errors.New(
+			"the XPath doesn't match",
+			errors.InfoLevel,
+			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyXPath),
 		)
 	}
 
