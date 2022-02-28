@@ -34,7 +34,7 @@ type Option func(h *HTTP)
 type HTTP struct {
 	address          string
 	timeout          time.Duration
-	expectBody       string
+	expectBodyRegex  string
 	expectBodyJSON   string
 	expectHeader     string
 	expectStatusCode int
@@ -62,10 +62,10 @@ func WithTimeout(timeout time.Duration) Option {
 	}
 }
 
-// WithExpectBody configures response body expectation
-func WithExpectBody(body string) Option {
+// WithExpectBodyRegex configures response body expectation
+func WithExpectBodyRegex(body string) Option {
 	return func(h *HTTP) {
-		h.expectBody = body
+		h.expectBodyRegex = body
 	}
 }
 
@@ -120,7 +120,7 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		}
 	}
 
-	if h.expectBody != "" {
+	if h.expectBodyRegex != "" {
 		err := h.checkingBodyExpectation(resp)
 
 		if err != nil {
@@ -162,13 +162,13 @@ func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 	}
 
 	bodyString := string(bodyBytes)
-	matched, _ := regexp.MatchString(h.expectBody, bodyString)
+	matched, _ := regexp.MatchString(h.expectBodyRegex, bodyString)
 
 	if !matched {
 		return errors.New(
 			"the body doesn't expect",
 			errors.InfoLevel,
-			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBody),
+			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyRegex),
 		)
 	}
 

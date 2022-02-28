@@ -77,7 +77,7 @@ func TestHttpInvalidBody(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithExpectBody("FooBar"))
+	hc := New(ts.URL, WithExpectBodyRegex("FooBar"))
 
 	var checkerError *errors.Error
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
@@ -90,7 +90,7 @@ func TestHttpValidBody(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithExpectBody("Wait4X.+best.+tools"))
+	hc := New(ts.URL, WithExpectBodyRegex("Wait4X.+best.+tools"))
 
 	assert.Nil(t, hc.Check(context.TODO()))
 }
@@ -183,17 +183,17 @@ func TestHttpInvalidCombinationFeatures(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBody("FooBar"))
+	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBodyRegex("FooBar"))
 	err := hc.Check(context.TODO())
 	assert.ErrorAs(t, err, &checkerError)
 	assert.Equal(t, "the body doesn't expect", err.Error())
 
-	hc = New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBody("Wait4X"), WithExpectHeader("X-Foo"))
+	hc = New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBodyRegex("Wait4X"), WithExpectHeader("X-Foo"))
 	err = hc.Check(context.TODO())
 	assert.ErrorAs(t, err, &checkerError)
 	assert.Equal(t, "the http header key doesn't expect", err.Error())
 
-	hc = New(ts.URL, WithExpectStatusCode(http.StatusOK), WithExpectBody("Wait4X"), WithExpectHeader("Test-Header"))
+	hc = New(ts.URL, WithExpectStatusCode(http.StatusOK), WithExpectBodyRegex("Wait4X"), WithExpectHeader("Test-Header"))
 	err = hc.Check(context.TODO())
 	assert.ErrorAs(t, err, &checkerError)
 	assert.Equal(t, "the status code doesn't expect", err.Error())
