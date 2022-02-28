@@ -63,9 +63,9 @@ func WithTimeout(timeout time.Duration) Option {
 }
 
 // WithExpectBodyRegex configures response body expectation
-func WithExpectBodyRegex(body string) Option {
+func WithExpectBodyRegex(regex string) Option {
 	return func(h *HTTP) {
-		h.expectBodyRegex = body
+		h.expectBodyRegex = regex
 	}
 }
 
