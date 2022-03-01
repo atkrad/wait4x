@@ -125,6 +125,36 @@ func TestHttpInvalidBodyJSON(t *testing.T) {
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
 
+func TestHttpInvalidBodyXPath(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("<div><code id='ip'>127.0.0.1</code></div>"))
+	}))
+	defer ts.Close()
+
+	var checkerError *errors.Error
+
+	hc := New(ts.URL, WithExpectBodyXPath("//hello"))
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+
+	hc = New(ts.URL, WithExpectBodyXPath("//code[@id='test']"))
+	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+}
+
+func TestHttpValidBodyXPath(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("<div><code id='ip'>127.0.0.1</code></div>"))
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithExpectBodyXPath("//div/code"))
+	assert.Nil(t, hc.Check(context.TODO()))
+
+	hc = New(ts.URL, WithExpectBodyXPath("//code[@id='ip']"))
+	assert.Nil(t, hc.Check(context.TODO()))
+}
+
 func TestHttpValidHeader(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Test-Header", "test-value")
