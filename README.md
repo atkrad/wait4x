@@ -164,6 +164,9 @@ wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 # and the rest is something else like HTML, please use --expect-body instead.
 wait4x http https://ifconfig.co/json --expect-body-json "user_agent.product"
 To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
+
+# Body XPath
+wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
 ```
 
 ### Redis
