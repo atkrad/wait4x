@@ -20,6 +20,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
 	"os"
+	"os/exec"
 	"os/signal"
 	"time"
 
@@ -66,6 +67,23 @@ func NewRootCommand() *cobra.Command {
 				Timestamp().
 				Logger()
 			Logger = zerologr.New(&zl)
+
+			return nil
+		},
+		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 1 {
+				command := args[1:][0]
+				arguments := args[1:][1:]
+				for i, arg := range arguments {
+					arguments[i] = os.ExpandEnv(arg)
+				}
+
+				c := exec.CommandContext(cmd.Context(), command, arguments...)
+				c.Stdout = os.Stdout
+				c.Stderr = os.Stderr
+
+				return c.Run()
+			}
 
 			return nil
 		},

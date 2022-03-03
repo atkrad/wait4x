@@ -26,7 +26,7 @@ import (
 // NewTCPCommand creates the tcp sub-command
 func NewTCPCommand() *cobra.Command {
 	tcpCommand := &cobra.Command{
-		Use:   "tcp ADDRESS",
+		Use:   "tcp ADDRESS [flags] [-- command args]",
 		Short: "Check TCP connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {

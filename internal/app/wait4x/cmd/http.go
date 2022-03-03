@@ -28,7 +28,7 @@ import (
 // NewHTTPCommand creates the http sub-command
 func NewHTTPCommand() *cobra.Command {
 	httpCommand := &cobra.Command{
-		Use:   "http ADDRESS",
+		Use:   "http ADDRESS [flags] [-- command args]",
 		Short: "Check HTTP connection.",
 		Long:  "",
 		Args: func(cmd *cobra.Command, args []string) error {
