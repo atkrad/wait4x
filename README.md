@@ -162,8 +162,8 @@ wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 # Note: the value in the expected JSON will be processed by gjson.
 # Note: the complete response MUST be in JSON format to be processed. If one part of the response is JSON
 # and the rest is something else like HTML, please use --expect-body instead.
+# To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
 wait4x http https://ifconfig.co/json --expect-body-json "user_agent.product"
-To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
 
 # Body XPath
 wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
