@@ -41,10 +41,11 @@ interval time.
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
 - **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
 - **Importable:** Beside the CLI tool, Wait4X can be imported as a pkg in your Go app
+- **Command execution:** Execute your desired command after a successful wait
 
 ## Installation
 
-There are many different ways to install **Wait4X**
+There are many ways to install **Wait4X**
 
 ### with Docker
 
@@ -234,4 +235,39 @@ wait4x rabbitmq 'amqp://127.0.0.1:5672'
 
 # Checking RabbitMQ connection with credentials and vhost
 wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
+```
+
+### Command Execution
+
+We need to wait for something in order to execute something else. This feature is also supported by using `--` after a feature parameter.
+
+Let's have some scenarios:
+
+* As soon as the MySQL server becomes ready, run a Django migration:
+
+```shell
+wait4x mysql username:password@unix(/tmp/mysql.sock)/myDatabase -- django migrate
+```
+
+* As soon as the new version of the website becomes ready, send an email to the support team:
+
+```shell
+wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="website-logo"]" -- mail -s "The new version of the website has just been released" support@company < /dev/null
+```
+
+* Chain type: when PostgreSQL becomes ready, then wait for RabbitMQ, when it becomes ready, then run the integration tests:
+
+```shell
+wait4x postgresql 'postgres://bob:secret@/mydb?host=/var/run/postgresql' -t 1m -- wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost' -t 30s -- ./integration-tests.sh
+```
+
+* Using an environment variable in the command:
+
+```shell
+EMAIL="support@company" wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="website-logo"]" -- mail -s "New version of the website has just released" $EMAIL < /dev/null
+
+# Or
+
+export EMAIL="support@company"
+wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="website-logo"]" -- mail -s "New version of the website has just released" $EMAIL < /dev/null
 ```

@@ -24,7 +24,7 @@ import (
 // NewMysqlCommand creates the mysql sub-command
 func NewMysqlCommand() *cobra.Command {
 	mysqlCommand := &cobra.Command{
-		Use:   "mysql DSN",
+		Use:   "mysql DSN [flags] [-- command [args...]]",
 		Short: "Check MySQL connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {

@@ -26,7 +26,7 @@ import (
 // NewRedisCommand creates the redis sub-command
 func NewRedisCommand() *cobra.Command {
 	redisCommand := &cobra.Command{
-		Use:   "redis ADDRESS",
+		Use:   "redis ADDRESS [flags] [-- command [args...]]",
 		Short: "Check Redis connection or key existence.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
