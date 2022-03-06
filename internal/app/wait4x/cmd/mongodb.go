@@ -24,7 +24,7 @@ import (
 // NewMongoDBCommand creates the mongodb sub-command
 func NewMongoDBCommand() *cobra.Command {
 	mongodbCommand := &cobra.Command{
-		Use:   "mongodb DSN [flags] [-- command args]",
+		Use:   "mongodb DSN [flags] [-- command [args...]]",
 		Short: "Check MongoDB connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {

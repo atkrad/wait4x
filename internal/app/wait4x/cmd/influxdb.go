@@ -24,7 +24,7 @@ import (
 // NewInfluxDBCommand creates the influxdb sub-command
 func NewInfluxDBCommand() *cobra.Command {
 	influxdbCommand := &cobra.Command{
-		Use:   "influxdb SERVER_URL [flags] [-- command args]",
+		Use:   "influxdb SERVER_URL [flags] [-- command [args...]]",
 		Short: "Check InfluxDB connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {

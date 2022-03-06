@@ -71,9 +71,9 @@ func NewRootCommand() *cobra.Command {
 			return nil
 		},
 		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 1 {
-				command := args[1:][0]
-				arguments := args[1:][1:]
+			if cmd.ArgsLenAtDash() != -1 && (len(args)-cmd.ArgsLenAtDash()) > 0 {
+				command := args[cmd.ArgsLenAtDash():][0]
+				arguments := args[cmd.ArgsLenAtDash():][1:]
 				for i, arg := range arguments {
 					arguments[i] = os.ExpandEnv(arg)
 				}

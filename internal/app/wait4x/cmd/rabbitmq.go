@@ -24,7 +24,7 @@ import (
 // NewRabbitMQCommand creates the rabbitmq sub-command
 func NewRabbitMQCommand() *cobra.Command {
 	rabbitmqCommand := &cobra.Command{
-		Use:   "rabbitmq DSN [flags] [-- command args]",
+		Use:   "rabbitmq DSN [flags] [-- command [args...]]",
 		Short: "Check RabbitMQ connection.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
