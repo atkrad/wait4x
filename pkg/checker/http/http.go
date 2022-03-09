@@ -39,6 +39,7 @@ type HTTP struct {
 	expectBodyJSON   string
 	expectBodyXPath  string
 	expectHeader     string
+	requestHeaders   []string
 	expectStatusCode int
 }
 
@@ -92,6 +93,13 @@ func WithExpectHeader(header string) Option {
 	}
 }
 
+// WithRequestHeaders configures request header
+func WithRequestHeaders(headers []string) Option {
+	return func(h *HTTP) {
+		h.requestHeaders = headers
+	}
+}
+
 // WithExpectStatusCode configures response status code expectation
 func WithExpectStatusCode(code int) Option {
 	return func(h *HTTP) {
@@ -108,6 +116,10 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
+	}
+
+	if len(h.requestHeaders) != 0 {
+		h.applyRequestHeaders(req, h.requestHeaders)
 	}
 
 	resp, err := httpClient.Do(req)
@@ -158,6 +170,17 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	}
 
 	return nil
+}
+
+// applyRequestHeaders apply user request header
+func (h *HTTP) applyRequestHeaders(req *http.Request, headers []string) {
+	// key value. e.g. Content-Type=application/json
+	for _, header := range headers {
+		reqHeaderParsed := strings.SplitN(header, "=", 2)
+		if len(reqHeaderParsed) == 2 {
+			req.Header.Add(reqHeaderParsed[0], reqHeaderParsed[1])
+		}
+	}
 }
 
 func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
