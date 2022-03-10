@@ -174,11 +174,11 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 // applyRequestHeaders apply user request header
 func (h *HTTP) applyRequestHeaders(req *http.Request, headers []string) {
-	// key value. e.g. Content-Type=application/json
+	// key value. e.g. Content-Type:application/json
 	for _, header := range headers {
-		reqHeaderParsed := strings.SplitN(header, "=", 2)
+		reqHeaderParsed := strings.SplitN(header, ":", 2)
 		if len(reqHeaderParsed) == 2 {
-			req.Header.Add(reqHeaderParsed[0], reqHeaderParsed[1])
+			req.Header.Add(strings.TrimSpace(reqHeaderParsed[0]), strings.TrimSpace(reqHeaderParsed[1]))
 		}
 	}
 }
