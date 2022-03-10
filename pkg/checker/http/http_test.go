@@ -15,7 +15,9 @@
 package http
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -201,6 +203,21 @@ func TestHttpInvalidHeader(t *testing.T) {
 
 	hc = New(ts.URL, WithExpectHeader("Test-Header=[A-Z]"))
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+}
+
+func TestHttpRequestHeaders(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		resp := new(bytes.Buffer)
+		for key, value := range r.Header {
+			fmt.Fprintf(resp, "%s=%s,", key, value)
+		}
+		w.Write(resp.Bytes())
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithRequestHeaders([]string{"Authentication:Token 123", "Foo:test"}), WithExpectBodyRegex(".*Authentication=\\[Token 123\\],Foo=\\[test\\],.*"))
+	assert.Nil(t, hc.Check(context.TODO()))
 }
 
 func TestHttpInvalidCombinationFeatures(t *testing.T) {

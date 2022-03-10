@@ -168,6 +168,9 @@ wait4x http https://ifconfig.co/json --expect-body-json "user_agent.product"
 
 # Body XPath
 wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
+
+# Request headers:
+wait4x http https://ifconfig.co --request-header "Content-Type:application/json" --request-header "Authentication:Token 123"
 ```
 
 ### Redis
