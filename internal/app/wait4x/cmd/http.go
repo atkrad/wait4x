@@ -72,7 +72,7 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
 
   # Request headers:
-  wait4x http https://ifconfig.co --request-header "Content-Type:application/json" --request-header "Authentication:Token 123"
+  wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			interval, _ := cmd.Flags().GetDuration("interval")
