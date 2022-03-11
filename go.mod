@@ -1,6 +1,6 @@
 module github.com/atkrad/wait4x
 
-go 1.16
+go 1.17
 
 require (
 	github.com/antchfx/htmlquery v1.2.4
