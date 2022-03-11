@@ -80,7 +80,7 @@ def main(ctx):
         },
         {
           "name": "docker",
-          "image": "plugins/docker",
+          "image": "plugins/docker:20.11.0",
           "settings": {
             "repo": "atkrad/wait4x",
             "auto_tag": "true",
