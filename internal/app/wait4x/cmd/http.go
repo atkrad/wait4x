@@ -15,8 +15,13 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
+	"io"
+	net_http "net/http"
+	"net/textproto"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/atkrad/wait4x/pkg/checker/http"
@@ -85,12 +90,24 @@ func NewHTTPCommand() *cobra.Command {
 			expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
 			expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 			expectHeader, _ := cmd.Flags().GetString("expect-header")
-			requestHeaders, _ := cmd.Flags().GetStringArray("request-header")
+			requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 			insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 
 			if len(expectBody) != 0 {
 				expectBodyRegex = expectBody
+			}
+
+			// Convert raw headers (e.g. 'a: b') into a http Header.
+			var requestHeaders net_http.Header
+			if len(requestRawHeaders) > 0 {
+				rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
+				tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders)))
+				MIMEHeaders, err := tpReader.ReadMIMEHeader()
+				if err != nil && err != io.EOF {
+					return errors.New("can't parse the request header")
+				}
+				requestHeaders = net_http.Header(MIMEHeaders)
 			}
 
 			hc := http.New(args[0],
