@@ -39,7 +39,7 @@ type HTTP struct {
 	expectBodyJSON   string
 	expectBodyXPath  string
 	expectHeader     string
-	requestHeaders   map[string]string
+	requestHeaders   http.Header
 	expectStatusCode int
 }
 
@@ -94,9 +94,16 @@ func WithExpectHeader(header string) Option {
 }
 
 // WithRequestHeaders configures request header
-func WithRequestHeaders(headers map[string]string) Option {
+func WithRequestHeaders(headers http.Header) Option {
 	return func(h *HTTP) {
 		h.requestHeaders = headers
+	}
+}
+
+// WithRequestHeader configures request header
+func WithRequestHeader(key string, value []string) Option {
+	return func(h *HTTP) {
+		h.requestHeaders[key] = value
 	}
 }
 
@@ -173,15 +180,12 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 }
 
 // applyRequestHeaders apply user request header
-func (h *HTTP) applyRequestHeader(req *http.Request, headerKey string, headerValue string) {
-	req.Header.Add(headerKey, headerValue)
-}
-
-// applyRequestHeaders apply user request header
-func (h *HTTP) applyRequestHeaders(req *http.Request, headers map[string]string) {
+func (h *HTTP) applyRequestHeaders(req *http.Request, headers http.Header) {
 	// key value. e.g. Content-Type:application/json
 	for key, value := range headers {
-		h.applyRequestHeader(req, key, value)
+		for _, sub_value := range value {
+			req.Header.Add(key, sub_value)
+		}
 	}
 }
 

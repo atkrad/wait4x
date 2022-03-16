@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -94,11 +95,14 @@ func NewHTTPCommand() *cobra.Command {
 			}
 
 			// Convert raw headers (e.g. 'a: b') into a map (e.g. {'a': 'b'}).
-			var requestHeaders map[string]string
+			var requestHeaders http.Header
 			for _, requestHeader := range requestRawHeaders {
 				reqHeaderParsed := strings.SplitN(requestHeader, ":", 2)
 				if len(reqHeaderParsed) == 2 {
-					requestHeaders[strings.TrimSpace(reqHeaderParsed[0])] = strings.TrimSpace(reqHeaderParsed[1])
+					if _, ok := requestHeaders[strings.TrimSpace(reqHeaderParsed[0])]; !ok {
+						requestHeaders[strings.TrimSpace(reqHeaderParsed[0])] = []string{}
+					}
+					append(requestHeaders[strings.TrimSpace(reqHeaderParsed[0])], strings.TrimSpace(reqHeaderParsed[1]))
 				}
 			}
 
