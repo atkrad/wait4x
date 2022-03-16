@@ -17,6 +17,7 @@ package cmd
 import (
 	"errors"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/atkrad/wait4x/pkg/checker/http"
@@ -85,11 +86,20 @@ func NewHTTPCommand() *cobra.Command {
 			expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
 			expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 			expectHeader, _ := cmd.Flags().GetString("expect-header")
-			requestHeaders, _ := cmd.Flags().GetStringArray("request-header")
+			requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
 			if len(expectBody) != 0 {
 				expectBodyRegex = expectBody
+			}
+
+			// Convert raw headers (e.g. 'a: b') into a map (e.g. {'a': 'b'}).
+			var requestHeaders map[string]string
+			for _, requestHeader := range requestRawHeaders {
+				reqHeaderParsed := strings.SplitN(requestHeader, ":", 2)
+				if len(reqHeaderParsed) == 2 {
+					requestHeaders[strings.TrimSpace(reqHeaderParsed[0])] = strings.TrimSpace(reqHeaderParsed[1])
+				}
 			}
 
 			hc := http.New(args[0],
