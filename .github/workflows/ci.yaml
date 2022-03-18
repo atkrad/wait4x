@@ -8,10 +8,14 @@ jobs:
       with:
         go-version: 1.17.x
     - uses: actions/checkout@v3
-    - name: Revive linter
+    - name: revive
       run: |
         go install github.com/mgechev/revive@v1.1.2
         make check-revive
+    - name: go-fmt
+      run: make check-gofmt
+    - name: go-vet
+      run: go vet ./...
 
 #   test:
 #     strategy:
