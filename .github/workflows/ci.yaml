@@ -4,28 +4,43 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/setup-go@v3
+    - name: Use Golang 1.17.x
+      uses: actions/setup-go@v3
       with:
         go-version: 1.17.x
+
     - uses: actions/checkout@v3
+
+    - name: go-fmt
+      run: make check-gofmt
+
+    - name: go-vet
+      run: go vet ./...
+
     - name: revive
       run: |
         go install github.com/mgechev/revive@v1.1.2
         make check-revive
-    - name: go-fmt
-      run: make check-gofmt
-    - name: go-vet
-      run: go vet ./...
 
-#   test:
-#     strategy:
-#       matrix:
-#         go-version: [1.17.x, 1.18.x]
-#         os: [ubuntu-latest, macos-latest, windows-latest]
-#     runs-on: ${{ matrix.os }}
+  test:
+    needs: check
+    strategy:
+      matrix:
+        go-version: [1.16.x, 1.17.x, 1.18.x]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go-version }}
+    - uses: actions/checkout@v3
+    - run: make test
+
+#   coverage:
+#     needs: test
+#     runs-on: ubuntu-latest
 #     steps:
-#     - uses: actions/setup-go@v3
+#     - name: Coveralls Finished
+#       uses: coverallsapp/github-action@master
 #       with:
-#         go-version: ${{ matrix.go-version }}
-#     - uses: actions/checkout@v3
-#     - run: go test ./...
+#         github-token: ${{ secrets.github_token }}
+#         parallel-finished: true
