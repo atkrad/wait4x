@@ -61,6 +61,8 @@ jobs:
         go-arch: [amd64]
         go-version: [1.18.x]
     runs-on: ubuntu-latest
+    env:
+      WAIT4X_BINARY_NAME: wait4x-${{ matrix.go-os }}-${{ matrix.go-arch }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -79,5 +81,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: wait4x-${{ matrix.go-os }}-${{ matrix.go-arch }}
-        path: bin/wait4x-${{ matrix.go-os }}-${{ matrix.go-arch }}
+        name: ${{ env.WAIT4X_BINARY_NAME }}
+        path: bin/${{ env.WAIT4X_BINARY_NAME }}
