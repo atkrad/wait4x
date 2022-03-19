@@ -5,6 +5,7 @@ on:
 name: Wait4X CI
 jobs:
   check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
     - name: Use Golang 1.17.x
@@ -26,6 +27,7 @@ jobs:
         make check-revive
 
   test:
+    name: Test
     needs: check
     strategy:
       matrix:
@@ -33,11 +35,17 @@ jobs:
         go-version: [1.16.x, 1.17.x, 1.18.x]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/setup-go@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
-    - uses: actions/checkout@v3
-    - run: make test
+
+    - name: Test Wait4X
+      run: make test
+
     - name: Coveralls
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest' && matrix.go-version == '1.18.x' }}
       uses: coverallsapp/github-action@master
@@ -45,23 +53,31 @@ jobs:
         github-token: ${{ secrets.COVERALLS_TOKEN }}
 
   build:
+    name: Build
     needs: test
     strategy:
       matrix:
         go-os: [linux, windows, darwin]
         go-arch: [amd64]
+        go-version: [1.18.x]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Set up Go 1.18.x
+    - name: Set up Go ${{ matrix.go-version }}
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18.x
+        go-version: ${{ matrix.go-version }}
 
     - name: Build Wait4X
       run: make build
       env:
         GOOS: ${{ matrix.go-os }}
         GOARCH: ${{ matrix.go-arch }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: wait4x-${{ matrix.go-os }}-${{ matrix.go-arch }}
+        path: bin/wait4x-${{ matrix.go-os }}-${{ matrix.go-arch }}
