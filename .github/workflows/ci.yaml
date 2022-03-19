@@ -1,4 +1,7 @@
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+
 name: Wait4X CI
 jobs:
   check:
@@ -19,13 +22,14 @@ jobs:
 
     - name: revive
       run: |
-        go install github.com/mgechev/revive@v1.1.2
+        go install github.com/mgechev/revive@v1.1.4
         make check-revive
 
   test:
     needs: check
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         go-version: [1.16.x, 1.17.x, 1.18.x]
     runs-on: ubuntu-latest
     steps:
@@ -34,13 +38,13 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - uses: actions/checkout@v3
     - run: make test
+    - name: Coveralls
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest' && matrix.go-version == '1.18.x' }}
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.COVERALLS_TOKEN }}
 
 #   coverage:
 #     needs: test
 #     runs-on: ubuntu-latest
 #     steps:
-#     - name: Coveralls Finished
-#       uses: coverallsapp/github-action@master
-#       with:
-#         github-token: ${{ secrets.github_token }}
-#         parallel-finished: true
