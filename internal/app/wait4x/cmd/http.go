@@ -87,6 +87,7 @@ func NewHTTPCommand() *cobra.Command {
 			expectHeader, _ := cmd.Flags().GetString("expect-header")
 			requestHeaders, _ := cmd.Flags().GetStringArray("request-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+			insecureSkipTlsVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 
 			if len(expectBody) != 0 {
 				expectBodyRegex = expectBody
@@ -100,6 +101,7 @@ func NewHTTPCommand() *cobra.Command {
 				http.WithExpectHeader(expectHeader),
 				http.WithRequestHeaders(requestHeaders),
 				http.WithTimeout(connectionTimeout),
+				http.WithInsecureSkipTLSVerify(insecureSkipTlsVerify),
 			)
 
 			return waiter.WaitWithContext(
@@ -122,6 +124,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
 	httpCommand.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+	httpCommand.Flags().Bool("insecure-skip-tls-verify", false, "Skips tls certificate checks for the HTTPS request.")
 
 	return httpCommand
 }
