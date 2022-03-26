@@ -17,6 +17,7 @@ package cmd
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	net_http "net/http"
 	"net/textproto"
@@ -105,7 +106,7 @@ func NewHTTPCommand() *cobra.Command {
 				tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders)))
 				MIMEHeaders, err := tpReader.ReadMIMEHeader()
 				if err != nil && err != io.EOF {
-					return errors.New("can't parse the request header")
+					return fmt.Errorf("can't parse the request header: %w", err)
 				}
 				requestHeaders = net_http.Header(MIMEHeaders)
 			}
