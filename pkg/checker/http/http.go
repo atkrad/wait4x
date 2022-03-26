@@ -16,6 +16,7 @@ package http
 
 import (
 	"context"
+	"crypto/tls"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -33,14 +34,15 @@ type Option func(h *HTTP)
 
 // HTTP represents HTTP checker
 type HTTP struct {
-	address          string
-	timeout          time.Duration
-	expectBodyRegex  string
-	expectBodyJSON   string
-	expectBodyXPath  string
-	expectHeader     string
-	requestHeaders   []string
-	expectStatusCode int
+	address               string
+	timeout               time.Duration
+	expectBodyRegex       string
+	expectBodyJSON        string
+	expectBodyXPath       string
+	expectHeader          string
+	requestHeaders        []string
+	expectStatusCode      int
+	insecureSkipTLSVerify bool
 }
 
 // New creates the HTTP checker
@@ -107,10 +109,20 @@ func WithExpectStatusCode(code int) Option {
 	}
 }
 
+// WithInsecureSkipTLSVerify configures insecure skip tls verify
+func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
+	return func(h *HTTP) {
+		h.insecureSkipTLSVerify = insecureSkipTLSVerify
+	}
+}
+
 // Check checks HTTP connection
 func (h *HTTP) Check(ctx context.Context) (err error) {
 	var httpClient = &http.Client{
 		Timeout: h.timeout,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: h.insecureSkipTLSVerify},
+		},
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
