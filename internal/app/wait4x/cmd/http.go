@@ -87,7 +87,7 @@ func NewHTTPCommand() *cobra.Command {
 			expectHeader, _ := cmd.Flags().GetString("expect-header")
 			requestHeaders, _ := cmd.Flags().GetStringArray("request-header")
 			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-			insecureSkipTlsVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+			insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 
 			if len(expectBody) != 0 {
 				expectBodyRegex = expectBody
@@ -101,7 +101,7 @@ func NewHTTPCommand() *cobra.Command {
 				http.WithExpectHeader(expectHeader),
 				http.WithRequestHeaders(requestHeaders),
 				http.WithTimeout(connectionTimeout),
-				http.WithInsecureSkipTLSVerify(insecureSkipTlsVerify),
+				http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			)
 
 			return waiter.WaitWithContext(
