@@ -137,9 +137,7 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
 
-	if len(h.requestHeaders) != 0 {
-		h.applyRequestHeaders(req, h.requestHeaders)
-	}
+	req.Header = h.requestHeaders
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -189,16 +187,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	}
 
 	return nil
-}
-
-// applyRequestHeaders apply user request header
-func (h *HTTP) applyRequestHeaders(req *http.Request, headers http.Header) {
-	// key value. e.g. Content-Type:application/json
-	for key, value := range headers {
-		for _, subValue := range value {
-			req.Header.Add(key, subValue)
-		}
-	}
 }
 
 func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
