@@ -47,7 +47,7 @@ func NewMongoDBCommand() *cobra.Command {
 
 			mc := mongodb.New(args[0])
 
-			return waiter.WaitWithContext(
+			return waiter.WaitContext(
 				cmd.Context(),
 				mc.Check,
 				waiter.WithTimeout(timeout),

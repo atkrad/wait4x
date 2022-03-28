@@ -66,11 +66,17 @@ func WithLogger(logger *logr.Logger) Option {
 
 // Wait waits for end up of check execution.
 func Wait(check Check, opts ...Option) error {
-	return WaitWithContext(context.Background(), check, opts...)
+	return WaitContext(context.Background(), check, opts...)
 }
 
 // WaitWithContext waits for end up of check execution.
+// Deprecated: The function will be removed in v3.0.0, please use the WaitContext.
 func WaitWithContext(ctx context.Context, check Check, opts ...Option) error {
+	return WaitContext(ctx, check, opts...)
+}
+
+// WaitContext waits for end up of check execution.
+func WaitContext(ctx context.Context, check Check, opts ...Option) error {
 	options := &options{
 		timeout:     10 * time.Second,
 		interval:    time.Second,

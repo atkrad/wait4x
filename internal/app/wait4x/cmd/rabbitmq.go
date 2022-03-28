@@ -54,7 +54,7 @@ func NewRabbitMQCommand() *cobra.Command {
 				rabbitmq.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			)
 
-			return waiter.WaitWithContext(
+			return waiter.WaitContext(
 				cmd.Context(),
 				rc.Check,
 				waiter.WithTimeout(timeout),
