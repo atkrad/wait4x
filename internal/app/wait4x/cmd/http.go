@@ -135,7 +135,7 @@ func NewHTTPCommand() *cobra.Command {
 
 	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
 	httpCommand.Flags().String("expect-body", "", "Expect response body pattern.")
-	httpCommand.Flags().MarkDeprecated("expect-body", "please use --expect-body-regex.")
+	httpCommand.Flags().MarkDeprecated("expect-body", "This flag will be removed in v3.0.0, please use --expect-body-regex.")
 	httpCommand.Flags().String("expect-body-regex", "", "Expect response body pattern.")
 	httpCommand.Flags().String("expect-body-json", "", "Expect response body JSON pattern.")
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
