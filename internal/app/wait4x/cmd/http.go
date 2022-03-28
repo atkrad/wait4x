@@ -18,7 +18,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	net_http "net/http"
 	"net/textproto"
 	"net/url"
@@ -103,9 +102,9 @@ func NewHTTPCommand() *cobra.Command {
 			var requestHeaders net_http.Header
 			if len(requestRawHeaders) > 0 {
 				rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
-				tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders)))
+				tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")))
 				MIMEHeaders, err := tpReader.ReadMIMEHeader()
-				if err != nil && err != io.EOF {
+				if err != nil {
 					return fmt.Errorf("can't parse the request header: %w", err)
 				}
 				requestHeaders = net_http.Header(MIMEHeaders)
