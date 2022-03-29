@@ -22,7 +22,7 @@ import (
 	"net/textproto"
 	"net/url"
 	"strings"
-	
+
 	"github.com/atkrad/wait4x/pkg/checker/http"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
