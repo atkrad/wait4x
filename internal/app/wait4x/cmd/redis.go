@@ -51,29 +51,31 @@ func NewRedisCommand() *cobra.Command {
   # Checking a key existence and matching the value
   wait4x redis redis://127.0.0.1:6379 --expect-key "FOO=^b[A-Z]r$"
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-			expectKey, _ := cmd.Flags().GetString("expect-key")
-
-			rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				rc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runRedis,
 	}
 
 	redisCommand.Flags().Duration("connection-timeout", time.Second*5, "Dial timeout for establishing new connections.")
 	redisCommand.Flags().String("expect-key", "", "Checking key existence.")
 
 	return redisCommand
+}
+
+func runRedis(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	expectKey, _ := cmd.Flags().GetString("expect-key")
+
+	rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		rc.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

@@ -40,33 +40,35 @@ func NewRabbitMQCommand() *cobra.Command {
   # Checking RabbitMQ connection with credentials and vhost
   wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-			insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
-
-			rc := rabbitmq.New(
-				args[0],
-				rabbitmq.WithTimeout(conTimeout),
-				rabbitmq.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
-			)
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				rc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runRabbitMQ,
 	}
 
 	rabbitmqCommand.Flags().Duration("connection-timeout", rabbitmq.DefaultConnectionTimeout, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
 	rabbitmqCommand.Flags().Bool("insecure-skip-tls-verify", rabbitmq.DefaultInsecureSkipTLSVerify, "InsecureSkipTLSVerify controls whether a client verifies the server's certificate chain and hostname.")
 
 	return rabbitmqCommand
+}
+
+func runRabbitMQ(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+
+	rc := rabbitmq.New(
+		args[0],
+		rabbitmq.WithTimeout(conTimeout),
+		rabbitmq.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+	)
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		rc.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

@@ -38,23 +38,25 @@ func NewPostgresqlCommand() *cobra.Command {
   # Checking PostgreSQL TCP connection
   wait4x postgresql postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			pc := postgresql.New(args[0])
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				pc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runPostgresql,
 	}
 
 	return postgresqlCommand
+}
+
+func runPostgresql(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	pc := postgresql.New(args[0])
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		pc.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

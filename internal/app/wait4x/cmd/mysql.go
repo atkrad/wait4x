@@ -40,23 +40,25 @@ func NewMysqlCommand() *cobra.Command {
   # Checking MySQL UNIX Socket existence
   wait4x mysql username:password@unix(/tmp/mysql.sock)/myDatabase
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			mc := mysql.New(args[0])
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				mc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runMysql,
 	}
 
 	return mysqlCommand
+}
+
+func runMysql(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	mc := mysql.New(args[0])
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		mc.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

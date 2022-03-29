@@ -79,57 +79,7 @@ func NewHTTPCommand() *cobra.Command {
   # Request headers:
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
-			expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
-			expectBody, _ := cmd.Flags().GetString("expect-body")
-			expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
-			expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
-			expectHeader, _ := cmd.Flags().GetString("expect-header")
-			requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
-			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-			insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
-
-			if len(expectBody) != 0 {
-				expectBodyRegex = expectBody
-			}
-
-			// Convert raw headers (e.g. 'a: b') into a http Header.
-			var requestHeaders net_http.Header
-			if len(requestRawHeaders) > 0 {
-				rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
-				tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")))
-				MIMEHeaders, err := tpReader.ReadMIMEHeader()
-				if err != nil {
-					return fmt.Errorf("can't parse the request header: %w", err)
-				}
-				requestHeaders = net_http.Header(MIMEHeaders)
-			}
-
-			hc := http.New(args[0],
-				http.WithExpectStatusCode(expectStatusCode),
-				http.WithExpectBodyRegex(expectBodyRegex),
-				http.WithExpectBodyJSON(expectBodyJSON),
-				http.WithExpectBodyXPath(expectBodyXPath),
-				http.WithExpectHeader(expectHeader),
-				http.WithRequestHeaders(requestHeaders),
-				http.WithTimeout(connectionTimeout),
-				http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
-			)
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				hc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runHTTP,
 	}
 
 	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
@@ -144,4 +94,56 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", false, "Skips tls certificate checks for the HTTPS request.")
 
 	return httpCommand
+}
+
+func runHTTP(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
+	expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
+	expectBody, _ := cmd.Flags().GetString("expect-body")
+	expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
+	expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
+	expectHeader, _ := cmd.Flags().GetString("expect-header")
+	requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
+	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+
+	if len(expectBody) != 0 {
+		expectBodyRegex = expectBody
+	}
+
+	// Convert raw headers (e.g. 'a: b') into a http Header.
+	var requestHeaders net_http.Header
+	if len(requestRawHeaders) > 0 {
+		rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
+		tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")))
+		MIMEHeaders, err := tpReader.ReadMIMEHeader()
+		if err != nil {
+			return fmt.Errorf("can't parse the request header: %w", err)
+		}
+		requestHeaders = net_http.Header(MIMEHeaders)
+	}
+
+	hc := http.New(args[0],
+		http.WithExpectStatusCode(expectStatusCode),
+		http.WithExpectBodyRegex(expectBodyRegex),
+		http.WithExpectBodyJSON(expectBodyJSON),
+		http.WithExpectBodyXPath(expectBodyXPath),
+		http.WithExpectHeader(expectHeader),
+		http.WithRequestHeaders(requestHeaders),
+		http.WithTimeout(connectionTimeout),
+		http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+	)
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		hc.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

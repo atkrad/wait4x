@@ -37,23 +37,25 @@ func NewInfluxDBCommand() *cobra.Command {
   # Checking InfluxDB connection
   wait4x influxdb http://localhost:8086
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			ic := influxdb.New(args[0])
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				ic.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runInfluxDB,
 	}
 
 	return influxdbCommand
+}
+
+func runInfluxDB(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	ic := influxdb.New(args[0])
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		ic.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

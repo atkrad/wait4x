@@ -39,27 +39,29 @@ func NewTCPCommand() *cobra.Command {
   # If you want checking just tcp connection
   wait4x tcp 127.0.0.1:9090
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-
-			tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
-
-			return waiter.WaitContext(
-				cmd.Context(),
-				tc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runTCP,
 	}
 
 	tcpCommand.Flags().Duration("connection-timeout", time.Second*5, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
 
 	return tcpCommand
+}
+
+func runTCP(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+
+	tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
+
+	return waiter.WaitContext(
+		cmd.Context(),
+		tc.Check,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }
