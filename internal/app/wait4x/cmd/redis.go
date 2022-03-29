@@ -15,11 +15,9 @@
 package cmd
 
 import (
+	"errors"
 	"github.com/atkrad/wait4x/pkg/checker/redis"
 	"github.com/atkrad/wait4x/pkg/waiter"
-	"time"
-
-	"errors"
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +52,7 @@ func NewRedisCommand() *cobra.Command {
 		RunE: runRedis,
 	}
 
-	redisCommand.Flags().Duration("connection-timeout", time.Second*5, "Dial timeout for establishing new connections.")
+	redisCommand.Flags().Duration("connection-timeout", redis.DefaultConnectionTimeout, "Dial timeout for establishing new connections.")
 	redisCommand.Flags().String("expect-key", "", "Checking key existence.")
 
 	return redisCommand

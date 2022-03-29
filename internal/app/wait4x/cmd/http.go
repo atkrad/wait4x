@@ -18,15 +18,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	net_http "net/http"
+	nethttp "net/http"
 	"net/textproto"
 	"net/url"
 	"strings"
-	"time"
-
+	
 	"github.com/atkrad/wait4x/pkg/checker/http"
 	"github.com/atkrad/wait4x/pkg/waiter"
-
 	"github.com/spf13/cobra"
 )
 
@@ -90,8 +88,8 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
-	httpCommand.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
-	httpCommand.Flags().Bool("insecure-skip-tls-verify", false, "Skips tls certificate checks for the HTTPS request.")
+	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
 
 	return httpCommand
 }
@@ -116,7 +114,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	}
 
 	// Convert raw headers (e.g. 'a: b') into a http Header.
-	var requestHeaders net_http.Header
+	var requestHeaders nethttp.Header
 	if len(requestRawHeaders) > 0 {
 		rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
 		tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")))
@@ -124,7 +122,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("can't parse the request header: %w", err)
 		}
-		requestHeaders = net_http.Header(MIMEHeaders)
+		requestHeaders = nethttp.Header(MIMEHeaders)
 	}
 
 	hc := http.New(args[0],

@@ -25,6 +25,11 @@ import (
 // Option configures a TCP.
 type Option func(t *TCP)
 
+const (
+	// DefaultConnectionTimeout is the default connection timeout duration
+	DefaultConnectionTimeout = 3 * time.Second
+)
+
 // TCP represents TCP checker
 type TCP struct {
 	address string
@@ -35,7 +40,7 @@ type TCP struct {
 func New(address string, opts ...Option) checker.Checker {
 	t := &TCP{
 		address: address,
-		timeout: time.Second * 5,
+		timeout: DefaultConnectionTimeout,
 	}
 
 	// apply the list of options to TCP

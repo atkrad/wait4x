@@ -28,6 +28,11 @@ import (
 // Option configures a Redis.
 type Option func(r *Redis)
 
+const (
+	// DefaultConnectionTimeout is the default connection timeout duration
+	DefaultConnectionTimeout = 3 * time.Second
+)
+
 // Redis represents Redis checker
 type Redis struct {
 	address   string
@@ -39,7 +44,7 @@ type Redis struct {
 func New(address string, opts ...Option) checker.Checker {
 	r := &Redis{
 		address: address,
-		timeout: time.Second * 5,
+		timeout: DefaultConnectionTimeout,
 	}
 
 	// apply the list of options to Redis

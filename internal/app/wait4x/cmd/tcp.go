@@ -18,8 +18,6 @@ import (
 	"errors"
 	"github.com/atkrad/wait4x/pkg/checker/tcp"
 	"github.com/atkrad/wait4x/pkg/waiter"
-	"time"
-
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +40,7 @@ func NewTCPCommand() *cobra.Command {
 		RunE: runTCP,
 	}
 
-	tcpCommand.Flags().Duration("connection-timeout", time.Second*5, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
+	tcpCommand.Flags().Duration("connection-timeout", tcp.DefaultConnectionTimeout, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
 
 	return tcpCommand
 }

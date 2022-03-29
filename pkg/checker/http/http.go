@@ -32,6 +32,13 @@ import (
 // Option configures an HTTP.
 type Option func(h *HTTP)
 
+const (
+	// DefaultConnectionTimeout is the default connection timeout duration
+	DefaultConnectionTimeout = 3 * time.Second
+	// DefaultInsecureSkipTLSVerify is the default insecure skip tls verify
+	DefaultInsecureSkipTLSVerify = false
+)
+
 // HTTP represents HTTP checker
 type HTTP struct {
 	address               string
@@ -48,8 +55,9 @@ type HTTP struct {
 // New creates the HTTP checker
 func New(address string, opts ...Option) checker.Checker {
 	h := &HTTP{
-		address: address,
-		timeout: time.Second * 5,
+		address:               address,
+		timeout:               DefaultConnectionTimeout,
+		insecureSkipTLSVerify: DefaultInsecureSkipTLSVerify,
 	}
 
 	// apply the list of options to HTTP
