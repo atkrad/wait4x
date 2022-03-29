@@ -44,7 +44,7 @@ func NewInfluxDBCommand() *cobra.Command {
 
 			ic := influxdb.New(args[0])
 
-			return waiter.WaitWithContext(
+			return waiter.WaitContext(
 				cmd.Context(),
 				ic.Check,
 				waiter.WithTimeout(timeout),

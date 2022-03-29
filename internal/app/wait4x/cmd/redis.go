@@ -61,7 +61,7 @@ func NewRedisCommand() *cobra.Command {
 
 			rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
 
-			return waiter.WaitWithContext(
+			return waiter.WaitContext(
 				cmd.Context(),
 				rc.Check,
 				waiter.WithTimeout(timeout),

@@ -121,7 +121,7 @@ func NewHTTPCommand() *cobra.Command {
 				http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			)
 
-			return waiter.WaitWithContext(
+			return waiter.WaitContext(
 				cmd.Context(),
 				hc.Check,
 				waiter.WithTimeout(timeout),
