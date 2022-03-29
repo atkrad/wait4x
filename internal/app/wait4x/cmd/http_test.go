@@ -15,7 +15,11 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/atkrad/wait4x/internal/pkg/test"
@@ -56,4 +60,38 @@ func TestHTTPConnectionFail(t *testing.T) {
 	_, err := test.ExecuteCommand(rootCmd, "http", "http://not-exists-doomain.tld", "-t", "2s")
 
 	assert.Equal(t, context.DeadlineExceeded, err)
+}
+
+func TestHTTPRequestHeaderSuccess(t *testing.T) {
+	hts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		resp := new(bytes.Buffer)
+		for key, value := range r.Header {
+			_, err := fmt.Fprintf(resp, "%s=%s,", key, value)
+			assert.Nil(t, err)
+		}
+
+		_, err := w.Write(resp.Bytes())
+		assert.Nil(t, err)
+	}))
+	defer hts.Close()
+
+	rootCmd := NewRootCommand()
+	rootCmd.AddCommand(NewHTTPCommand())
+
+	_, err := test.ExecuteCommand(
+		rootCmd,
+		"http",
+		hts.URL,
+		"--request-header",
+		"X-Foo: value1",
+		"--request-header",
+		"X-Foo: value2",
+		"--request-header",
+		"X-Bar: long \n value",
+		"--expect-body-regex",
+		"(.*X-Foo=\\[value1 value2\\].*X-Bar=\\[long value\\].*)|(.*X-Bar=\\[long value\\].*X-Foo=\\[value1 value2\\].*)",
+	)
+
+	assert.Nil(t, err)
 }
