@@ -16,6 +16,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"regexp"
@@ -67,6 +68,16 @@ func WithExpectKey(key string) Option {
 	return func(r *Redis) {
 		r.expectKey = key
 	}
+}
+
+// Identity returns the identity of the checker
+func (r Redis) Identity() (string, error) {
+	opts, err := redis.ParseURL(r.address)
+	if err != nil {
+		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
+	}
+
+	return opts.Addr, nil
 }
 
 // Check checks Redis connection

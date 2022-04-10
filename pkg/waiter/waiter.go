@@ -17,8 +17,12 @@ package waiter
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/atkrad/wait4x/pkg/checker"
 	errors2 "github.com/atkrad/wait4x/pkg/checker/errors"
 	"github.com/go-logr/logr"
+	"reflect"
+	"sync"
 	"time"
 )
 
@@ -64,19 +68,62 @@ func WithLogger(logger *logr.Logger) Option {
 	}
 }
 
+// WaitParallel waits for end up all of checks execution.
+func WaitParallel(checkers []checker.Checker, opts ...Option) error {
+	return WaitParallelContext(context.Background(), checkers, opts...)
+}
+
+// WaitParallelContext waits for end up all of checks execution.
+func WaitParallelContext(ctx context.Context, checkers []checker.Checker, opts ...Option) error {
+	// Make channels to pass wgErrors in WaitGroup
+	wgErrors := make(chan error)
+	wgDone := make(chan bool)
+
+	var wg sync.WaitGroup
+
+	for _, chr := range checkers {
+		wg.Add(1)
+
+		go func(chr checker.Checker) {
+			defer wg.Done()
+
+			err := WaitContext(ctx, chr, opts...)
+			if err != nil {
+				wgErrors <- err
+			}
+		}(chr)
+	}
+
+	// Important final goroutine to wait until WaitGroup is done
+	go func() {
+		wg.Wait()
+		close(wgDone)
+	}()
+
+	// Wait until either WaitGroup is done or an error is received through the channel
+	select {
+	case <-wgDone:
+		return nil
+	case err := <-wgErrors:
+		close(wgErrors)
+
+		return err
+	}
+}
+
 // Wait waits for end up of check execution.
-func Wait(check Check, opts ...Option) error {
-	return WaitContext(context.Background(), check, opts...)
+func Wait(checker checker.Checker, opts ...Option) error {
+	return WaitContext(context.Background(), checker, opts...)
 }
 
 // WaitWithContext waits for end up of check execution.
 // Deprecated: The function will be removed in v3.0.0, please use the WaitContext.
-func WaitWithContext(ctx context.Context, check Check, opts ...Option) error {
-	return WaitContext(ctx, check, opts...)
+func WaitWithContext(ctx context.Context, checker checker.Checker, opts ...Option) error {
+	return WaitContext(ctx, checker, opts...)
 }
 
 // WaitContext waits for end up of check execution.
-func WaitContext(ctx context.Context, check Check, opts ...Option) error {
+func WaitContext(ctx context.Context, checker checker.Checker, opts ...Option) error {
 	options := &options{
 		timeout:     10 * time.Second,
 		interval:    time.Second,
@@ -91,12 +138,24 @@ func WaitContext(ctx context.Context, check Check, opts ...Option) error {
 	ctx, cancel := context.WithTimeout(ctx, options.timeout)
 	defer cancel()
 
+	var chkName string
+	if t := reflect.TypeOf(checker); t.Kind() == reflect.Ptr {
+		chkName = t.Elem().Name()
+	} else {
+		chkName = t.Name()
+	}
+
+	chkID, err := checker.Identity()
+	if err != nil {
+		return err
+	}
+
 	for {
 		if options.logger != nil {
-			options.logger.Info("Checking the service ...")
+			options.logger.Info(fmt.Sprintf("[%s] Checking the %s ...", chkName, chkID))
 		}
 
-		err := check(ctx)
+		err := checker.Check(ctx)
 		if options.logger != nil {
 			var cError *errors2.Error
 			if errors.As(err, &cError) {

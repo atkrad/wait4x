@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/atkrad/wait4x/pkg/checker"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
@@ -31,9 +32,8 @@ import (
 // NewHTTPCommand creates the http sub-command
 func NewHTTPCommand() *cobra.Command {
 	httpCommand := &cobra.Command{
-		Use:   "http ADDRESS [flags] [-- command [args...]]",
-		Short: "Check HTTP connection.",
-		Long:  "",
+		Use:   "http ADDRESS... [flags] [-- command [args...]]",
+		Short: "Check HTTP connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("ADDRESS is required argument for the http command")
@@ -125,20 +125,32 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		requestHeaders = nethttp.Header(MIMEHeaders)
 	}
 
-	hc := http.New(args[0],
-		http.WithExpectStatusCode(expectStatusCode),
-		http.WithExpectBodyRegex(expectBodyRegex),
-		http.WithExpectBodyJSON(expectBodyJSON),
-		http.WithExpectBodyXPath(expectBodyXPath),
-		http.WithExpectHeader(expectHeader),
-		http.WithRequestHeaders(requestHeaders),
-		http.WithTimeout(connectionTimeout),
-		http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
-	)
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		hc := http.New(arg,
+			http.WithExpectStatusCode(expectStatusCode),
+			http.WithExpectBodyRegex(expectBodyRegex),
+			http.WithExpectBodyJSON(expectBodyJSON),
+			http.WithExpectBodyXPath(expectBodyXPath),
+			http.WithExpectHeader(expectHeader),
+			http.WithRequestHeaders(requestHeaders),
+			http.WithTimeout(connectionTimeout),
+			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+		)
+
+		checkers = append(checkers, hc)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		hc.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),

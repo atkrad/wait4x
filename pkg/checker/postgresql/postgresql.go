@@ -17,8 +17,10 @@ package postgresql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"net/url"
 
 	// Needed for the PostgreSQL driver
 	_ "github.com/lib/pq"
@@ -36,6 +38,16 @@ func New(dsn string) checker.Checker {
 	}
 
 	return p
+}
+
+// Identity returns the identity of the checker
+func (p PostgreSQL) Identity() (string, error) {
+	u, err := url.Parse(p.dsn)
+	if err != nil {
+		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
+	}
+
+	return u.Host, nil
 }
 
 // Check checks PostgreSQL connection

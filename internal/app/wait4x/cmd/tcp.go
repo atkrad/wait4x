@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/tcp"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,8 +25,8 @@ import (
 // NewTCPCommand creates the tcp sub-command
 func NewTCPCommand() *cobra.Command {
 	tcpCommand := &cobra.Command{
-		Use:   "tcp ADDRESS [flags] [-- command [args...]]",
-		Short: "Check TCP connection.",
+		Use:   "tcp ADDRESS... [flags] [-- command [args...]]",
+		Short: "Check TCP connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("ADDRESS is required argument for the tcp command")
@@ -52,11 +53,23 @@ func runTCP(cmd *cobra.Command, args []string) error {
 
 	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 
-	tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		tc := tcp.New(arg, tcp.WithTimeout(conTimeout))
+
+		checkers = append(checkers, tc)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		tc.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),

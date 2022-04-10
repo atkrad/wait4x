@@ -131,6 +131,11 @@ func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
 	}
 }
 
+// Identity returns the identity of the checker
+func (h HTTP) Identity() (string, error) {
+	return h.address, nil
+}
+
 // Check checks HTTP connection
 func (h *HTTP) Check(ctx context.Context) (err error) {
 	var httpClient = &http.Client{
