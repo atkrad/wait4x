@@ -35,6 +35,11 @@ func New(serverURL string) checker.Checker {
 	return i
 }
 
+// Identity returns the identity of the checker
+func (i InfluxDB) Identity() (string, error) {
+	return i.serverURL, nil
+}
+
 // Check checks InfluxDB connection
 func (i *InfluxDB) Check(ctx context.Context) error {
 	// InfluxDB doesn't validate authentication params on Ping and Health requests.

@@ -17,7 +17,9 @@ package waiter
 import (
 	"context"
 	"fmt"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"os"
 	"testing"
 	"time"
@@ -28,28 +30,77 @@ func TestMain(m *testing.M) {
 }
 
 func TestWaitSuccessful(t *testing.T) {
-	alwaysTrue := func(ctx context.Context) error {
-		time.Sleep(3 * time.Second)
-		return nil
-	}
-	err := Wait(alwaysTrue, WithInterval(time.Second))
+	mockChecker := new(checker.MockChecker)
+	mockChecker.On("Check", mock.Anything).Return(nil).
+		On("Identity").Return("ID", nil)
+
+	err := Wait(mockChecker, WithInterval(time.Second))
 
 	assert.Nil(t, err)
+	mockChecker.AssertExpectations(t)
 }
 
 func TestWaitTimedOut(t *testing.T) {
-	alwaysFalse := func(ctx context.Context) error { return fmt.Errorf("error") }
-	err := Wait(alwaysFalse, WithTimeout(time.Second))
+	mockChecker := new(checker.MockChecker)
+	mockChecker.On("Check", mock.Anything).Return(fmt.Errorf("error")).
+		On("Identity").Return("ID", nil)
+
+	err := Wait(mockChecker, WithTimeout(time.Second))
 
 	assert.Equal(t, context.DeadlineExceeded, err)
+	mockChecker.AssertExpectations(t)
 }
 
 func TestWaitInvertCheck(t *testing.T) {
-	alwaysTrue := func(ctx context.Context) error { return nil }
+	alwaysTrue := new(checker.MockChecker)
+	alwaysTrue.On("Check", mock.Anything).Return(nil).
+		On("Identity").Return("ID", nil)
+
 	err := Wait(alwaysTrue, WithTimeout(time.Second*3), WithInvertCheck(true))
 	assert.Equal(t, context.DeadlineExceeded, err)
+	alwaysTrue.AssertExpectations(t)
 
-	alwaysFalse := func(ctx context.Context) error { return fmt.Errorf("error") }
+	alwaysFalse := new(checker.MockChecker)
+	alwaysFalse.On("Check", mock.Anything).Return(fmt.Errorf("error")).
+		On("Identity").Return("ID", nil)
+
 	err = Wait(alwaysFalse, WithTimeout(time.Second), WithInvertCheck(true))
 	assert.Nil(t, err)
+	alwaysFalse.AssertExpectations(t)
+}
+
+func TestWaitParallelSuccessful(t *testing.T) {
+	alwaysTrueFirst := new(checker.MockChecker)
+	alwaysTrueFirst.On("Check", mock.Anything).Return(nil).
+		On("Identity").Return("ID", nil)
+
+	alwaysTrueSecond := new(checker.MockChecker)
+	alwaysTrueSecond.On("Check", mock.Anything).Return(nil).
+		On("Identity").Return("ID", nil)
+
+	err := WaitParallel([]checker.Checker{alwaysTrueFirst, alwaysTrueSecond}, WithTimeout(time.Second*3))
+	assert.Nil(t, err)
+	alwaysTrueFirst.AssertExpectations(t)
+	alwaysTrueSecond.AssertExpectations(t)
+}
+
+func TestWaitParallelFail(t *testing.T) {
+	alwaysTrueFirst := new(checker.MockChecker)
+	alwaysTrueFirst.On("Check", mock.Anything).Return(nil).
+		On("Identity").Return("ID", nil)
+
+	alwaysTrueSecond := new(checker.MockChecker)
+	alwaysTrueSecond.On("Check", mock.Anything).Return(nil).
+		On("Identity").Return("ID", nil)
+
+	alwaysError := new(checker.MockChecker)
+	alwaysError.On("Check", mock.Anything).Return(fmt.Errorf("error")).
+		On("Identity").Return("ID", nil)
+
+	err := WaitParallel([]checker.Checker{alwaysTrueFirst, alwaysTrueSecond, alwaysError}, WithTimeout(time.Second*3))
+	assert.Equal(t, context.DeadlineExceeded, err)
+
+	alwaysTrueFirst.AssertExpectations(t)
+	alwaysTrueSecond.AssertExpectations(t)
+	alwaysError.AssertExpectations(t)
 }

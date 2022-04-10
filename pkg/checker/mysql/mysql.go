@@ -17,8 +17,10 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/go-sql-driver/mysql"
 
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
@@ -36,6 +38,16 @@ func New(dsn string) checker.Checker {
 	}
 
 	return m
+}
+
+// Identity returns the identity of the checker
+func (m MySQL) Identity() (string, error) {
+	cfg, err := mysql.ParseDSN(m.dsn)
+	if err != nil {
+		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
+	}
+
+	return cfg.Addr, nil
 }
 
 // Check checks MySQL connection

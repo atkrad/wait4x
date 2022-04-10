@@ -15,22 +15,25 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
+	"fmt"
+	"github.com/atkrad/wait4x/pkg/checker"
+	nethttp "net/http"
+	"net/textproto"
 	"net/url"
-	"time"
+	"strings"
 
 	"github.com/atkrad/wait4x/pkg/checker/http"
 	"github.com/atkrad/wait4x/pkg/waiter"
-
 	"github.com/spf13/cobra"
 )
 
 // NewHTTPCommand creates the http sub-command
 func NewHTTPCommand() *cobra.Command {
 	httpCommand := &cobra.Command{
-		Use:   "http ADDRESS [flags] [-- command [args...]]",
-		Short: "Check HTTP connection.",
-		Long:  "",
+		Use:   "http ADDRESS... [flags] [-- command [args...]]",
+		Short: "Check HTTP connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("ADDRESS is required argument for the http command")
@@ -74,54 +77,83 @@ func NewHTTPCommand() *cobra.Command {
   # Request headers:
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
-			expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
-			expectBody, _ := cmd.Flags().GetString("expect-body")
-			expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
-			expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
-			expectHeader, _ := cmd.Flags().GetString("expect-header")
-			requestHeaders, _ := cmd.Flags().GetStringArray("request-header")
-			connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-
-			if len(expectBody) != 0 {
-				expectBodyRegex = expectBody
-			}
-
-			hc := http.New(args[0],
-				http.WithExpectStatusCode(expectStatusCode),
-				http.WithExpectBodyRegex(expectBodyRegex),
-				http.WithExpectBodyJSON(expectBodyJSON),
-				http.WithExpectBodyXPath(expectBodyXPath),
-				http.WithExpectHeader(expectHeader),
-				http.WithRequestHeaders(requestHeaders),
-				http.WithTimeout(connectionTimeout),
-			)
-
-			return waiter.WaitWithContext(
-				cmd.Context(),
-				hc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runHTTP,
 	}
 
 	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
 	httpCommand.Flags().String("expect-body", "", "Expect response body pattern.")
-	httpCommand.Flags().MarkDeprecated("expect-body", "please use --expect-body-regex.")
+	httpCommand.Flags().MarkDeprecated("expect-body", "This flag will be removed in v3.0.0, please use --expect-body-regex.")
 	httpCommand.Flags().String("expect-body-regex", "", "Expect response body pattern.")
 	httpCommand.Flags().String("expect-body-json", "", "Expect response body JSON pattern.")
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
-	httpCommand.Flags().Duration("connection-timeout", time.Second*5, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
 
 	return httpCommand
+}
+
+func runHTTP(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
+	expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
+	expectBody, _ := cmd.Flags().GetString("expect-body")
+	expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
+	expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
+	expectHeader, _ := cmd.Flags().GetString("expect-header")
+	requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
+	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+
+	if len(expectBody) != 0 {
+		expectBodyRegex = expectBody
+	}
+
+	// Convert raw headers (e.g. 'a: b') into a http Header.
+	var requestHeaders nethttp.Header
+	if len(requestRawHeaders) > 0 {
+		rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
+		tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")))
+		MIMEHeaders, err := tpReader.ReadMIMEHeader()
+		if err != nil {
+			return fmt.Errorf("can't parse the request header: %w", err)
+		}
+		requestHeaders = nethttp.Header(MIMEHeaders)
+	}
+
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
+
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		hc := http.New(arg,
+			http.WithExpectStatusCode(expectStatusCode),
+			http.WithExpectBodyRegex(expectBodyRegex),
+			http.WithExpectBodyJSON(expectBodyJSON),
+			http.WithExpectBodyXPath(expectBodyXPath),
+			http.WithExpectHeader(expectHeader),
+			http.WithRequestHeaders(requestHeaders),
+			http.WithTimeout(connectionTimeout),
+			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+		)
+
+		checkers = append(checkers, hc)
+	}
+
+	return waiter.WaitParallelContext(
+		cmd.Context(),
+		checkers,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

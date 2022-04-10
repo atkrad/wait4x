@@ -17,6 +17,7 @@ package rabbitmq
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"github.com/streadway/amqp"
@@ -73,6 +74,16 @@ func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
 	return func(r *RabbitMQ) {
 		r.insecureSkipTLSVerify = insecureSkipTLSVerify
 	}
+}
+
+// Identity returns the identity of the checker
+func (r RabbitMQ) Identity() (string, error) {
+	u, err := amqp.ParseURI(r.dsn)
+	if err != nil {
+		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
+	}
+
+	return fmt.Sprintf("%s:%d", u.Host, u.Port), nil
 }
 
 // Check checks RabbitMQ connection

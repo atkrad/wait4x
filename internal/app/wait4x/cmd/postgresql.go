@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/postgresql"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,9 +25,9 @@ import (
 // NewPostgresqlCommand creates the postgresql sub-command
 func NewPostgresqlCommand() *cobra.Command {
 	postgresqlCommand := &cobra.Command{
-		Use:     "postgresql DSN [flags] [-- command [args...]]",
+		Use:     "postgresql DSN... [flags] [-- command [args...]]",
 		Aliases: []string{"postgres", "postgre"},
-		Short:   "Check PostgreSQL connection.",
+		Short:   "Check PostgreSQL connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("DSN is required argument for the postgresql command")
@@ -38,23 +39,37 @@ func NewPostgresqlCommand() *cobra.Command {
   # Checking PostgreSQL TCP connection
   wait4x postgresql postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			pc := postgresql.New(args[0])
-
-			return waiter.WaitWithContext(
-				cmd.Context(),
-				pc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runPostgresql,
 	}
 
 	return postgresqlCommand
+}
+
+func runPostgresql(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
+
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		pc := postgresql.New(arg)
+
+		checkers = append(checkers, pc)
+	}
+
+	return waiter.WaitParallelContext(
+		cmd.Context(),
+		checkers,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

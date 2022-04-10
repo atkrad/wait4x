@@ -16,6 +16,7 @@ package http
 
 import (
 	"context"
+	"crypto/tls"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -31,23 +32,32 @@ import (
 // Option configures an HTTP.
 type Option func(h *HTTP)
 
+const (
+	// DefaultConnectionTimeout is the default connection timeout duration
+	DefaultConnectionTimeout = 3 * time.Second
+	// DefaultInsecureSkipTLSVerify is the default insecure skip tls verify
+	DefaultInsecureSkipTLSVerify = false
+)
+
 // HTTP represents HTTP checker
 type HTTP struct {
-	address          string
-	timeout          time.Duration
-	expectBodyRegex  string
-	expectBodyJSON   string
-	expectBodyXPath  string
-	expectHeader     string
-	requestHeaders   []string
-	expectStatusCode int
+	address               string
+	timeout               time.Duration
+	expectBodyRegex       string
+	expectBodyJSON        string
+	expectBodyXPath       string
+	expectHeader          string
+	requestHeaders        http.Header
+	expectStatusCode      int
+	insecureSkipTLSVerify bool
 }
 
 // New creates the HTTP checker
 func New(address string, opts ...Option) checker.Checker {
 	h := &HTTP{
-		address: address,
-		timeout: time.Second * 5,
+		address:               address,
+		timeout:               DefaultConnectionTimeout,
+		insecureSkipTLSVerify: DefaultInsecureSkipTLSVerify,
 	}
 
 	// apply the list of options to HTTP
@@ -94,9 +104,16 @@ func WithExpectHeader(header string) Option {
 }
 
 // WithRequestHeaders configures request header
-func WithRequestHeaders(headers []string) Option {
+func WithRequestHeaders(headers http.Header) Option {
 	return func(h *HTTP) {
 		h.requestHeaders = headers
+	}
+}
+
+// WithRequestHeader configures request header
+func WithRequestHeader(key string, value []string) Option {
+	return func(h *HTTP) {
+		h.requestHeaders[key] = value
 	}
 }
 
@@ -107,10 +124,25 @@ func WithExpectStatusCode(code int) Option {
 	}
 }
 
+// WithInsecureSkipTLSVerify configures insecure skip tls verify
+func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
+	return func(h *HTTP) {
+		h.insecureSkipTLSVerify = insecureSkipTLSVerify
+	}
+}
+
+// Identity returns the identity of the checker
+func (h HTTP) Identity() (string, error) {
+	return h.address, nil
+}
+
 // Check checks HTTP connection
 func (h *HTTP) Check(ctx context.Context) (err error) {
 	var httpClient = &http.Client{
 		Timeout: h.timeout,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: h.insecureSkipTLSVerify},
+		},
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
@@ -118,9 +150,7 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
 
-	if len(h.requestHeaders) != 0 {
-		h.applyRequestHeaders(req, h.requestHeaders)
-	}
+	req.Header = h.requestHeaders
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -170,17 +200,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	}
 
 	return nil
-}
-
-// applyRequestHeaders apply user request header
-func (h *HTTP) applyRequestHeaders(req *http.Request, headers []string) {
-	// key value. e.g. Content-Type:application/json
-	for _, header := range headers {
-		reqHeaderParsed := strings.SplitN(header, ":", 2)
-		if len(reqHeaderParsed) == 2 {
-			req.Header.Add(strings.TrimSpace(reqHeaderParsed[0]), strings.TrimSpace(reqHeaderParsed[1]))
-		}
-	}
 }
 
 func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {

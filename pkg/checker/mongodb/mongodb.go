@@ -16,11 +16,13 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"github.com/atkrad/wait4x/pkg/checker"
-	"github.com/atkrad/wait4x/pkg/checker/errors"
+	errs "github.com/atkrad/wait4x/pkg/checker/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"strings"
 )
 
 // MongoDB represents MongoDB checker
@@ -37,24 +39,34 @@ func New(dsn string) checker.Checker {
 	return i
 }
 
+// Identity returns the identity of the checker
+func (m MongoDB) Identity() (string, error) {
+	cops := options.Client().ApplyURI(m.dsn)
+	if len(cops.Hosts) == 0 {
+		return "", errors.New("can't retrieve the checker identity")
+	}
+
+	return strings.Join(cops.Hosts, ","), nil
+}
+
 // Check checks MongoDB connection
 func (m *MongoDB) Check(ctx context.Context) (err error) {
 	// Creates a new Client and then initializes it using the Connect method.
 	c, err := mongo.Connect(ctx, options.Client().ApplyURI(m.dsn))
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return errs.Wrap(err, errs.DebugLevel)
 	}
 
 	defer func() {
 		if err := c.Disconnect(ctx); err != nil {
-			err = errors.Wrap(err, errors.DebugLevel)
+			err = errs.Wrap(err, errs.DebugLevel)
 		}
 	}()
 
 	// Ping the primary
 	err = c.Ping(ctx, readpref.Primary())
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return errs.Wrap(err, errs.DebugLevel)
 	}
 
 	return nil

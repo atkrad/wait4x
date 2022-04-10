@@ -116,6 +116,9 @@ def main(ctx):
           },
           "when": {
             "event": {
+              "branch": [
+                "master"
+              ],
               "exclude": [
                 "pull_request"
               ]

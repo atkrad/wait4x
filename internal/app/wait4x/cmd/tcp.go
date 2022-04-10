@@ -16,18 +16,17 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/tcp"
 	"github.com/atkrad/wait4x/pkg/waiter"
-	"time"
-
 	"github.com/spf13/cobra"
 )
 
 // NewTCPCommand creates the tcp sub-command
 func NewTCPCommand() *cobra.Command {
 	tcpCommand := &cobra.Command{
-		Use:   "tcp ADDRESS [flags] [-- command [args...]]",
-		Short: "Check TCP connection.",
+		Use:   "tcp ADDRESS... [flags] [-- command [args...]]",
+		Short: "Check TCP connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("ADDRESS is required argument for the tcp command")
@@ -39,27 +38,41 @@ func NewTCPCommand() *cobra.Command {
   # If you want checking just tcp connection
   wait4x tcp 127.0.0.1:9090
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-
-			tc := tcp.New(args[0], tcp.WithTimeout(conTimeout))
-
-			return waiter.WaitWithContext(
-				cmd.Context(),
-				tc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runTCP,
 	}
 
-	tcpCommand.Flags().Duration("connection-timeout", time.Second*5, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
+	tcpCommand.Flags().Duration("connection-timeout", tcp.DefaultConnectionTimeout, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
 
 	return tcpCommand
+}
+
+func runTCP(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
+
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		tc := tcp.New(arg, tcp.WithTimeout(conTimeout))
+
+		checkers = append(checkers, tc)
+	}
+
+	return waiter.WaitParallelContext(
+		cmd.Context(),
+		checkers,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

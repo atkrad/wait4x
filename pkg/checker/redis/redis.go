@@ -16,6 +16,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/errors"
 	"regexp"
@@ -28,6 +29,11 @@ import (
 // Option configures a Redis.
 type Option func(r *Redis)
 
+const (
+	// DefaultConnectionTimeout is the default connection timeout duration
+	DefaultConnectionTimeout = 3 * time.Second
+)
+
 // Redis represents Redis checker
 type Redis struct {
 	address   string
@@ -39,7 +45,7 @@ type Redis struct {
 func New(address string, opts ...Option) checker.Checker {
 	r := &Redis{
 		address: address,
-		timeout: time.Second * 5,
+		timeout: DefaultConnectionTimeout,
 	}
 
 	// apply the list of options to Redis
@@ -62,6 +68,16 @@ func WithExpectKey(key string) Option {
 	return func(r *Redis) {
 		r.expectKey = key
 	}
+}
+
+// Identity returns the identity of the checker
+func (r Redis) Identity() (string, error) {
+	opts, err := redis.ParseURL(r.address)
+	if err != nil {
+		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
+	}
+
+	return opts.Addr, nil
 }
 
 // Check checks Redis connection

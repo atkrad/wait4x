@@ -38,6 +38,7 @@ interval time.
     - MongoDB
     - RabbitMQ
 - **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
+- **Parallel Checking**: You can define multiple inputs to be checked
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
 - **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
 - **Importable:** Beside the CLI tool, Wait4X can be imported as a pkg in your Go app

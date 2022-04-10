@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/mongodb"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ import (
 // NewMongoDBCommand creates the mongodb sub-command
 func NewMongoDBCommand() *cobra.Command {
 	mongodbCommand := &cobra.Command{
-		Use:   "mongodb DSN [flags] [-- command [args...]]",
+		Use:   "mongodb DSN... [flags] [-- command [args...]]",
 		Short: "Check MongoDB connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
@@ -40,23 +41,37 @@ func NewMongoDBCommand() *cobra.Command {
   # Checking MongoDB connection with credentials and options
   wait4x mongodb 'mongodb://user:pass@127.0.0.1:27017/?maxPoolSize=20&w=majority'
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			mc := mongodb.New(args[0])
-
-			return waiter.WaitWithContext(
-				cmd.Context(),
-				mc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runMongoDB,
 	}
 
 	return mongodbCommand
+}
+
+func runMongoDB(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
+
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		mc := mongodb.New(arg)
+
+		checkers = append(checkers, mc)
+	}
+
+	return waiter.WaitParallelContext(
+		cmd.Context(),
+		checkers,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }

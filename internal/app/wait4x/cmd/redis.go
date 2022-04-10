@@ -15,19 +15,18 @@
 package cmd
 
 import (
+	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/redis"
 	"github.com/atkrad/wait4x/pkg/waiter"
-	"time"
-
-	"errors"
 	"github.com/spf13/cobra"
 )
 
 // NewRedisCommand creates the redis sub-command
 func NewRedisCommand() *cobra.Command {
 	redisCommand := &cobra.Command{
-		Use:   "redis ADDRESS [flags] [-- command [args...]]",
-		Short: "Check Redis connection or key existence.",
+		Use:   "redis ADDRESS... [flags] [-- command [args...]]",
+		Short: "Check Redis connection or key existence",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("ADDRESS is required argument for the redis command")
@@ -51,29 +50,47 @@ func NewRedisCommand() *cobra.Command {
   # Checking a key existence and matching the value
   wait4x redis redis://127.0.0.1:6379 --expect-key "FOO=^b[A-Z]r$"
 `,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			interval, _ := cmd.Flags().GetDuration("interval")
-			timeout, _ := cmd.Flags().GetDuration("timeout")
-			invertCheck, _ := cmd.Flags().GetBool("invert-check")
-
-			conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-			expectKey, _ := cmd.Flags().GetString("expect-key")
-
-			rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
-
-			return waiter.WaitWithContext(
-				cmd.Context(),
-				rc.Check,
-				waiter.WithTimeout(timeout),
-				waiter.WithInterval(interval),
-				waiter.WithInvertCheck(invertCheck),
-				waiter.WithLogger(&Logger),
-			)
-		},
+		RunE: runRedis,
 	}
 
-	redisCommand.Flags().Duration("connection-timeout", time.Second*5, "Dial timeout for establishing new connections.")
+	redisCommand.Flags().Duration("connection-timeout", redis.DefaultConnectionTimeout, "Dial timeout for establishing new connections.")
 	redisCommand.Flags().String("expect-key", "", "Checking key existence.")
 
 	return redisCommand
+}
+
+func runRedis(cmd *cobra.Command, args []string) error {
+	interval, _ := cmd.Flags().GetDuration("interval")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+
+	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	expectKey, _ := cmd.Flags().GetString("expect-key")
+
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:]
+	}
+
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		rc := redis.New(
+			arg,
+			redis.WithExpectKey(expectKey),
+			redis.WithTimeout(conTimeout),
+		)
+
+		checkers = append(checkers, rc)
+	}
+
+	return waiter.WaitParallelContext(
+		cmd.Context(),
+		checkers,
+		waiter.WithTimeout(timeout),
+		waiter.WithInterval(interval),
+		waiter.WithInvertCheck(invertCheck),
+		waiter.WithLogger(&Logger),
+	)
 }
