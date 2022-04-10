@@ -71,7 +71,7 @@ func runRedis(cmd *cobra.Command, args []string) error {
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
 	} else {
-		args = args[:len(args)]
+		args = args[:]
 	}
 
 	checkers := make([]checker.Checker, 0)
