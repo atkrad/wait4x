@@ -1,4 +1,4 @@
-// Copyright 2020 Mohammad Abdolirad
+// Copyright 2022 Mohammad Abdolirad
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,27 @@ package checker
 
 import (
 	"context"
+	"github.com/stretchr/testify/mock"
 )
 
-// Checker is the interface that wraps the basic checker methods.
-type Checker interface {
-	Identity() (string, error)
-	Check(ctx context.Context) error
+type MockChecker struct {
+	mock.Mock
+}
+
+func (mc *MockChecker) Identity() (string, error) {
+	args := mc.Called()
+
+	return args.String(0), args.Error(1)
+}
+
+func (mc *MockChecker) Name() string {
+	args := mc.Called()
+
+	return args.String(0)
+}
+
+func (mc *MockChecker) Check(ctx context.Context) error {
+	args := mc.Called(ctx)
+
+	return args.Error(0)
 }

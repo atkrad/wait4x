@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/influxdb"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ import (
 // NewInfluxDBCommand creates the influxdb sub-command
 func NewInfluxDBCommand() *cobra.Command {
 	influxdbCommand := &cobra.Command{
-		Use:   "influxdb SERVER_URL [flags] [-- command [args...]]",
+		Use:   "influxdb SERVER_URL... [flags] [-- command [args...]]",
 		Short: "Check InfluxDB connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
@@ -48,11 +49,23 @@ func runInfluxDB(cmd *cobra.Command, args []string) error {
 	timeout, _ := cmd.Flags().GetDuration("timeout")
 	invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
-	ic := influxdb.New(args[0])
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:len(args)]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		ic := influxdb.New(arg)
+
+		checkers = append(checkers, ic)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		ic.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),

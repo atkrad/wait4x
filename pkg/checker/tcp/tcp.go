@@ -58,6 +58,11 @@ func WithTimeout(timeout time.Duration) Option {
 	}
 }
 
+// Identity returns the identity of the checker
+func (t TCP) Identity() (string, error) {
+	return t.address, nil
+}
+
 // Check checks TCP connection
 func (t *TCP) Check(ctx context.Context) error {
 	d := net.Dialer{Timeout: t.timeout}

@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/rabbitmq"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,8 +25,8 @@ import (
 // NewRabbitMQCommand creates the rabbitmq sub-command
 func NewRabbitMQCommand() *cobra.Command {
 	rabbitmqCommand := &cobra.Command{
-		Use:   "rabbitmq DSN [flags] [-- command [args...]]",
-		Short: "Check RabbitMQ connection.",
+		Use:   "rabbitmq DSN... [flags] [-- command [args...]]",
+		Short: "Check RabbitMQ connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("DSN is required argument for the rabbitmq sub-command")
@@ -57,15 +58,27 @@ func runRabbitMQ(cmd *cobra.Command, args []string) error {
 	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 
-	rc := rabbitmq.New(
-		args[0],
-		rabbitmq.WithTimeout(conTimeout),
-		rabbitmq.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
-	)
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:len(args)]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		rc := rabbitmq.New(
+			arg,
+			rabbitmq.WithTimeout(conTimeout),
+			rabbitmq.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+		)
+
+		checkers = append(checkers, rc)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		rc.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),

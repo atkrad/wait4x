@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/mongodb"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ import (
 // NewMongoDBCommand creates the mongodb sub-command
 func NewMongoDBCommand() *cobra.Command {
 	mongodbCommand := &cobra.Command{
-		Use:   "mongodb DSN [flags] [-- command [args...]]",
+		Use:   "mongodb DSN... [flags] [-- command [args...]]",
 		Short: "Check MongoDB connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
@@ -51,11 +52,23 @@ func runMongoDB(cmd *cobra.Command, args []string) error {
 	timeout, _ := cmd.Flags().GetDuration("timeout")
 	invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
-	mc := mongodb.New(args[0])
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:len(args)]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		mc := mongodb.New(arg)
+
+		checkers = append(checkers, mc)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		mc.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),

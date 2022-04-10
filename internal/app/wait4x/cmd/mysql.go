@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/mysql"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,8 +25,8 @@ import (
 // NewMysqlCommand creates the mysql sub-command
 func NewMysqlCommand() *cobra.Command {
 	mysqlCommand := &cobra.Command{
-		Use:   "mysql DSN [flags] [-- command [args...]]",
-		Short: "Check MySQL connection.",
+		Use:   "mysql DSN... [flags] [-- command [args...]]",
+		Short: "Check MySQL connection",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("DSN is required argument for the mysql command")
@@ -51,11 +52,23 @@ func runMysql(cmd *cobra.Command, args []string) error {
 	timeout, _ := cmd.Flags().GetDuration("timeout")
 	invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
-	mc := mysql.New(args[0])
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:len(args)]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		mc := mysql.New(arg)
+
+		checkers = append(checkers, mc)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		mc.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),

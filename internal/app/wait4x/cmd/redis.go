@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/atkrad/wait4x/pkg/checker"
 	"github.com/atkrad/wait4x/pkg/checker/redis"
 	"github.com/atkrad/wait4x/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -24,8 +25,8 @@ import (
 // NewRedisCommand creates the redis sub-command
 func NewRedisCommand() *cobra.Command {
 	redisCommand := &cobra.Command{
-		Use:   "redis ADDRESS [flags] [-- command [args...]]",
-		Short: "Check Redis connection or key existence.",
+		Use:   "redis ADDRESS... [flags] [-- command [args...]]",
+		Short: "Check Redis connection or key existence",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errors.New("ADDRESS is required argument for the redis command")
@@ -66,11 +67,27 @@ func runRedis(cmd *cobra.Command, args []string) error {
 	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	expectKey, _ := cmd.Flags().GetString("expect-key")
 
-	rc := redis.New(args[0], redis.WithExpectKey(expectKey), redis.WithTimeout(conTimeout))
+	// ArgsLenAtDash returns -1 when -- was not specified
+	if i := cmd.ArgsLenAtDash(); i != -1 {
+		args = args[:i]
+	} else {
+		args = args[:len(args)]
+	}
 
-	return waiter.WaitContext(
+	checkers := make([]checker.Checker, 0)
+	for _, arg := range args {
+		rc := redis.New(
+			arg,
+			redis.WithExpectKey(expectKey),
+			redis.WithTimeout(conTimeout),
+		)
+
+		checkers = append(checkers, rc)
+	}
+
+	return waiter.WaitParallelContext(
 		cmd.Context(),
-		rc.Check,
+		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),
