@@ -19,22 +19,19 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// MockChecker is the struct that mocks the Checker.
 type MockChecker struct {
 	mock.Mock
 }
 
+// Identity mocks the checker's identity
 func (mc *MockChecker) Identity() (string, error) {
 	args := mc.Called()
 
 	return args.String(0), args.Error(1)
 }
 
-func (mc *MockChecker) Name() string {
-	args := mc.Called()
-
-	return args.String(0)
-}
-
+// Check mocks the checker's check
 func (mc *MockChecker) Check(ctx context.Context) error {
 	args := mc.Called(ctx)
 
