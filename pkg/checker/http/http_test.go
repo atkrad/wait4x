@@ -216,7 +216,11 @@ func TestHttpRequestHeaders(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithRequestHeaders(http.Header{"Authorization": []string{"Token 123"}, "Foo": []string{"test1 test2"}}), WithExpectBodyRegex(".*Authorization=\\[Token 123\\],Foo=\\[test1 test2\\],.*"))
+	hc := New(
+		ts.URL,
+		WithRequestHeaders(http.Header{"Authorization": []string{"Token 123"}, "Foo": []string{"test1 test2"}}),
+		WithExpectBodyRegex("(.*Authorization=\\[Token 123\\].*Foo=\\[test1 test2\\].*)|(.*Foo=\\[test1 test2\\].*Authorization=\\[Token 123\\].*)"),
+	)
 	assert.Nil(t, hc.Check(context.TODO()))
 }
 
