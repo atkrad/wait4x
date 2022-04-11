@@ -13,7 +13,7 @@ require (
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/influxdata/influxdb-client-go/v2 v2.7.0
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/lib/pq v1.10.4
+	github.com/lib/pq v1.10.5
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/cobra v1.4.0
 	github.com/streadway/amqp v1.0.0
