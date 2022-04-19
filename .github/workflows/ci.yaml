@@ -47,11 +47,19 @@ jobs:
     - name: Test Wait4X
       run: make test
 
+    - name: Convert coverage to lcov
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest' && matrix.go-version == '1.18.x' }}
+      uses: jandelgado/gcov2lcov-action@v1.0.0
+      with:
+        infile: coverage.out
+        outfile: coverage.lcov
+
     - name: Coveralls
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest' && matrix.go-version == '1.18.x' }}
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.COVERALLS_TOKEN }}
+        path-to-lcov: coverage.lcov
 
   build:
     name: Build
