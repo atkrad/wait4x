@@ -11,7 +11,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/influxdata/influxdb-client-go/v2 v2.7.0
+	github.com/influxdata/influxdb-client-go/v2 v2.8.2
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/lib/pq v1.10.5
 	github.com/rs/zerolog v1.26.1
