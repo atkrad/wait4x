@@ -3,65 +3,6 @@ def main(ctx):
     {
       "kind": "pipeline",
       "type": "docker",
-      "name": "check",
-      "steps": [
-        {
-          "name": "gofmt",
-          "image": "golang:1.16-buster",
-          "commands": [
-            "make check-gofmt"
-          ]
-        },
-        {
-          "name": "revive",
-          "image": "golang:1.16-buster",
-          "commands": [
-            "go install github.com/mgechev/revive@v1.1.2",
-            "make check-revive"
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "pipeline",
-      "type": "docker",
-      "name": "test",
-      "steps": [
-        {
-          "name": "test",
-          "image": "golang:1.16-buster",
-          "commands": [
-            "make test"
-          ]
-        },
-        {
-          "name": "coverage",
-          "image": "golang:1.16-buster",
-          "environment": {
-            "COVERALLS_TOKEN": {
-              "from_secret": "COVERALLS_TOKEN"
-            }
-          },
-          "commands": [
-            "go install github.com/mattn/goveralls@v0.0.11",
-            "goveralls -coverprofile=coverage.out -service=drone -repotoken $${COVERALLS_TOKEN}"
-          ],
-          "when": {
-            "event": {
-              "exclude": [
-                "pull_request"
-              ]
-            }
-          }
-        }
-      ],
-      "depends_on": [
-        "check"
-      ]
-    },
-    {
-      "kind": "pipeline",
-      "type": "docker",
       "name": "docker",
       "steps": [
         {
