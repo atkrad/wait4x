@@ -52,7 +52,7 @@ type HTTP struct {
 	insecureSkipTLSVerify bool
 }
 
-// New creates the HTTP checker, with address value.
+// New creates the HTTP checker
 func New(address string, opts ...Option) checker.Checker {
 	h := &HTTP{
 		address:               address,
