@@ -8,12 +8,13 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     steps:
-    - name: Use Golang 1.17.x
+    - name: Set up Go 1.17.x
       uses: actions/setup-go@v3
       with:
         go-version: 1.17.x
 
-    - uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
     - name: go-fmt
       run: make check-gofmt
@@ -32,7 +33,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        go-version: [1.16.x, 1.17.x, 1.18.x]
+        go-version: [1.17.x, 1.18.x]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout Code
