@@ -1,17 +1,34 @@
+name: Wait4X CI
+
 on:
   push:
   pull_request:
 
-name: Wait4X CI
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
     steps:
-    - name: Set up Go 1.17.x
+    - name: Set up Go 1.18.x
       uses: actions/setup-go@v3
       with:
         go-version: 1.17.x
+
+    - name: Define output variables
+      id: go-cache-paths
+      run: |
+        echo "::set-output name=go-build::$(go env GOCACHE)"
+        echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ steps.go-cache-paths.outputs.go-build }}
+          ${{ steps.go-cache-paths.outputs.go-mod }}
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -43,6 +60,22 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
+
+    - name: Define output variables
+      id: go-cache-paths
+      run: |
+        echo "::set-output name=go-build::$(go env GOCACHE)"
+        echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ steps.go-cache-paths.outputs.go-build }}
+          ${{ steps.go-cache-paths.outputs.go-mod }}
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Test Wait4X
       run: make test
@@ -80,6 +113,22 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
+
+    - name: Define output variables
+      id: go-cache-paths
+      run: |
+        echo "::set-output name=go-build::$(go env GOCACHE)"
+        echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ steps.go-cache-paths.outputs.go-build }}
+          ${{ steps.go-cache-paths.outputs.go-mod }}
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Build Wait4X
       run: make build
