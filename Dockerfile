@@ -5,7 +5,7 @@ ENV GO111MODULE=auto
 ENV CGO_ENABLED=0
 
 COPY --from=xx / /
-RUN apk add --update --no-cache build-base coreutils git
+RUN apk add --update --no-cache build-base bash coreutils git
 WORKDIR /src
 
 FROM base AS build
