@@ -1,16 +1,45 @@
-FROM alpine:3.13
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.1.0 AS xx
 
-LABEL maintainer="Mohammad Abdolirad <m.abdolirad@gmail.com>" \
-    org.label-schema.name="wait4x" \
-    org.label-schema.vendor="atkrad" \
-    org.label-schema.description="Wait4X is a cli tool to wait for everything! It can be wait for a port to open or enter to rquested state." \
-    org.label-schema.vcs-url="https://github.com/atkrad/wait4x" \
-    org.label-schema.license="Apache"
+FROM --platform=$BUILDPLATFORM golang:1.18.1-alpine3.15 AS base
+ENV GO111MODULE=auto
+ENV CGO_ENABLED=0
 
-COPY .docker/root/ /
-COPY wait4x /usr/local/bin/wait4x
+COPY --from=xx / /
+RUN apk add --update --no-cache build-base coreutils git
+WORKDIR /src
 
-RUN apk --update --no-cache add ca-certificates
+FROM base AS build
+ARG TARGETPLATFORM
 
-ENTRYPOINT ["entrypoint"]
-CMD ["wait4x"]
+RUN --mount=type=bind,target=/src,rw \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=target=/go/pkg/mod,type=cache \
+    GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
+    && xx-verify --static /usr/bin/wait4x
+
+FROM scratch AS binary
+COPY --from=build /usr/bin/wait4x /
+
+FROM base AS releaser
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+WORKDIR /work
+RUN --mount=from=binary,target=/build \
+  --mount=type=bind,target=/src \
+  && mkdir -p /out \
+  && cp /build/wait4x /src/README.md /src/LICENSE . \
+  && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" * \
+  && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz.sha256"
+
+FROM scratch AS artifact
+COPY --from=releaser /out /
+
+FROM alpine:3.15
+RUN apk add --no-cache ca-certificates
+
+COPY --from=binary /wait4x /usr/bin/wait4x
+
+ENTRYPOINT ["wait4x"]
+CMD ["help"]

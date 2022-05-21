@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+GO_BINARY ?= $(shell which go)
+GO_ENVIRONMENTS ?=
+
+# Wait4X output name
 WAIT4X_BINARY_NAME ?= wait4x
 
 # build output path
-WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/bin
+WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/dist
 
 # commit ref slug used for `wait4x version`
 WAIT4X_COMMIT_REF_SLUG ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --always)
@@ -36,6 +40,13 @@ WAIT4X_RUN_FLAGS ?= -ldflags="-X github.com/atkrad/wait4x/internal/app/wait4x/cm
 # flags for wait4x
 WAIT4X_FLAGS ?=
 
+# Target build platform, e.g. linux/amd64, linux/arm/v7
+# The "target" target populate the rest of variables
+WAIT4X_TARGET_PLATFORM ?= linux/arm64
+WAIT4X_TARGET_OS ?=
+WAIT4X_TARGET_ARCH ?=
+WAIT4X_TARGET_VARIANT ?=
+
 help:
 	@echo " __      __        .__  __     _________  ___"
 	@echo "/  \    /  \_____  |__|/  |_  /  |  \   \/  /"
@@ -50,11 +61,28 @@ help:
 	@echo ""
 	@echo "run"
 	@echo '  Run Wait4X.'
-	@echo '  You can pass subcommand and arguements with "Wait4X" e.g. "make run WAIT4X_FLAGS.'
+	@echo '  You can pass subcommand and arguments with "Wait4X" e.g. "make run WAIT4X_FLAGS.'
 	@echo ""
 
+target:
+ifneq ($(WAIT4X_TARGET_PLATFORM),)
+WAIT4X_TARGET_OS := $(firstword $(subst /, , $(WAIT4X_TARGET_PLATFORM)))
+GO_ENVIRONMENTS += GOOS=$(WAIT4X_TARGET_OS)
+
+WAIT4X_TARGET_ARCH := $(word 2, $(subst /, , $(WAIT4X_TARGET_PLATFORM)))
+GO_ENVIRONMENTS += GOARCH=$(WAIT4X_TARGET_ARCH)
+endif
+
+ifeq ($(WAIT4X_TARGET_ARCH), arm)
+	WAIT4X_TARGET_VARIANT := $(word 3, $(subst /, , $(WAIT4X_TARGET_PLATFORM)))
+
+	ifneq ($(WAIT4X_TARGET_VARIANT),)
+	GO_ENVIRONMENTS += GOARM=$(subst v,,$(WAIT4X_TARGET_VARIANT))
+	endif
+endif
+
 test:
-	go test -v -covermode=count -coverprofile=coverage.out ./...
+	$(GO_ENVIRONMENTS) $(GO_BINARY) test -v -covermode=count -coverprofile=coverage.out ./...
 
 check-gofmt:
 	@ if [ -n "$(shell gofmt -s -l .)" ]; then \
@@ -66,7 +94,7 @@ check-revive:
 	revive -config .revive.toml -formatter friendly ./...
 
 build:
-	go build -v $(WAIT4X_BUILD_FLAGS) -o $(WAIT4X_BUILD_OUTPUT)/$(WAIT4X_BINARY_NAME) cmd/wait4x/main.go
+	$(GO_ENVIRONMENTS) $(GO_BINARY) build -v $(WAIT4X_BUILD_FLAGS) -o $(WAIT4X_BUILD_OUTPUT)/$(WAIT4X_BINARY_NAME) cmd/wait4x/main.go
 
 run:
-	go run $(WAIT4X_RUN_FLAGS) cmd/wait4x/main.go $(WAIT4X_FLAGS)
+	$(GO_ENVIRONMENTS) $(GO_BINARY) run $(WAIT4X_RUN_FLAGS) cmd/wait4x/main.go $(WAIT4X_FLAGS)
