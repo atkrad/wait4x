@@ -70,7 +70,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: false
           target: artifact
-          outputs: type=local,dest=/dist
+          outputs: type=local,dest=./dist
           cache-from: type=registry,ref=atkrad/wait4x:edge
           cache-to: type=inline
 
