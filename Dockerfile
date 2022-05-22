@@ -31,7 +31,9 @@ RUN --mount=from=binary,target=/build \
   mkdir -p /out \
   && cp /build/wait4x /src/README.md /src/LICENSE . \
   && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" * \
-  && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz.sha256"
+  && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz.sha256" \
+  && ls -la \
+  && ls -la /out
 
 FROM scratch AS artifact
 COPY --from=releaser /out /
