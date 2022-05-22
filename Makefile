@@ -40,13 +40,6 @@ WAIT4X_RUN_FLAGS ?= -ldflags="-X github.com/atkrad/wait4x/internal/app/wait4x/cm
 # flags for wait4x
 WAIT4X_FLAGS ?=
 
-# Target build platform, e.g. linux/amd64, linux/arm/v7
-# The "target" target populate the rest of variables
-WAIT4X_TARGET_PLATFORM ?= linux/arm64
-WAIT4X_TARGET_OS ?=
-WAIT4X_TARGET_ARCH ?=
-WAIT4X_TARGET_VARIANT ?=
-
 help:
 	@echo " __      __        .__  __     _________  ___"
 	@echo "/  \    /  \_____  |__|/  |_  /  |  \   \/  /"
@@ -63,23 +56,6 @@ help:
 	@echo '  Run Wait4X.'
 	@echo '  You can pass subcommand and arguments with "Wait4X" e.g. "make run WAIT4X_FLAGS.'
 	@echo ""
-
-target:
-ifneq ($(WAIT4X_TARGET_PLATFORM),)
-WAIT4X_TARGET_OS := $(firstword $(subst /, , $(WAIT4X_TARGET_PLATFORM)))
-GO_ENVIRONMENTS += GOOS=$(WAIT4X_TARGET_OS)
-
-WAIT4X_TARGET_ARCH := $(word 2, $(subst /, , $(WAIT4X_TARGET_PLATFORM)))
-GO_ENVIRONMENTS += GOARCH=$(WAIT4X_TARGET_ARCH)
-endif
-
-ifeq ($(WAIT4X_TARGET_ARCH), arm)
-	WAIT4X_TARGET_VARIANT := $(word 3, $(subst /, , $(WAIT4X_TARGET_PLATFORM)))
-
-	ifneq ($(WAIT4X_TARGET_VARIANT),)
-	GO_ENVIRONMENTS += GOARM=$(subst v,,$(WAIT4X_TARGET_VARIANT))
-	endif
-endif
 
 test:
 	$(GO_ENVIRONMENTS) $(GO_BINARY) test -v -covermode=count -coverprofile=coverage.out ./...
