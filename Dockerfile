@@ -30,11 +30,8 @@ RUN --mount=from=binary,target=/build \
   --mount=type=bind,target=/src \
   mkdir -p /out \
   && cp /build/wait4x /src/README.md /src/LICENSE . \
-  && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" * \
-  && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz.sha256" \
-  && pwd \
-  && ls -la \
-  && ls -la /out
+  && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz" * \
+  && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz.sha256"
 
 FROM scratch AS artifact
 COPY --from=releaser /out /

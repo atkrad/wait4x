@@ -3,7 +3,7 @@ name: Release Artifacts
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
       - 'release/*'
     tags:
       - 'v*'
@@ -12,7 +12,7 @@ on:
       - '*'
 
 jobs:
-  docker:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -42,9 +42,6 @@ jobs:
             type=semver,pattern={{major}}
             type=ref,event=pr
             type=edge,branch=master
-#           labels: |
-#             org.opencontainers.image.title=
-#             org.opencontainers.image.description=
 
 #       - name: Set up QEMU
 #         uses: docker/setup-qemu-action@v1
@@ -59,52 +56,36 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#       - name: Build artifacts
-#         uses: docker/bake-action@v1
-#         with:
-#           targets: artifact-all
-
       - name: Build artifacts
         uses: docker/build-push-action@v2
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
           push: false
           target: artifact
           outputs: type=local,dest=./dist
           cache-from: type=registry,ref=atkrad/wait4x:edge
           cache-to: type=inline
 
-
       - name: Move artifacts
         run: |
-          ls -la ./dist/**/*
           mv ./dist/**/* ./dist/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: wait4x
+          name: wait4x-artifacts
           path: ./dist/*
           if-no-files-found: error
 
       - name: Build image
         uses: docker/build-push-action@v2
         with:
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
+          push: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=atkrad/wait4x:edge
           cache-to: type=inline
-
-#       - name: Build image
-#         uses: docker/bake-action@v1
-#         with:
-#           files: |
-#             ./docker-bake.hcl
-#             ${{ steps.meta.outputs.bake-file }}
-#           targets: image-all
-#           push: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v1
@@ -112,17 +93,7 @@ jobs:
         with:
           draft: true
           files: |
-            bin/*.tar.gz
-            bin/*.sha256
+            dist/*.tar.gz
+            dist/*.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#       - name: Build and push
-#         uses: docker/build-push-action@v2
-#         with:
-#           platforms: linux/amd64,linux/arm64
-#           push: ${{ github.event_name != 'pull_request' }}
-#           tags: ${{ steps.meta.outputs.tags }}
-#           labels: ${{ steps.meta.outputs.labels }}
-#           cache-from: type=registry,ref=atkrad/wait4x:edge
-#           cache-to: type=inline
