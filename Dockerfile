@@ -28,7 +28,7 @@ ARG TARGETVARIANT
 WORKDIR /work
 RUN --mount=from=binary,target=/build \
   --mount=type=bind,target=/src \
-  && mkdir -p /out \
+  mkdir -p /out \
   && cp /build/wait4x /src/README.md /src/LICENSE . \
   && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" * \
   && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.tgz.sha256"
