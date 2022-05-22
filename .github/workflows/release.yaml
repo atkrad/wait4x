@@ -77,7 +77,7 @@ jobs:
 
       - name: Move artifacts
         run: |
-          ls -la ./dist
+          ls -la ./dist/**/*
           mv ./dist/**/* ./dist/
 
       - name: Upload artifacts
