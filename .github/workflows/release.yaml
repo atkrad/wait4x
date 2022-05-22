@@ -59,7 +59,7 @@ jobs:
       - name: Build artifacts
         uses: docker/build-push-action@v2
         with:
-          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x,windows/amd64,darwin/amd64
           push: false
           target: artifact
           outputs: type=local,dest=./dist
