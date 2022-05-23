@@ -14,7 +14,10 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=target=/go/pkg/mod,type=cache \
-    GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
+    pwd \
+    && ls -la \
+    && ls -la /src \
+    && GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
     && xx-verify --static /usr/bin/wait4x
 
 FROM scratch AS binary
