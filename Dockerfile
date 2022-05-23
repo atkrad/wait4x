@@ -5,14 +5,13 @@ ENV GO111MODULE=auto
 ENV CGO_ENABLED=0
 
 COPY --from=xx / /
-RUN apk add --update --no-cache build-base bash coreutils git
+RUN apk add --update --no-cache build-base coreutils git
 WORKDIR /src
 
 FROM base AS build
 ARG TARGETPLATFORM
 
-RUN --mount=target=. \
-    --mount=type=bind,target=/src,rw \
+RUN --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=target=/go/pkg/mod,type=cache \
     pwd \
