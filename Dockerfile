@@ -11,7 +11,8 @@ WORKDIR /src
 FROM base AS build
 ARG TARGETPLATFORM
 
-RUN --mount=type=bind,target=/src,rw \
+RUN --mount=target=. \
+    --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=target=/go/pkg/mod,type=cache \
     pwd \
