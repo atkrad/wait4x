@@ -15,6 +15,14 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Force Install latest Git version
+        run: |
+          apt-get install -y software-properties-common \
+          && apt-get update \
+          && add-apt-repository -y ppa:git-core/ppa \
+          && apt-get update \
+          && apt-get install -y git
+
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
