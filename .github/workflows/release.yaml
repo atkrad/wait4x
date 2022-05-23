@@ -16,13 +16,8 @@ jobs:
     name: Release artifacts & Docker image
     runs-on: ubuntu-latest
     steps:
-      - name: Force Install latest Git version
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git
-
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 

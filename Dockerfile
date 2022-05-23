@@ -8,6 +8,13 @@ COPY --from=xx / /
 RUN apk add --update --no-cache build-base coreutils git
 WORKDIR /src
 
+FROM base AS version
+
+RUN --mount=target=. \
+    pwd \
+    ls -la \
+    && git describe --match 'v[0-9]*' --dirty='.m' --always --tags
+
 FROM base AS build
 ARG TARGETPLATFORM
 
