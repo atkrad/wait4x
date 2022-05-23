@@ -13,15 +13,14 @@ on:
 
 jobs:
   release:
+    name: Release artifacts & Docker image
     runs-on: ubuntu-latest
+    container: ubuntu:20.04
     steps:
       - name: Force Install latest Git version
         run: |
-          apt-get install -y software-properties-common \
-          && apt-get update \
-          && add-apt-repository -y ppa:git-core/ppa \
-          && apt-get update \
-          && apt-get install -y git
+          apt-get update
+          apt-get install -y git
 
       - name: Checkout Code
         uses: actions/checkout@v2
