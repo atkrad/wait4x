@@ -21,6 +21,7 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=target=/go/pkg/mod,type=cache \
+    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
     pwd \
     && ls -la \
     && ls -la /src \
