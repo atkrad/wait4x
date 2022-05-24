@@ -7,13 +7,6 @@ ENV CGO_ENABLED=0
 COPY --from=xx / /
 RUN apk add --update --no-cache build-base coreutils git
 WORKDIR /src
-#
-#FROM base AS version
-#
-#RUN --mount=target=. \
-#    pwd \
-#    && ls -la \
-#    && git describe --match 'v[0-9]*' --dirty='.m' --always --tags
 
 FROM base AS build
 ARG TARGETPLATFORM
@@ -21,11 +14,7 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=target=/go/pkg/mod,type=cache \
-#    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
-    pwd \
-    && ls -la \
-    && ls -la /src \
-    && GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
+    GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
     && xx-verify --static /usr/bin/wait4x
 
 FROM scratch AS binary
