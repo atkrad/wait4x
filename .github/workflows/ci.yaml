@@ -159,7 +159,7 @@ jobs:
           path: ./dist/*
           if-no-files-found: error
 
-      - name: Build artifacts
+      - name: Build images
         uses: docker/bake-action@v2
         with:
           push: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/') }}
@@ -170,7 +170,7 @@ jobs:
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
         with:
           draft: true
           files: |
