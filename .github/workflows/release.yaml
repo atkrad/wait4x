@@ -16,17 +16,17 @@ jobs:
     name: Release artifacts & Docker image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Debugging
-        run: |
-          pwd
-          git version
-          ls -la
-          git status
+#       - name: Checkout Code
+#         uses: actions/checkout@v2
+#         with:
+#           fetch-depth: 0
+#
+#       - name: Debugging
+#         run: |
+#           pwd
+#           git version
+#           ls -la
+#           git status
 
       - name: Docker metadata
         id: meta
@@ -65,7 +65,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build artifacts
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x,windows/amd64,windows/arm64,darwin/amd64,darwin/arm64
           push: false
