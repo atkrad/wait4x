@@ -21,6 +21,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debugging
+        run: |
+          git version
+          ls -la
+          git status
+
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v3
