@@ -168,13 +168,15 @@ jobs:
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
 
-      - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          short-description: ${{ github.event.repository.description }}
+# Disable due to https://github.com/peter-evans/dockerhub-description/issues/10
+#
+#       - name: Docker Hub Description
+#         uses: peter-evans/dockerhub-description@v3
+#         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+#           short-description: ${{ github.event.repository.description }}
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v1
