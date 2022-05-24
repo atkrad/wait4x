@@ -23,6 +23,7 @@ jobs:
 
       - name: Debugging
         run: |
+          pwd
           git version
           ls -la
           git status
