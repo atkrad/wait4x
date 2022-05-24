@@ -17,3 +17,4 @@ updates:
       - "atkrad"
     labels:
       - "actions"
+      - "dependencies"
