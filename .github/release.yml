@@ -1,0 +1,23 @@
+changelog:
+  categories:
+    - title: Exciting New Features 🎉
+      labels:
+        - feature
+    - title: Enhancements 🚀
+      labels:
+        - enhancement
+    - title: Bug Fixes 🐛
+      labels:
+        - bug
+    - title: Deprecations ❌
+      labels:
+        - deprecation
+    - title: Dependency Updates ⬆️
+      labels:
+        - dependencies
+    - title: Documentation improvements
+      labels:
+        - documentation
+    - title: Other Changes
+      labels:
+        - "*"
