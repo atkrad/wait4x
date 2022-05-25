@@ -183,6 +183,7 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         with:
           draft: true
+          generate_release_notes: true
           files: |
             dist/*.tar.gz
             dist/*.sha256
