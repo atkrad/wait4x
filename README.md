@@ -74,32 +74,35 @@ copy the URL and replace the URL within the commands below:
 #### Linux
 
 ```bash
-curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64 -o /usr/local/bin/wait4x
-chmod +x /usr/local/bin/wait4x
+curl -#LO https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64.tar.gz
+tar --one-top-level -xvf wait4x-linux-amd64.tar.gz
+cp ./wait4x-linux-amd64/wait4x /usr/local/bin/wait4x
 ```
 
 #### Mac OSX
 
 ```bash
-curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-darwin-amd64 -o /usr/local/bin/wait4x
-chmod +x /usr/local/bin/wait4x
+curl -#LO https://github.com/atkrad/wait4x/releases/latest/download/wait4x-darwin-amd64.tar.gz
+tar --one-top-level -xvf wait4x-darwin-amd64.tar.gz
+cp ./wait4x-darwin-amd64/wait4x /usr/local/bin/wait4x
 ```
 
 #### Windows
 
 ```bash
-curl -L https://github.com/atkrad/wait4x/releases/latest/download/wait4x-windows-amd64 -o wait4x.exe
+curl -#LO https://github.com/atkrad/wait4x/releases/latest/download/wait4x-windows-amd64.tar.gz
+tar --one-top-level -xvf wait4x-windows-amd64.tar.gz
 ```
 
 #### Verify SHA256 Checksum
 
 **Wait4X** generates checksum for all binaries with **sha256sum** to prevent against unwanted modification of binaries.
-To validate the binary, download the checksum file which ends in `.sha256sum` for the binary you downloaded and use
+To validate the archive files, download the checksum file which ends in `.sha256sum` for the archive file that you downloaded and use
 the `sha256sum` command line tool.
 
 ```bash
-curl -SLO https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64.sha256sum
-sha256sum --check wait4x-linux-amd64.sha256sum
+curl -#LO https://github.com/atkrad/wait4x/releases/latest/download/wait4x-linux-amd64.tar.gz.sha256sum
+sha256sum --check wait4x-linux-amd64.tar.gz.sha256sum
 ```
 
 ### From package
