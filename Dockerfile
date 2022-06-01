@@ -31,7 +31,9 @@ RUN --mount=from=binary,target=/build \
   mkdir -p /out \
   && cp /build/wait4x /src/README.md /src/LICENSE . \
   && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz" * \
-  && sha256sum -z "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz" | awk '{ print $1 }' > "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz.sha256"
+  # Change dir to "/out" to prevent adding "/out" in the sha256sum command output.
+  && cd /out \
+  && sha256sum -z "wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz" > "wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz.sha256sum"
 
 FROM scratch AS artifact
 COPY --from=releaser /out /
