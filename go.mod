@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/go-logr/logr v1.2.3
-	github.com/go-logr/zerologr v1.2.1
+	github.com/go-logr/zerologr v1.2.2
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/influxdata/influxdb-client-go/v2 v2.9.0
