@@ -11,7 +11,7 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.9.0
 	github.com/lib/pq v1.10.6
 	github.com/rs/zerolog v1.27.0
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.3
 	github.com/tidwall/gjson v1.14.1
