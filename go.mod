@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.27.0
 	github.com/spf13/cobra v1.5.0
 	github.com/streadway/amqp v1.0.0
-	github.com/stretchr/testify v1.7.3
+	github.com/stretchr/testify v1.7.4
 	github.com/tidwall/gjson v1.14.1
 	go.mongodb.org/mongo-driver v1.9.1
 )
