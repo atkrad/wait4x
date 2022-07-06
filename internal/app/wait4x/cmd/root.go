@@ -67,6 +67,8 @@ func NewRootCommand() *cobra.Command {
 				Timestamp().
 				Logger()
 			Logger = zerologr.New(&zl)
+			// VerbosityFieldName (v) is not emitted.
+			zerologr.VerbosityFieldName = ""
 
 			return nil
 		},
