@@ -24,6 +24,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -48,6 +49,7 @@ func NewRootCommand() *cobra.Command {
 		},
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			logLevel, _ := cmd.Flags().GetString("log-level")
+			noColor, _ := cmd.Flags().GetBool("no-color")
 			lvl, err := zerolog.ParseLevel(logLevel)
 			if err != nil {
 				return err
@@ -59,7 +61,7 @@ func NewRootCommand() *cobra.Command {
 			zl := zerolog.New(
 				zerolog.ConsoleWriter{
 					Out:        os.Stderr,
-					NoColor:    false,
+					NoColor:    color.NoColor || noColor,
 					TimeFormat: time.RFC3339,
 				},
 			).Level(lvl).
@@ -95,6 +97,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 10*time.Second, "Timeout is the maximum amount of time that Wait4X will wait for a checking operation.")
 	rootCmd.PersistentFlags().BoolP("invert-check", "v", false, "Invert the sense of checking.")
 	rootCmd.PersistentFlags().StringP("log-level", "l", zerolog.InfoLevel.String(), "Set the logging level (\"trace\"|\"debug\"|\"info\")")
+	rootCmd.PersistentFlags().Bool("no-color", false, "If specified, output won't contain any color.")
 
 	return rootCmd
 }
