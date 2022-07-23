@@ -115,6 +115,7 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewTCPCommand())
+	rootCmd.AddCommand(NewDNSCommand())
 	rootCmd.AddCommand(NewHTTPCommand())
 	rootCmd.AddCommand(NewPostgresqlCommand())
 	rootCmd.AddCommand(NewMysqlCommand())
