@@ -22,20 +22,35 @@ WAIT4X_BINARY_NAME ?= wait4x
 WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/dist
 
 # commit ref slug used for `wait4x version`
-WAIT4X_COMMIT_REF_SLUG ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --always)
+WAIT4X_COMMIT_REF_SLUG ?= $(shell [ -d .git/. ] && (git symbolic-ref -q --short HEAD || git describe --tags --always))
+
 # commit short SHA (8 char) used for `wait4x version`
-WAIT4X_COMMIT_SHORT_SHA ?= $(shell git rev-parse --verify --short=8 HEAD)
-# commit datetime used for `wait4x version`
-WAIT4X_COMMIT_DATETIME ?= $(shell git log -1 --format="%at" | TZ=UTC xargs -I{} date -d @{} '+%FT%TZ')
+WAIT4X_COMMIT_SHORT_SHA ?= $(shell [ -d .git/. ] && git rev-parse HEAD)
+# build time used for `wait4x version`
+WAIT4X_BUILD_TIME ?= $(shell date -u '+%FT%TZ')
 
 # build flags for the Wait4X binary
-# - reproducible builds: -trimpath and -ldflags=-buildid=
+# - reproducible builds: -ldflags=-buildid=
 # - smaller binaries: -w (trim debugger data, but not panics)
 # - metadata: -X=... to bake in git commit
-WAIT4X_BUILD_FLAGS ?= -trimpath -ldflags="-buildid= -w -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_COMMIT_DATETIME)"
+WAIT4X_BUILD_LDFLAGS ?= "-buildid= -w -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_BUILD_TIME)"
+
+# pass the AppVersion if the WAIT4X_COMMIT_REF_SLUG isn't empty.
+ifneq ($(WAIT4X_COMMIT_REF_SLUG),)
+WAIT4X_BUILD_LDFLAGS += " -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG)"
+endif
+
+# pass the GitCommit if the WAIT4X_COMMIT_SHORT_SHA isn't empty.
+ifneq ($(WAIT4X_COMMIT_SHORT_SHA),)
+WAIT4X_BUILD_LDFLAGS += " -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_SHORT_SHA)"
+endif
+
+# build flags for the Wait4X binary
+# - reproducible builds: -trimpath
+WAIT4X_BUILD_FLAGS ?= -trimpath -ldflags=$(WAIT4X_BUILD_LDFLAGS)
 
 # run flags for run target
-WAIT4X_RUN_FLAGS ?= -ldflags="-X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_SHORT_SHA) -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_COMMIT_DATETIME)"
+WAIT4X_RUN_FLAGS ?= -ldflags=$(WAIT4X_BUILD_LDFLAGS)
 
 # flags for wait4x
 WAIT4X_FLAGS ?=
