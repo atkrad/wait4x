@@ -50,7 +50,7 @@ endif
 WAIT4X_BUILD_FLAGS ?= -trimpath -ldflags="$(WAIT4X_BUILD_LDFLAGS)"
 
 # run flags for run target
-WAIT4X_RUN_FLAGS ?= -ldflags=$(WAIT4X_BUILD_LDFLAGS)
+WAIT4X_RUN_FLAGS ?= -ldflags="$(WAIT4X_BUILD_LDFLAGS)"
 
 # flags for wait4x
 WAIT4X_FLAGS ?=
