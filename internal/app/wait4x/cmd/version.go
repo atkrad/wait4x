@@ -32,7 +32,7 @@ OS/Arch:           {{.GoOs}}/{{.GoArch}}`
 
 var (
 	// AppVersion represents Wait4X version
-	AppVersion = "unknown"
+	AppVersion = "$Format:%(describe:tags=true)$"
 	// GitCommit represents Wait4X commit sha1 hash from git, output of $(git rev-parse HEAD)
 	GitCommit = "$Format:%H$"
 	// BuildTime represents Wait4X build time in ISO8601 format, output of $(date -u '+%FT%TZ')
