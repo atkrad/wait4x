@@ -16,9 +16,9 @@ package cmd
 
 import (
 	"errors"
-	"github.com/atkrad/wait4x/pkg/checker"
-	"github.com/atkrad/wait4x/pkg/checker/redis"
-	"github.com/atkrad/wait4x/pkg/waiter"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker/redis"
+	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/spf13/cobra"
 )
 

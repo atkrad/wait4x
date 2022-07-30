@@ -16,9 +16,9 @@ package cmd
 
 import (
 	"errors"
-	"github.com/atkrad/wait4x/pkg/checker"
-	"github.com/atkrad/wait4x/pkg/checker/postgresql"
-	"github.com/atkrad/wait4x/pkg/waiter"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker/postgresql"
+	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/spf13/cobra"
 )
 

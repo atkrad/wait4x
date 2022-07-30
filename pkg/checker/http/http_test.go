@@ -23,7 +23,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/stretchr/testify/assert"
 )
 
