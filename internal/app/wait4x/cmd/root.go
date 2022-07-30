@@ -48,11 +48,19 @@ func NewRootCommand() *cobra.Command {
 			HiddenDefaultCmd: true,
 		},
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
-			logLevel, _ := cmd.Flags().GetString("log-level")
 			noColor, _ := cmd.Flags().GetBool("no-color")
-			lvl, err := zerolog.ParseLevel(logLevel)
-			if err != nil {
-				return err
+			quiet, _ := cmd.Flags().GetBool("quiet")
+
+			// Prevent showing error when the quiet mode enabled.
+			cmd.SilenceErrors = quiet
+			lvl := zerolog.Disabled
+
+			if !quiet {
+				logLevel, _ := cmd.Flags().GetString("log-level")
+				lvl, err = zerolog.ParseLevel(logLevel)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Prevent showing usage when subcommand return error.
@@ -98,6 +106,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolP("invert-check", "v", false, "Invert the sense of checking.")
 	rootCmd.PersistentFlags().StringP("log-level", "l", zerolog.InfoLevel.String(), "Set the logging level (\"trace\"|\"debug\"|\"info\")")
 	rootCmd.PersistentFlags().Bool("no-color", false, "If specified, output won't contain any color.")
+	rootCmd.PersistentFlags().BoolP("quiet", "q", false, "Quiet or silent mode. Do not show logs or error messages.")
 
 	return rootCmd
 }
