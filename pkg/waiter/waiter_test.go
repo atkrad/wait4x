@@ -17,7 +17,7 @@ package waiter
 import (
 	"context"
 	"fmt"
-	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"os"

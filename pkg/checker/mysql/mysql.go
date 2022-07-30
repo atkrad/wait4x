@@ -18,8 +18,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/atkrad/wait4x/pkg/checker"
-	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/go-sql-driver/mysql"
 
 	// Needed for the MySQL driver

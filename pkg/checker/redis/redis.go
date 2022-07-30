@@ -17,8 +17,8 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/atkrad/wait4x/pkg/checker"
-	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"regexp"
 	"strings"
 	"time"

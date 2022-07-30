@@ -18,14 +18,14 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/atkrad/wait4x/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
 	"strings"
 
-	"github.com/atkrad/wait4x/pkg/checker/http"
-	"github.com/atkrad/wait4x/pkg/waiter"
+	"github.com/atkrad/wait4x/v2/pkg/checker/http"
+	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/spf13/cobra"
 )
 

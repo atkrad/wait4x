@@ -16,8 +16,8 @@ package influxdb
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/pkg/checker"
-	"github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 

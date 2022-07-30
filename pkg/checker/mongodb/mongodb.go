@@ -17,8 +17,8 @@ package mongodb
 import (
 	"context"
 	"errors"
-	"github.com/atkrad/wait4x/pkg/checker"
-	errs "github.com/atkrad/wait4x/pkg/checker/errors"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	errs "github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"

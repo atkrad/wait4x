@@ -22,7 +22,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/atkrad/wait4x/internal/pkg/test"
+	"github.com/atkrad/wait4x/v2/internal/pkg/test"
 	"github.com/stretchr/testify/assert"
 )
 
