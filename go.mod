@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/zerologr v1.2.2
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/influxdata/influxdb-client-go/v2 v2.9.2
+	github.com/influxdata/influxdb-client-go/v2 v2.10.0
 	github.com/lib/pq v1.10.6
 	github.com/rs/zerolog v1.27.0
 	github.com/spf13/cobra v1.5.0
