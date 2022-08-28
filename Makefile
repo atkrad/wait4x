@@ -22,10 +22,10 @@ WAIT4X_BINARY_NAME ?= wait4x
 WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/dist
 
 # commit ref slug used for `wait4x version`
-WAIT4X_COMMIT_REF_SLUG ?= $(shell [ -d .git/. ] && (git symbolic-ref -q --short HEAD || git describe --tags --always))
+WAIT4X_COMMIT_REF_SLUG ?= $(shell [ -d ./.git ] && (git symbolic-ref -q --short HEAD || git describe --tags --always))
 
-# commit short SHA (8 char) used for `wait4x version`
-WAIT4X_COMMIT_SHORT_SHA ?= $(shell [ -d .git/. ] && git rev-parse HEAD)
+# commit hash used for `wait4x version`
+WAIT4X_COMMIT_HASH ?= $(shell [ -d ./.git ] && git rev-parse HEAD)
 # build time used for `wait4x version`
 WAIT4X_BUILD_TIME ?= $(shell date -u '+%FT%TZ')
 
@@ -33,16 +33,16 @@ WAIT4X_BUILD_TIME ?= $(shell date -u '+%FT%TZ')
 # - reproducible builds: -ldflags=-buildid=
 # - smaller binaries: -w (trim debugger data, but not panics)
 # - metadata: -X=... to bake in git commit
-WAIT4X_BUILD_LDFLAGS ?= -buildid= -w -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_BUILD_TIME)
+WAIT4X_BUILD_LDFLAGS ?= -buildid= -w -X github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_BUILD_TIME)
 
 # pass the AppVersion if the WAIT4X_COMMIT_REF_SLUG isn't empty.
 ifneq ($(WAIT4X_COMMIT_REF_SLUG),)
-WAIT4X_BUILD_LDFLAGS += -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG)
+WAIT4X_BUILD_LDFLAGS += -X github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG)
 endif
 
-# pass the GitCommit if the WAIT4X_COMMIT_SHORT_SHA isn't empty.
-ifneq ($(WAIT4X_COMMIT_SHORT_SHA),)
-WAIT4X_BUILD_LDFLAGS += -X github.com/atkrad/wait4x/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_SHORT_SHA)
+# pass the GitCommit if the WAIT4X_COMMIT_HASH isn't empty.
+ifneq ($(WAIT4X_COMMIT_HASH),)
+WAIT4X_BUILD_LDFLAGS += -X github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_HASH)
 endif
 
 # build flags for the Wait4X binary

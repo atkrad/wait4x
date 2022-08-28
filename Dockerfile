@@ -13,7 +13,7 @@ ARG TARGETPLATFORM
 
 RUN --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=target=/go/pkg/mod,type=cache \
+    --mount=type=cache,target=/go/pkg/mod \
     GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
     && xx-verify --static /usr/bin/wait4x
 
