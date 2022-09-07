@@ -15,7 +15,7 @@ require (
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tidwall/gjson v1.14.3
-	go.mongodb.org/mongo-driver v1.10.1
+	go.mongodb.org/mongo-driver v1.10.2
 )
 
 require (
