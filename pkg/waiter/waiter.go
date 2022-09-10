@@ -135,8 +135,12 @@ func WaitContext(ctx context.Context, checker checker.Checker, opts ...Option) e
 		opt(options)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, options.timeout)
-	defer cancel()
+	// Ignore timeout context when the timeout is unlimited
+	if options.timeout != 0 {
+		var cancel func()
+		ctx, cancel = context.WithTimeout(ctx, options.timeout)
+		defer cancel()
+	}
 
 	var chkName string
 	if t := reflect.TypeOf(checker); t.Kind() == reflect.Ptr {
