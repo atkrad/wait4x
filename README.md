@@ -211,11 +211,12 @@ wait4x mysql username:password@unix(/tmp/mysql.sock)/myDatabase
 
 ```shell
 # Checking PostgreSQL TCP connection
-wait4x postgresql 'postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full'
+wait4x postgresql 'postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=disable'
 
 # Checking PostgreSQL Unix socket connection
 wait4x postgresql 'postgres://bob:secret@/mydb?host=/var/run/postgresql'
 ```
+Syntax for the database URL: https://pkg.go.dev/github.com/lib/pq
 
 ### InfluxDB
 
