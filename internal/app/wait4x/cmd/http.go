@@ -16,13 +16,15 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
 	"strings"
+
+	"github.com/atkrad/wait4x/v2/pkg/checker"
 
 	"github.com/atkrad/wait4x/v2/pkg/checker/http"
 	"github.com/atkrad/wait4x/v2/pkg/waiter"
@@ -67,15 +69,21 @@ func NewHTTPCommand() *cobra.Command {
   # Regex value:
   wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 
-  # Body JSON
+  # Body JSON:
   wait4x http https://ifconfig.co/json --expect-body-json "user_agent.product"
   To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
 
-  # Body XPath
+  # Body XPath:
   wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
 
   # Request headers:
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
+
+  # Post request (application/x-www-form-urlencoded):
+  wait4x http https://httpbin.org/post --request-body '{"key": "value", "name": "test"}'
+
+  # Post request (application/json):
+  wait4x http https://httpbin.org/post --request-header "Content-Type: application/json" --request-body '{"key": "value", "name": "test"}'
 `,
 		RunE: runHTTP,
 	}
@@ -88,10 +96,39 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
+	httpCommand.Flags().StringArray("request-body", nil, "User request body.")
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
 
 	return httpCommand
+}
+
+func parseRequestBody(requestRawBody []byte, requestHeaders *nethttp.Header) ([]byte, error) {
+	if len(requestRawBody) != 0 {
+		return nil, nil
+	}
+
+	var parsedRequestBody map[string]interface{}
+	err := json.Unmarshal(requestRawBody, parsedRequestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	// JSON.
+	if strings.Contains(requestHeaders.Get("Content-Type"), "application/json") {
+		serializedBody, err := json.Marshal(parsedRequestBody)
+		if err != nil {
+			return nil, err
+		}
+		return serializedBody, nil
+	}
+
+	// x-www-form-encoded.
+	requestBody := url.Values{}
+	for key, value := range parsedRequestBody {
+		requestBody.Set(key, fmt.Sprintf("%v", value))
+	}
+	return []byte(requestBody.Encode()), nil
 }
 
 func runHTTP(cmd *cobra.Command, args []string) error {
@@ -106,6 +143,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 	expectHeader, _ := cmd.Flags().GetString("expect-header")
 	requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
+	requestRawBody, _ := cmd.Flags().GetBytesBase64("request-body")
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 
@@ -125,6 +163,12 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		requestHeaders = nethttp.Header(MIMEHeaders)
 	}
 
+	// Parse request body.
+	requestBody, err := parseRequestBody(requestRawBody, &requestHeaders)
+	if err != nil {
+		return fmt.Errorf("can't parse the request body: %w", err)
+	}
+
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
@@ -141,6 +185,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithExpectBodyXPath(expectBodyXPath),
 			http.WithExpectHeader(expectHeader),
 			http.WithRequestHeaders(requestHeaders),
+			http.WithRequestBody(requestBody),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 		)

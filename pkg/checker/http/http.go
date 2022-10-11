@@ -15,8 +15,10 @@
 package http
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -48,6 +50,7 @@ type HTTP struct {
 	expectBodyXPath       string
 	expectHeader          string
 	requestHeaders        http.Header
+	requestBody           []byte
 	expectStatusCode      int
 	insecureSkipTLSVerify bool
 }
@@ -110,6 +113,13 @@ func WithRequestHeaders(headers http.Header) Option {
 	}
 }
 
+// WithRequestBody configures request body
+func WithRequestBody(body []byte) Option {
+	return func(h *HTTP) {
+		h.requestBody = body
+	}
+}
+
 // WithRequestHeader configures request header
 func WithRequestHeader(key string, value []string) Option {
 	return func(h *HTTP) {
@@ -138,14 +148,19 @@ func (h HTTP) Identity() (string, error) {
 
 // Check checks HTTP connection
 func (h *HTTP) Check(ctx context.Context) (err error) {
-	var httpClient = &http.Client{
+	httpClient := &http.Client{
 		Timeout: h.timeout,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: h.insecureSkipTLSVerify},
 		},
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
+	var req *http.Request
+	if fmt.Sprintf("%v", h.requestBody) == "" {
+		req, err = http.NewRequestWithContext(ctx, "GET", h.address, nil)
+	} else {
+		req, err = http.NewRequestWithContext(ctx, "POST", h.address, bytes.NewBuffer(h.requestBody))
+	}
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
@@ -165,7 +180,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectStatusCode != 0 {
 		err := h.checkingStatusCodeExpectation(resp)
-
 		if err != nil {
 			return err
 		}
@@ -173,7 +187,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectBodyRegex != "" {
 		err := h.checkingBodyExpectation(resp)
-
 		if err != nil {
 			return err
 		}
@@ -181,7 +194,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectBodyJSON != "" {
 		err := h.checkingJSONExpectation(resp)
-
 		if err != nil {
 			return err
 		}
@@ -189,7 +201,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectBodyXPath != "" {
 		err := h.checkingXPathExpectation(resp)
-
 		if err != nil {
 			return err
 		}
