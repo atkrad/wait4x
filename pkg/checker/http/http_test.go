@@ -249,3 +249,23 @@ func TestHttpInvalidCombinationFeatures(t *testing.T) {
 	assert.ErrorAs(t, err, &checkerError)
 	assert.Equal(t, "the status code doesn't expect", err.Error())
 }
+
+func TestHttpRequestBody(t *testing.T) {
+	var checkerError *errors.Error
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r.Body)
+		w.Write(buf.Bytes())
+	}))
+	defer ts.Close()
+
+	hc := New(ts.URL, WithRequestBody([]byte("name=test&score=1")), WithExpectBodyRegex("something"))
+	err := hc.Check(context.TODO())
+	assert.ErrorAs(t, err, &checkerError)
+
+	hc = New(ts.URL, WithRequestBody([]byte("name=test&score=1")), WithExpectBodyRegex("name=test&score=1"))
+	err = hc.Check(context.TODO())
+	assert.Nil(t, err)
+}

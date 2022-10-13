@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	nethttp "net/http"
@@ -103,34 +102,6 @@ func NewHTTPCommand() *cobra.Command {
 	return httpCommand
 }
 
-func parseRequestBody(requestRawBody []byte, requestHeaders *nethttp.Header) ([]byte, error) {
-	if len(requestRawBody) != 0 {
-		return nil, nil
-	}
-
-	var parsedRequestBody map[string]interface{}
-	err := json.Unmarshal(requestRawBody, parsedRequestBody)
-	if err != nil {
-		return nil, err
-	}
-
-	// JSON.
-	if strings.Contains(requestHeaders.Get("Content-Type"), "application/json") {
-		serializedBody, err := json.Marshal(parsedRequestBody)
-		if err != nil {
-			return nil, err
-		}
-		return serializedBody, nil
-	}
-
-	// x-www-form-encoded.
-	requestBody := url.Values{}
-	for key, value := range parsedRequestBody {
-		requestBody.Set(key, fmt.Sprintf("%v", value))
-	}
-	return []byte(requestBody.Encode()), nil
-}
-
 func runHTTP(cmd *cobra.Command, args []string) error {
 	interval, _ := cmd.Flags().GetDuration("interval")
 	timeout, _ := cmd.Flags().GetDuration("timeout")
@@ -143,7 +114,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 	expectHeader, _ := cmd.Flags().GetString("expect-header")
 	requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
-	requestRawBody, _ := cmd.Flags().GetBytesBase64("request-body")
+	requestBody, _ := cmd.Flags().GetString("request-body")
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 
@@ -163,12 +134,6 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		requestHeaders = nethttp.Header(MIMEHeaders)
 	}
 
-	// Parse request body.
-	requestBody, err := parseRequestBody(requestRawBody, &requestHeaders)
-	if err != nil {
-		return fmt.Errorf("can't parse the request body: %w", err)
-	}
-
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
@@ -185,7 +150,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithExpectBodyXPath(expectBodyXPath),
 			http.WithExpectHeader(expectHeader),
 			http.WithRequestHeaders(requestHeaders),
-			http.WithRequestBody(requestBody),
+			http.WithRequestBody([]byte(requestBody)),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 		)
