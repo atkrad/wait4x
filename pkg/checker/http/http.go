@@ -50,6 +50,7 @@ type HTTP struct {
 	requestHeaders        http.Header
 	expectStatusCode      int
 	insecureSkipTLSVerify bool
+	noRedirect            bool
 }
 
 // New creates the HTTP checker
@@ -131,6 +132,13 @@ func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
 	}
 }
 
+// WithNoRedirect configures auto redirect
+func WithNoRedirect(noRedirect bool) Option {
+	return func(h *HTTP) {
+		h.noRedirect = noRedirect
+	}
+}
+
 // Identity returns the identity of the checker
 func (h HTTP) Identity() (string, error) {
 	return h.address, nil
@@ -138,11 +146,17 @@ func (h HTTP) Identity() (string, error) {
 
 // Check checks HTTP connection
 func (h *HTTP) Check(ctx context.Context) (err error) {
-	var httpClient = &http.Client{
+	httpClient := &http.Client{
 		Timeout: h.timeout,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: h.insecureSkipTLSVerify},
 		},
+	}
+
+	if h.noRedirect {
+		httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
@@ -165,7 +179,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectStatusCode != 0 {
 		err := h.checkingStatusCodeExpectation(resp)
-
 		if err != nil {
 			return err
 		}
@@ -173,7 +186,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectBodyRegex != "" {
 		err := h.checkingBodyExpectation(resp)
-
 		if err != nil {
 			return err
 		}
@@ -181,7 +193,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectBodyJSON != "" {
 		err := h.checkingJSONExpectation(resp)
-
 		if err != nil {
 			return err
 		}
@@ -189,7 +200,6 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 	if h.expectBodyXPath != "" {
 		err := h.checkingXPathExpectation(resp)
-
 		if err != nil {
 			return err
 		}
