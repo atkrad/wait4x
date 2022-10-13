@@ -79,7 +79,7 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
 
   # Post request (application/x-www-form-urlencoded):
-  wait4x http https://httpbin.org/post --request-body '{"key": "value", "name": "test"}'
+  wait4x http https://httpbin.org/post --request-header "Content-Type: application/x-www-form-urlencoded" --request-body 'key=value&name=test'
 
   # Post request (application/json):
   wait4x http https://httpbin.org/post --request-header "Content-Type: application/json" --request-body '{"key": "value", "name": "test"}'
