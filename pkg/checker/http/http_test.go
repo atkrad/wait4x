@@ -72,6 +72,30 @@ func TestHttpValidStatusCode(t *testing.T) {
 	assert.Nil(t, hc.Check(context.TODO()))
 }
 
+func TestHttpNoRedirect(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "https://wait4x.dev")
+		w.WriteHeader(http.StatusTemporaryRedirect)
+	}))
+
+	defer ts.Close()
+	hc := New(ts.URL, WithExpectStatusCode(http.StatusTemporaryRedirect), WithNoRedirect(true))
+
+	assert.Nil(t, hc.Check(context.TODO()))
+}
+
+func TestHttpRedirect(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "https://wait4x.dev")
+		w.WriteHeader(http.StatusTemporaryRedirect)
+	}))
+
+	defer ts.Close()
+	hc := New(ts.URL, WithExpectStatusCode(http.StatusOK))
+
+	assert.Nil(t, hc.Check(context.TODO()))
+}
+
 func TestHttpInvalidBody(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

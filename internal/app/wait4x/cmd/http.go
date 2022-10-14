@@ -18,11 +18,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
 	"strings"
+
+	"github.com/atkrad/wait4x/v2/pkg/checker"
 
 	"github.com/atkrad/wait4x/v2/pkg/checker/http"
 	"github.com/atkrad/wait4x/v2/pkg/waiter"
@@ -76,6 +77,9 @@ func NewHTTPCommand() *cobra.Command {
 
   # Request headers:
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
+
+  # Disable auto redirect
+  wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
 `,
 		RunE: runHTTP,
 	}
@@ -90,6 +94,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
+	httpCommand.Flags().Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
 
 	return httpCommand
 }
@@ -108,6 +113,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+	noRedirect, _ := cmd.Flags().GetBool("no-redirect")
 
 	if len(expectBody) != 0 {
 		expectBodyRegex = expectBody
@@ -143,6 +149,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithRequestHeaders(requestHeaders),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+			http.WithNoRedirect(noRedirect),
 		)
 
 		checkers = append(checkers, hc)
