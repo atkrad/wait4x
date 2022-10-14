@@ -79,7 +79,7 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
 
   # Disable auto redirect
-  wait4x http https://ifconfig.co --expect-status-code 302 --no-redirect
+  wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
 `,
 		RunE: runHTTP,
 	}
