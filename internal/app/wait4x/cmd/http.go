@@ -94,7 +94,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
-	httpCommand.Flags().Bool("no-redirect", false, "Disable auto redirect.")
+	httpCommand.Flags().Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
 
 	return httpCommand
 }

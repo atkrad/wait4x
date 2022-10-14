@@ -37,6 +37,8 @@ const (
 	DefaultConnectionTimeout = 3 * time.Second
 	// DefaultInsecureSkipTLSVerify is the default insecure skip tls verify
 	DefaultInsecureSkipTLSVerify = false
+	// DefaultNoRedirect is the default auto redirect
+	DefaultNoRedirect = false
 )
 
 // HTTP represents HTTP checker
@@ -59,6 +61,7 @@ func New(address string, opts ...Option) checker.Checker {
 		address:               address,
 		timeout:               DefaultConnectionTimeout,
 		insecureSkipTLSVerify: DefaultInsecureSkipTLSVerify,
+		noRedirect:            DefaultNoRedirect,
 	}
 
 	// apply the list of options to HTTP
