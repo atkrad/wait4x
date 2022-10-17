@@ -48,7 +48,7 @@ func TestHTTPConnectionSuccess(t *testing.T) {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewHTTPCommand())
 
-	_, err := test.ExecuteCommand(rootCmd, "http", "https://google.com")
+	_, err := test.ExecuteCommand(rootCmd, "http", "https://wait4x.dev")
 
 	assert.Nil(t, err)
 }

@@ -95,7 +95,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
-	httpCommand.Flags().StringArray("request-body", nil, "User request body.")
+	httpCommand.Flags().String("request-body", "", "User request body.")
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
 
@@ -150,7 +150,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithExpectBodyXPath(expectBodyXPath),
 			http.WithExpectHeader(expectHeader),
 			http.WithRequestHeaders(requestHeaders),
-			http.WithRequestBody([]byte(requestBody)),
+			http.WithRequestBody(strings.NewReader(requestBody)),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 		)

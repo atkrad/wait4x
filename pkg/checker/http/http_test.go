@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
@@ -261,11 +262,17 @@ func TestHttpRequestBody(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	hc := New(ts.URL, WithRequestBody([]byte("name=test&score=1")), WithExpectBodyRegex("something"))
+	hc := New(
+		ts.URL,
+		WithRequestBody(strings.NewReader("name=test&score=1")), WithExpectBodyRegex("something"),
+	)
 	err := hc.Check(context.TODO())
 	assert.ErrorAs(t, err, &checkerError)
 
-	hc = New(ts.URL, WithRequestBody([]byte("name=test&score=1")), WithExpectBodyRegex("name=test&score=1"))
+	hc = New(
+		ts.URL,
+		WithRequestBody(strings.NewReader("name=test&score=1")), WithExpectBodyRegex("name=test&score=1"),
+	)
 	err = hc.Check(context.TODO())
 	assert.Nil(t, err)
 }

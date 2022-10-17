@@ -15,11 +15,9 @@
 package http
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
-	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -50,7 +48,7 @@ type HTTP struct {
 	expectBodyXPath       string
 	expectHeader          string
 	requestHeaders        http.Header
-	requestBody           []byte
+	requestBody           io.Reader
 	expectStatusCode      int
 	insecureSkipTLSVerify bool
 }
@@ -114,7 +112,7 @@ func WithRequestHeaders(headers http.Header) Option {
 }
 
 // WithRequestBody configures request body
-func WithRequestBody(body []byte) Option {
+func WithRequestBody(body io.Reader) Option {
 	return func(h *HTTP) {
 		h.requestBody = body
 	}
@@ -142,7 +140,7 @@ func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
 }
 
 // Identity returns the identity of the checker
-func (h HTTP) Identity() (string, error) {
+func (h *HTTP) Identity() (string, error) {
 	return h.address, nil
 }
 
@@ -156,10 +154,10 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	}
 
 	var req *http.Request
-	if fmt.Sprintf("%v", h.requestBody) == "" {
+	if h.requestBody == nil {
 		req, err = http.NewRequestWithContext(ctx, "GET", h.address, nil)
 	} else {
-		req, err = http.NewRequestWithContext(ctx, "POST", h.address, bytes.NewBuffer(h.requestBody))
+		req, err = http.NewRequestWithContext(ctx, "POST", h.address, h.requestBody)
 	}
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
@@ -226,7 +224,7 @@ func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
 }
 
 func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
@@ -246,7 +244,7 @@ func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 }
 
 func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
@@ -266,7 +264,7 @@ func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
 }
 
 func (h *HTTP) checkingXPathExpectation(resp *http.Response) error {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
