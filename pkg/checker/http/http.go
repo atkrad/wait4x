@@ -17,7 +17,7 @@ package http
 import (
 	"context"
 	"crypto/tls"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -50,6 +50,7 @@ type HTTP struct {
 	expectBodyXPath       string
 	expectHeader          string
 	requestHeaders        http.Header
+	requestBody           io.Reader
 	expectStatusCode      int
 	insecureSkipTLSVerify bool
 	noRedirect            bool
@@ -114,6 +115,13 @@ func WithRequestHeaders(headers http.Header) Option {
 	}
 }
 
+// WithRequestBody configures request body
+func WithRequestBody(body io.Reader) Option {
+	return func(h *HTTP) {
+		h.requestBody = body
+	}
+}
+
 // WithRequestHeader configures request header
 func WithRequestHeader(key string, value []string) Option {
 	return func(h *HTTP) {
@@ -143,7 +151,7 @@ func WithNoRedirect(noRedirect bool) Option {
 }
 
 // Identity returns the identity of the checker
-func (h HTTP) Identity() (string, error) {
+func (h *HTTP) Identity() (string, error) {
 	return h.address, nil
 }
 
@@ -162,7 +170,13 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", h.address, nil)
+	var req *http.Request
+	if h.requestBody == nil {
+		req, err = http.NewRequestWithContext(ctx, "GET", h.address, nil)
+	} else {
+		req, err = http.NewRequestWithContext(ctx, "POST", h.address, h.requestBody)
+	}
+
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
@@ -228,7 +242,7 @@ func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
 }
 
 func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
@@ -248,7 +262,7 @@ func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 }
 
 func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}
@@ -268,7 +282,7 @@ func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
 }
 
 func (h *HTTP) checkingXPathExpectation(resp *http.Response) error {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}

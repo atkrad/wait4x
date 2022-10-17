@@ -68,15 +68,21 @@ func NewHTTPCommand() *cobra.Command {
   # Regex value:
   wait4x http https://ifconfig.co --expect-header "Authorization=Token\s.+"
 
-  # Body JSON
+  # Body JSON:
   wait4x http https://ifconfig.co/json --expect-body-json "user_agent.product"
   To know more about JSON syntax https://github.com/tidwall/gjson/blob/master/SYNTAX.md
 
-  # Body XPath
+  # Body XPath:
   wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
 
   # Request headers:
   wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
+
+  # Post request (application/x-www-form-urlencoded):
+  wait4x http https://httpbin.org/post --request-header "Content-Type: application/x-www-form-urlencoded" --request-body 'key=value&name=test'
+
+  # Post request (application/json):
+  wait4x http https://httpbin.org/post --request-header "Content-Type: application/json" --request-body '{"key": "value", "name": "test"}'
 
   # Disable auto redirect
   wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
@@ -92,6 +98,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
+	httpCommand.Flags().String("request-body", "", "User request body.")
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
 	httpCommand.Flags().Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
@@ -111,6 +118,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 	expectHeader, _ := cmd.Flags().GetString("expect-header")
 	requestRawHeaders, _ := cmd.Flags().GetStringArray("request-header")
+	requestBody, _ := cmd.Flags().GetString("request-body")
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 	noRedirect, _ := cmd.Flags().GetBool("no-redirect")
@@ -147,6 +155,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithExpectBodyXPath(expectBodyXPath),
 			http.WithExpectHeader(expectHeader),
 			http.WithRequestHeaders(requestHeaders),
+			http.WithRequestBody(strings.NewReader(requestBody)),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			http.WithNoRedirect(noRedirect),
