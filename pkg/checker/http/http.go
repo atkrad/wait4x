@@ -37,6 +37,8 @@ const (
 	DefaultConnectionTimeout = 3 * time.Second
 	// DefaultInsecureSkipTLSVerify is the default insecure skip tls verify
 	DefaultInsecureSkipTLSVerify = false
+	// DefaultNoRedirect is the default auto redirect
+	DefaultNoRedirect = false
 )
 
 // HTTP represents HTTP checker
@@ -51,6 +53,7 @@ type HTTP struct {
 	requestBody           io.Reader
 	expectStatusCode      int
 	insecureSkipTLSVerify bool
+	noRedirect            bool
 }
 
 // New creates the HTTP checker
@@ -59,6 +62,7 @@ func New(address string, opts ...Option) checker.Checker {
 		address:               address,
 		timeout:               DefaultConnectionTimeout,
 		insecureSkipTLSVerify: DefaultInsecureSkipTLSVerify,
+		noRedirect:            DefaultNoRedirect,
 	}
 
 	// apply the list of options to HTTP
@@ -139,6 +143,13 @@ func WithInsecureSkipTLSVerify(insecureSkipTLSVerify bool) Option {
 	}
 }
 
+// WithNoRedirect configures auto redirect
+func WithNoRedirect(noRedirect bool) Option {
+	return func(h *HTTP) {
+		h.noRedirect = noRedirect
+	}
+}
+
 // Identity returns the identity of the checker
 func (h *HTTP) Identity() (string, error) {
 	return h.address, nil
@@ -153,12 +164,19 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		},
 	}
 
+	if h.noRedirect {
+		httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+	}
+
 	var req *http.Request
 	if h.requestBody == nil {
 		req, err = http.NewRequestWithContext(ctx, "GET", h.address, nil)
 	} else {
 		req, err = http.NewRequestWithContext(ctx, "POST", h.address, h.requestBody)
 	}
+
 	if err != nil {
 		return errors.Wrap(err, errors.DebugLevel)
 	}

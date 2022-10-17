@@ -83,6 +83,9 @@ func NewHTTPCommand() *cobra.Command {
 
   # Post request (application/json):
   wait4x http https://httpbin.org/post --request-header "Content-Type: application/json" --request-body '{"key": "value", "name": "test"}'
+
+  # Disable auto redirect
+  wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
 `,
 		RunE: runHTTP,
 	}
@@ -98,6 +101,7 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("request-body", "", "User request body.")
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
+	httpCommand.Flags().Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
 
 	return httpCommand
 }
@@ -117,6 +121,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	requestBody, _ := cmd.Flags().GetString("request-body")
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+	noRedirect, _ := cmd.Flags().GetBool("no-redirect")
 
 	if len(expectBody) != 0 {
 		expectBodyRegex = expectBody
@@ -153,6 +158,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithRequestBody(strings.NewReader(requestBody)),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+			http.WithNoRedirect(noRedirect),
 		)
 
 		checkers = append(checkers, hc)
