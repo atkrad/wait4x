@@ -17,8 +17,10 @@ package waiter
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
+	checkerErrors "github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -54,17 +56,32 @@ func TestWaitTimedOut(t *testing.T) {
 	mockChecker.AssertExpectations(t)
 }
 
+func TestWaitInvalidIdentity(t *testing.T) {
+	invalidIdentityError := errors.New("invalid identity")
+
+	mockChecker := new(checker.MockChecker)
+	mockChecker.On("Identity").Return(mock.Anything, invalidIdentityError)
+
+	err := Wait(mockChecker)
+
+	assert.Equal(t, invalidIdentityError, err)
+	mockChecker.AssertExpectations(t)
+}
+
 func TestWaitLogger(t *testing.T) {
 	mockChecker := new(checker.MockChecker)
-	mockChecker.On("Check", mock.Anything).Return(fmt.Errorf("error")).
+	mockChecker.On("Check", mock.Anything).
+		Return(checkerErrors.Wrap(fmt.Errorf("error message"), checkerErrors.DebugLevel)).
 		On("Identity").Return("ID", nil)
 
 	var buf bytes.Buffer
 	var log logr.Logger = buflogr.NewWithBuffer(&buf)
-	err := Wait(mockChecker, WithLogger(&log), WithTimeout(time.Second))
+	// TODO: Change the "WaitWithContext" to "Wait" when we want release v3.0.0
+	err := WaitWithContext(context.TODO(), mockChecker, WithLogger(&log), WithTimeout(time.Second))
 
 	assert.Equal(t, context.DeadlineExceeded, err)
 	assert.Contains(t, buf.String(), "INFO [MockChecker] Checking the ID ...")
+	assert.Contains(t, buf.String(), "V[1] error message")
 	mockChecker.AssertExpectations(t)
 }
 
