@@ -15,11 +15,14 @@
 package waiter
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/tonglil/buflogr"
 	"os"
 	"testing"
 	"time"
@@ -48,6 +51,20 @@ func TestWaitTimedOut(t *testing.T) {
 	err := Wait(mockChecker, WithTimeout(time.Second))
 
 	assert.Equal(t, context.DeadlineExceeded, err)
+	mockChecker.AssertExpectations(t)
+}
+
+func TestWaitLogger(t *testing.T) {
+	mockChecker := new(checker.MockChecker)
+	mockChecker.On("Check", mock.Anything).Return(fmt.Errorf("error")).
+		On("Identity").Return("ID", nil)
+
+	var buf bytes.Buffer
+	var log logr.Logger = buflogr.NewWithBuffer(&buf)
+	err := Wait(mockChecker, WithLogger(&log), WithTimeout(time.Second))
+
+	assert.Equal(t, context.DeadlineExceeded, err)
+	assert.Contains(t, buf.String(), "INFO [MockChecker] Checking the ID ...")
 	mockChecker.AssertExpectations(t)
 }
 
