@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net"
 	"testing"
+	"time"
 )
 
 func TestTcpValidAddress(t *testing.T) {
@@ -31,8 +32,11 @@ func TestTcpValidAddress(t *testing.T) {
 	}()
 
 	tc := New(ln.Addr().String())
+	identity, err := tc.Identity()
 
+	assert.Nil(t, err)
 	assert.Equal(t, nil, tc.Check(context.TODO()))
+	assert.Equal(t, ln.Addr().String(), identity)
 }
 
 func TestTcpInvalidAddress(t *testing.T) {
@@ -43,7 +47,7 @@ func TestTcpInvalidAddress(t *testing.T) {
 		_, _ = ln.Accept()
 	}()
 
-	tc := New(ln.Addr().String() + "0")
+	tc := New(ln.Addr().String()+"0", WithTimeout(time.Second))
 
 	var checkerError *errors.Error
 	assert.ErrorAs(t, tc.Check(context.TODO()), &checkerError)
