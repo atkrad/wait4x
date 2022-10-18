@@ -39,7 +39,7 @@ FROM scratch AS artifact
 COPY --from=releaser /out /
 
 FROM alpine:3.15
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates tzdata
 
 COPY --from=binary /wait4x /usr/bin/wait4x
 
