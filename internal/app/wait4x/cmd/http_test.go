@@ -53,6 +53,15 @@ func TestHTTPConnectionSuccess(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHTTPConnectionSuccessThenExecuteCommand(t *testing.T) {
+	rootCmd := NewRootCommand()
+	rootCmd.AddCommand(NewHTTPCommand())
+
+	_, err := test.ExecuteCommand(rootCmd, "http", "https://wait4x.dev", "--", "date")
+
+	assert.Nil(t, err)
+}
+
 func TestHTTPConnectionFail(t *testing.T) {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewHTTPCommand())
@@ -94,4 +103,24 @@ func TestHTTPRequestHeaderSuccess(t *testing.T) {
 	)
 
 	assert.Nil(t, err)
+}
+
+func TestHTTPRequestHeaderFail(t *testing.T) {
+	hts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer hts.Close()
+
+	rootCmd := NewRootCommand()
+	rootCmd.AddCommand(NewHTTPCommand())
+
+	_, err := test.ExecuteCommand(
+		rootCmd,
+		"http",
+		hts.URL,
+		"--request-header",
+		"X-Bar: long value\n\r",
+	)
+
+	assert.Contains(t, err.Error(), "can't parse the request header")
 }

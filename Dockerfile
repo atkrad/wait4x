@@ -1,6 +1,6 @@
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.1.0 AS xx
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.1.2 AS xx
 
-FROM --platform=$BUILDPLATFORM golang:1.18.1-alpine3.15 AS base
+FROM --platform=$BUILDPLATFORM golang:1.18.7-alpine3.16 AS base
 ENV GO111MODULE=auto
 ENV CGO_ENABLED=0
 
@@ -38,7 +38,7 @@ RUN --mount=from=binary,target=/build \
 FROM scratch AS artifact
 COPY --from=releaser /out /
 
-FROM alpine:3.15
+FROM alpine:3.16.2
 RUN apk add --no-cache ca-certificates tzdata
 
 COPY --from=binary /wait4x /usr/bin/wait4x
