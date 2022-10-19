@@ -54,18 +54,15 @@ jobs:
   test:
     name: Test
     needs: check
-    strategy:
-      matrix:
-        go-version: [1.17.x, 1.18.x]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Set up Go ${{ matrix.go-version }}
+    - name: Set up Go 1.18.x
       uses: actions/setup-go@v3
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: 1.18.x
 
     - name: Define output variables
       id: go-cache-paths
@@ -87,14 +84,12 @@ jobs:
       run: make test
 
     - name: Convert coverage to lcov
-      if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && matrix.go-version == '1.18.x' }}
       uses: jandelgado/gcov2lcov-action@v1.0.9
       with:
         infile: coverage.out
         outfile: coverage.lcov
 
     - name: Coveralls
-      if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && matrix.go-version == '1.18.x' }}
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

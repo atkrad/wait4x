@@ -18,14 +18,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
-	"github.com/stretchr/testify/assert"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 func TestHttpInvalidAddress(t *testing.T) {
 	var checkerError *errors.Error
 
-	hc := New("http://not-exists.tld")
+	hc := New("http://not-exists.tld", WithTimeout(time.Second))
 	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
 }
 
@@ -46,8 +46,11 @@ func TestHttpValidAddress(t *testing.T) {
 	defer ts.Close()
 
 	hc := New(ts.URL)
+	identity, err := hc.Identity()
 
+	assert.Nil(t, err)
 	assert.Nil(t, hc.Check(context.TODO()))
+	assert.Equal(t, ts.URL, identity)
 }
 
 func TestHttpInvalidStatusCode(t *testing.T) {
@@ -70,6 +73,11 @@ func TestHttpValidStatusCode(t *testing.T) {
 
 	hc := New(ts.URL, WithExpectStatusCode(http.StatusOK))
 
+	assert.Nil(t, hc.Check(context.TODO()))
+}
+
+func TestHttpInvalidTLS(t *testing.T) {
+	hc := New("https://expired.badssl.com", WithInsecureSkipTLSVerify(true))
 	assert.Nil(t, hc.Check(context.TODO()))
 }
 
@@ -243,7 +251,8 @@ func TestHttpRequestHeaders(t *testing.T) {
 
 	hc := New(
 		ts.URL,
-		WithRequestHeaders(http.Header{"Authorization": []string{"Token 123"}, "Foo": []string{"test1 test2"}}),
+		WithRequestHeaders(http.Header{"Authorization": []string{"Token 123"}}),
+		WithRequestHeader("Foo", []string{"test1 test2"}),
 		WithExpectBodyRegex("(.*Authorization=\\[Token 123\\].*Foo=\\[test1 test2\\].*)|(.*Foo=\\[test1 test2\\].*Authorization=\\[Token 123\\].*)"),
 	)
 	assert.Nil(t, hc.Check(context.TODO()))
