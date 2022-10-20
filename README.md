@@ -201,11 +201,12 @@ wait4x redis redis://127.0.0.1:6379 --expect-key "FOO=^b[A-Z]r$"
 
 ```shell
 # Checking MySQL TCP connection
-wait4x mysql user:password@tcp(localhost:5555)/dbname?tls=skip-verify
+wait4x mysql user:password@tcp(localhost:5555)/dbname
 
 # Checking MySQL UNIX Socket connection
 wait4x mysql username:password@unix(/tmp/mysql.sock)/myDatabase
 ```
+Syntax for the database connection string: https://github.com/go-sql-driver/mysql#dsn-data-source-name
 
 ### PostgreSQL
 
