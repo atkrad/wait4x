@@ -85,6 +85,7 @@ check-revive:
 	revive -config .revive.toml -formatter friendly ./...
 
 build:
+	@ if [$(GOOS) = "windows" ]then $(WAIT4X_BINARY_NAME)=$(WAIT4X_BINARY_NAME).exe fi
 	$(GO_ENVIRONMENTS) $(GO_BINARY) build -v $(WAIT4X_BUILD_FLAGS) -o $(WAIT4X_BUILD_OUTPUT)/$(WAIT4X_BINARY_NAME) cmd/wait4x/main.go
 
 run:
