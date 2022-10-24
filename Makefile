@@ -17,8 +17,8 @@ GO_ENVIRONMENTS ?=
 
 # Wait4X output name
 WAIT4X_BINARY_NAME ?= wait4x
-ifeq ($(GOOS), "windows")
-WAIT4X_BINARY_NAME ?= ${WAIT4X_BINARY_NAME}.exe
+ifeq ($(GOOS),windows)
+WAIT4X_BINARY_NAME := ${WAIT4X_BINARY_NAME}.exe
 endif
 
 # build output path
