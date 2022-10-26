@@ -18,6 +18,11 @@ GO_ENVIRONMENTS ?=
 # Wait4X output name
 WAIT4X_BINARY_NAME ?= wait4x
 
+# Change output to .exe for windows
+ifeq (windows,$(filter windows,$(shell go env GOOS) $(TARGETOS)))
+WAIT4X_BINARY_NAME := ${WAIT4X_BINARY_NAME}.exe
+endif
+
 # build output path
 WAIT4X_BUILD_OUTPUT ?= ${CURDIR}/dist
 
