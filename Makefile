@@ -19,8 +19,7 @@ GO_ENVIRONMENTS ?=
 WAIT4X_BINARY_NAME ?= wait4x
 
 # Change output to .exe for windows
-GOOS ?= $(shell go env GOOS)
-ifeq ($(GOOS),windows)
+ifeq (windows,$(filter windows,$(shell go env GOOS) $(TARGETOS)))
 WAIT4X_BINARY_NAME := ${WAIT4X_BINARY_NAME}.exe
 endif
 
