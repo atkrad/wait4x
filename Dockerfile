@@ -10,15 +10,16 @@ WORKDIR /src
 
 FROM base AS build
 ARG TARGETPLATFORM
+ARG TARGETOS
 
 RUN --mount=type=bind,target=/src,rw \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
     GO_BINARY=xx-go WAIT4X_BUILD_OUTPUT=/usr/bin make build \
-    && xx-verify --static /usr/bin/wait4x
+    && xx-verify --static /usr/bin/wait4x*
 
 FROM scratch AS binary
-COPY --from=build /usr/bin/wait4x /
+COPY --from=build /usr/bin/wait4x* /
 
 FROM base AS releaser
 ARG TARGETOS
@@ -29,7 +30,7 @@ WORKDIR /work
 RUN --mount=from=binary,target=/build \
   --mount=type=bind,target=/src \
   mkdir -p /out \
-  && cp /build/wait4x /src/README.md /src/LICENSE . \
+  && cp /build/wait4x* /src/README.md /src/LICENSE . \
   && tar -czvf "/out/wait4x-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}.tar.gz" * \
   # Change dir to "/out" to prevent adding "/out" in the sha256sum command output.
   && cd /out \
