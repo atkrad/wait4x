@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
@@ -146,6 +147,12 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		args = args[:]
 	}
 
+	// Request body.
+	var requestBodyReader io.Reader
+	if len(requestBody) != 0 {
+		requestBodyReader = strings.NewReader(requestBody)
+	}
+
 	checkers := make([]checker.Checker, 0)
 	for _, arg := range args {
 		hc := http.New(arg,
@@ -155,7 +162,7 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithExpectBodyXPath(expectBodyXPath),
 			http.WithExpectHeader(expectHeader),
 			http.WithRequestHeaders(requestHeaders),
-			http.WithRequestBody(strings.NewReader(requestBody)),
+			http.WithRequestBody(requestBodyReader),
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			http.WithNoRedirect(noRedirect),
