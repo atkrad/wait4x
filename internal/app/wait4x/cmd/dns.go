@@ -16,6 +16,8 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+
 	"github.com/atkrad/wait4x/v2/pkg/checker/dns"
 	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/spf13/cobra"
@@ -186,7 +188,7 @@ wait4x dns NS wait4x.dev 'emma.ns.cloudflare.com' -n gordon.ns.cloudflare.com
 }
 
 func runDNS(cmd *cobra.Command, args []string) error {
-	return nil
+	return fmt.Errorf("command not found")
 }
 
 func runA(cmd *cobra.Command, args []string) error {
