@@ -161,6 +161,7 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		Timeout: h.timeout,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: h.insecureSkipTLSVerify},
+			Proxy:           http.ProxyFromEnvironment,
 		},
 	}
 
