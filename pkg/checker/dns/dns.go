@@ -15,25 +15,27 @@
 package dns
 
 import (
-	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
+	"context"
+	"fmt"
 	"net"
 	"regexp"
+
+	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 )
-import "context"
 
 // Option configures an DNS.
 type Option func(d *DNS)
 
-type RecordType = uint8
+type RecordType = string
 
 const (
-	A     RecordType = 1
-	AAAA             = 2
-	CNAME            = 3
-	MX               = 4
-	TXT              = 5
-	NS               = 6
+	A     RecordType = "A"
+	AAAA             = "AAAA"
+	CNAME            = "CNAME"
+	MX               = "MX"
+	TXT              = "TXT"
+	NS               = "NS"
 )
 
 // DNS data structure.
@@ -57,26 +59,26 @@ func New(recordType RecordType, address string, opts ...Option) checker.Checker 
 		opt(d)
 	}
 
+	// Nameserver settings.
+	if d.nameserver != "" {
+		d.resolver = &net.Resolver{
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				dialer := net.Dialer{}
+				return dialer.DialContext(ctx, network, d.nameserver)
+			},
+		}
+	} else {
+		d.resolver = &net.Resolver{
+			PreferGo: true,
+		}
+	}
+
 	return d
 }
 
 func WithNameServer(nameserver string) Option {
 	return func(d *DNS) {
 		d.nameserver = nameserver
-
-		// Nameserver settings.
-		if d.nameserver != "" {
-			d.resolver = &net.Resolver{
-				Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-					dialer := net.Dialer{}
-					return dialer.DialContext(ctx, network, d.nameserver)
-				},
-			}
-		} else {
-			d.resolver = &net.Resolver{
-				PreferGo: true,
-			}
-		}
 	}
 }
 
@@ -218,7 +220,7 @@ func (d *DNS) CheckNSRecords(ctx context.Context, address string, expectedValue 
 
 // Identity returns the identity of the checker
 func (d *DNS) Identity() (string, error) {
-	return d.nameserver, nil
+	return fmt.Sprintf("%s %s %s", d.recordType, d.address, d.expectedValue), nil
 }
 
 // Check checks DNS records

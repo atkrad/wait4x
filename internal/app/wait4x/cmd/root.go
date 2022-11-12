@@ -17,16 +17,19 @@ package cmd
 import (
 	"context"
 	"errors"
-	"github.com/go-logr/logr"
-	"github.com/go-logr/zerologr"
 	"os"
 	"os/exec"
 	"os/signal"
 	"time"
 
+	"github.com/go-logr/logr"
+	"github.com/go-logr/zerologr"
+
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+
+	dnsCmd "github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd/dns"
 )
 
 // Logger is the global logger.
@@ -115,7 +118,7 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewTCPCommand())
-	rootCmd.AddCommand(NewDNSCommand())
+	rootCmd.AddCommand(dnsCmd.NewDNSCommand())
 	rootCmd.AddCommand(NewHTTPCommand())
 	rootCmd.AddCommand(NewPostgresqlCommand())
 	rootCmd.AddCommand(NewMysqlCommand())
