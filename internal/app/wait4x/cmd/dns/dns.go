@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewDNSCommand() *cobra.Command {
+func NewDNSCommand(parent *cobra.Command) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "dns COMMAND [flags] [--command [args...]]",
 		Short: "Check DNS records",
@@ -31,16 +31,32 @@ func NewDNSCommand() *cobra.Command {
 
 			return nil
 		},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			err := parent.PersistentPreRunE(cmd, args)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
+		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+			err := parent.PersistentPostRunE(cmd, args)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
 	}
 
 	command.Flags().String("nameserver", "", " Address of the nameserver to send packets to")
 
-	command.AddCommand(NewDNSACommand())
-	command.AddCommand(NewDNSAAAACommand())
-	command.AddCommand(NewDNSCNAMECommand())
-	command.AddCommand(NewDNSMXCommand())
-	command.AddCommand(NewDNSTXTCommand())
-	command.AddCommand(NewDNSNSCommand())
+	command.AddCommand(NewACommand())
+	command.AddCommand(NewAAAACommand())
+	command.AddCommand(NewCNAMECommand())
+	command.AddCommand(NewMXCommand())
+	command.AddCommand(NewTXTCommand())
+	command.AddCommand(NewNSCommand())
 
 	return command
 }

@@ -1,4 +1,4 @@
-// Copyright 2020 Mohammad Abdolirad
+// Copyright 2022 Mohammad Abdolirad
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,15 +27,15 @@ import (
 // Option configures an DNS.
 type Option func(d *DNS)
 
-type RecordType = string
+type RecordType uint8
 
 const (
-	A     RecordType = "A"
-	AAAA             = "AAAA"
-	CNAME            = "CNAME"
-	MX               = "MX"
-	TXT              = "TXT"
-	NS               = "NS"
+	A RecordType = iota
+	AAAA
+	CNAME
+	MX
+	TXT
+	NS
 )
 
 // DNS data structure.
@@ -45,6 +45,24 @@ type DNS struct {
 	address       string
 	expectedValue string
 	resolver      *net.Resolver
+}
+
+func (rt RecordType) String() string {
+	switch rt {
+	case A:
+		return "A"
+	case AAAA:
+		return "AAAA"
+	case CNAME:
+		return "CNAME"
+	case MX:
+		return "MX"
+	case TXT:
+		return "TXT"
+	case NS:
+		return "NS"
+	}
+	return ""
 }
 
 // New creates the DNS checker
@@ -60,16 +78,13 @@ func New(recordType RecordType, address string, opts ...Option) checker.Checker 
 	}
 
 	// Nameserver settings.
+	d.resolver = net.DefaultResolver
 	if d.nameserver != "" {
 		d.resolver = &net.Resolver{
 			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 				dialer := net.Dialer{}
 				return dialer.DialContext(ctx, network, d.nameserver)
 			},
-		}
-	} else {
-		d.resolver = &net.Resolver{
-			PreferGo: true,
 		}
 	}
 
@@ -91,18 +106,15 @@ func WithExpectedValue(value string) Option {
 func (d *DNS) CheckARecords(ctx context.Context, address string, expectedValue string) (err error) {
 	ips, err := d.resolver.LookupIP(ctx, "ip4", address)
 	if err != nil {
-		return errors.New(
-			"cannot get A records",
-			errors.InfoLevel,
-			errors.WithFields("actual", err.Error(), "expect", expectedValue),
-		)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
+
 	for _, ip := range ips {
-		matched, _ := regexp.MatchString(expectedValue, ip.String())
-		if matched {
+		if expectedValue == ip.String() {
 			return nil
 		}
 	}
+
 	return errors.New(
 		"the A record value doesn't expect",
 		errors.InfoLevel,
@@ -113,18 +125,15 @@ func (d *DNS) CheckARecords(ctx context.Context, address string, expectedValue s
 func (d *DNS) CheckAAAARecords(ctx context.Context, address string, expectedValue string) (err error) {
 	values, err := d.resolver.LookupIP(ctx, "ip6", address)
 	if err != nil {
-		return errors.New(
-			"cannot get AAAA records",
-			errors.InfoLevel,
-			errors.WithFields("actual", err.Error(), "expect", expectedValue),
-		)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
+
 	for _, ip := range values {
-		matched, _ := regexp.MatchString(expectedValue, ip.String())
-		if matched {
+		if expectedValue == ip.String() {
 			return nil
 		}
 	}
+
 	return errors.New(
 		"the AAAA record value doesn't expect",
 		errors.InfoLevel,
@@ -135,16 +144,14 @@ func (d *DNS) CheckAAAARecords(ctx context.Context, address string, expectedValu
 func (d *DNS) CheckCNAMERecord(ctx context.Context, address string, expectedValue string) (err error) {
 	value, err := d.resolver.LookupCNAME(ctx, address)
 	if err != nil {
-		return errors.New(
-			"cannot get CNAME record",
-			errors.InfoLevel,
-			errors.WithFields("actual", err.Error(), "expect", expectedValue),
-		)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
+
 	matched, _ := regexp.MatchString(expectedValue, value)
 	if matched {
 		return nil
 	}
+
 	return errors.New(
 		"the CNAME record value doesn't expect",
 		errors.InfoLevel,
@@ -155,18 +162,16 @@ func (d *DNS) CheckCNAMERecord(ctx context.Context, address string, expectedValu
 func (d *DNS) CheckMXRecords(ctx context.Context, address string, expectedValue string) (err error) {
 	values, err := d.resolver.LookupMX(ctx, address)
 	if err != nil {
-		return errors.New(
-			"cannot get MX record",
-			errors.InfoLevel,
-			errors.WithFields("actual", err.Error(), "expect", expectedValue),
-		)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
+
 	for _, mx := range values {
 		matched, _ := regexp.MatchString(expectedValue, mx.Host)
 		if matched {
 			return nil
 		}
 	}
+
 	return errors.New(
 		"the MX record value doesn't expect",
 		errors.InfoLevel,
@@ -177,18 +182,16 @@ func (d *DNS) CheckMXRecords(ctx context.Context, address string, expectedValue 
 func (d *DNS) CheckTXTRecords(ctx context.Context, address string, expectedValue string) (err error) {
 	values, err := d.resolver.LookupTXT(ctx, address)
 	if err != nil {
-		return errors.New(
-			"cannot get TXT record",
-			errors.InfoLevel,
-			errors.WithFields("actual", err.Error(), "expect", expectedValue),
-		)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
+
 	for _, txt := range values {
 		matched, _ := regexp.MatchString(expectedValue, txt)
 		if matched {
 			return nil
 		}
 	}
+
 	return errors.New(
 		"the TXT record value doesn't expect",
 		errors.InfoLevel,
@@ -199,18 +202,16 @@ func (d *DNS) CheckTXTRecords(ctx context.Context, address string, expectedValue
 func (d *DNS) CheckNSRecords(ctx context.Context, address string, expectedValue string) (err error) {
 	values, err := d.resolver.LookupNS(ctx, address)
 	if err != nil {
-		return errors.New(
-			"cannot get NS record",
-			errors.InfoLevel,
-			errors.WithFields("actual", err.Error(), "expect", expectedValue),
-		)
+		return errors.Wrap(err, errors.DebugLevel)
 	}
+
 	for _, ns := range values {
 		matched, _ := regexp.MatchString(expectedValue, ns.Host)
 		if matched {
 			return nil
 		}
 	}
+
 	return errors.New(
 		"the NS record value doesn't expect",
 		errors.InfoLevel,
@@ -225,17 +226,18 @@ func (d *DNS) Identity() (string, error) {
 
 // Check checks DNS records
 func (d *DNS) Check(ctx context.Context) (err error) {
-	if d.recordType == A {
+	switch d.recordType {
+	case A:
 		return d.CheckARecords(ctx, d.address, d.expectedValue)
-	} else if d.recordType == AAAA {
+	case AAAA:
 		return d.CheckAAAARecords(ctx, d.address, d.expectedValue)
-	} else if d.recordType == CNAME {
+	case CNAME:
 		return d.CheckCNAMERecord(ctx, d.address, d.expectedValue)
-	} else if d.recordType == MX {
+	case MX:
 		return d.CheckMXRecords(ctx, d.address, d.expectedValue)
-	} else if d.recordType == TXT {
+	case TXT:
 		return d.CheckTXTRecords(ctx, d.address, d.expectedValue)
-	} else if d.recordType == NS {
+	case NS:
 		return d.CheckNSRecords(ctx, d.address, d.expectedValue)
 	}
 	return nil

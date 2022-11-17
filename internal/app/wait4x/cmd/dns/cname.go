@@ -1,4 +1,4 @@
-// Copyright 2019 Mohammad Abdolirad
+// Copyright 2022 Mohammad Abdolirad
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewDNSCNAMECommand() *cobra.Command {
+func NewCNAMECommand() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "CNAME ADDRESS [value] [--command [args...]]",
 		Short: "Check DNS CNAME records",
