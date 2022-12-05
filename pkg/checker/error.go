@@ -2,6 +2,7 @@ package checker
 
 import "fmt"
 
+// ExpectedError defines the expectation error
 type ExpectedError struct {
 	msg     string
 	cause   error
@@ -19,6 +20,7 @@ func NewExpectedError(msg string, cause error, details ...any) error {
 	return ee
 }
 
+// Details returns the error details
 func (ee *ExpectedError) Details() []any {
 	return ee.details
 }
