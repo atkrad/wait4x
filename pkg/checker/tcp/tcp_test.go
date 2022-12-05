@@ -16,7 +16,6 @@ package tcp
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/stretchr/testify/assert"
 	"net"
 	"testing"
@@ -49,6 +48,5 @@ func TestTcpInvalidAddress(t *testing.T) {
 
 	tc := New(ln.Addr().String()+"0", WithTimeout(time.Second))
 
-	var checkerError *errors.Error
-	assert.ErrorAs(t, tc.Check(context.TODO()), &checkerError)
+	assert.Error(t, tc.Check(context.TODO()))
 }

@@ -19,13 +19,13 @@ import (
 	"crypto/tls"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -171,29 +171,40 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 		}
 	}
 
-	var req *http.Request
-	if h.requestBody == nil {
-		req, err = http.NewRequestWithContext(ctx, "GET", h.address, nil)
-	} else {
-		req, err = http.NewRequestWithContext(ctx, "POST", h.address, h.requestBody)
+	method := http.MethodGet
+	if h.requestBody != nil {
+		method = http.MethodPost
 	}
 
+	req, err := http.NewRequestWithContext(ctx, method, h.address, h.requestBody)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	req.Header = h.requestHeaders
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		if os.IsTimeout(err) {
+			return checker.NewExpectedError(
+				"timed out while making an http call", err,
+				"timeout", h.timeout,
+			)
+		} else if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError(
+				"failed to establish an http connection", err,
+				"address", h.address,
+			)
+		}
+
+		return err
 	}
 
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			err = errors.Wrap(err, errors.DebugLevel)
+	defer func(body io.ReadCloser) {
+		if cerr := body.Close(); cerr != nil {
+			err = cerr
 		}
-	}()
+	}(resp.Body)
 
 	if h.expectStatusCode != 0 {
 		err := h.checkingStatusCodeExpectation(resp)
@@ -232,10 +243,9 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 
 func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
 	if h.expectStatusCode != resp.StatusCode {
-		return errors.New(
-			"the status code doesn't expect",
-			errors.InfoLevel,
-			errors.WithFields("actual", resp.StatusCode, "expect", h.expectStatusCode),
+		return checker.NewExpectedError(
+			"the status code doesn't expect", nil,
+			"actual", resp.StatusCode, "expect", h.expectStatusCode,
 		)
 	}
 
@@ -245,17 +255,16 @@ func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {
 func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	bodyString := string(bodyBytes)
 	matched, _ := regexp.MatchString(h.expectBodyRegex, bodyString)
 
 	if !matched {
-		return errors.New(
-			"the body doesn't expect",
-			errors.InfoLevel,
-			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyRegex),
+		return checker.NewExpectedError(
+			"the body doesn't expect", nil,
+			"actual", h.truncateString(bodyString, 50), "expect", h.expectBodyRegex,
 		)
 	}
 
@@ -265,17 +274,16 @@ func (h *HTTP) checkingBodyExpectation(resp *http.Response) error {
 func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	bodyString := string(bodyBytes)
 	value := gjson.Get(bodyString, h.expectBodyJSON)
 
 	if !value.Exists() {
-		return errors.New(
-			"the JSON doesn't match",
-			errors.InfoLevel,
-			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyJSON),
+		return checker.NewExpectedError(
+			"the JSON doesn't match", nil,
+			"actual", h.truncateString(bodyString, 50), "expect", h.expectBodyJSON,
 		)
 	}
 
@@ -285,24 +293,23 @@ func (h *HTTP) checkingJSONExpectation(resp *http.Response) error {
 func (h *HTTP) checkingXPathExpectation(resp *http.Response) error {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	bodyString := string(bodyBytes)
 	doc, err := htmlquery.Parse(strings.NewReader(bodyString))
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	node, err := htmlquery.Query(doc, h.expectBodyXPath)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 	if node == nil {
-		return errors.New(
-			"the XPath doesn't match",
-			errors.InfoLevel,
-			errors.WithFields("actual", h.truncateString(bodyString, 50), "expect", h.expectBodyXPath),
+		return checker.NewExpectedError(
+			"the XPath doesn't match", nil,
+			"actual", h.truncateString(bodyString, 50), "expect", h.expectBodyXPath,
 		)
 	}
 
@@ -316,20 +323,18 @@ func (h *HTTP) checkingHeaderExpectation(resp *http.Response) error {
 		headerValue := resp.Header.Get(expectedHeaderParsed[0])
 		matched, _ := regexp.MatchString(expectedHeaderParsed[1], headerValue)
 		if !matched {
-			return errors.New(
-				"the http header key and value doesn't expect",
-				errors.InfoLevel,
-				errors.WithFields("actual", headerValue, "expect", h.expectHeader),
+			return checker.NewExpectedError(
+				"the http header key and value doesn't expect", nil,
+				"actual", headerValue, "expect", h.expectHeader,
 			)
 		}
 	}
 
 	// Only key.
 	if _, ok := resp.Header[expectedHeaderParsed[0]]; !ok {
-		return errors.New(
-			"the http header key doesn't expect",
-			errors.InfoLevel,
-			errors.WithFields("actual", resp.Header, "expect", h.expectHeader),
+		return checker.NewExpectedError(
+			"the http header key doesn't expect", nil,
+			"actual", resp.Header, "expect", h.expectHeader,
 		)
 	}
 

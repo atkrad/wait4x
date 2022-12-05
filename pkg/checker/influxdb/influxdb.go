@@ -17,7 +17,6 @@ package influxdb
 import (
 	"context"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
@@ -36,7 +35,7 @@ func New(serverURL string) checker.Checker {
 }
 
 // Identity returns the identity of the checker
-func (i InfluxDB) Identity() (string, error) {
+func (i *InfluxDB) Identity() (string, error) {
 	return i.serverURL, nil
 }
 
@@ -48,7 +47,14 @@ func (i *InfluxDB) Check(ctx context.Context) error {
 
 	res, err := ic.Ping(ctx)
 	if res == false {
-		return errors.Wrap(err, errors.DebugLevel)
+		if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError(
+				"failed to establish a connection to the influxdb server", err,
+				"address", i.serverURL,
+			)
+		}
+
+		return err
 	}
 
 	return nil

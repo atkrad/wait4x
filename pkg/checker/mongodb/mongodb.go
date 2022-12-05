@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	errs "github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -40,7 +39,7 @@ func New(dsn string) checker.Checker {
 }
 
 // Identity returns the identity of the checker
-func (m MongoDB) Identity() (string, error) {
+func (m *MongoDB) Identity() (string, error) {
 	cops := options.Client().ApplyURI(m.dsn)
 	if len(cops.Hosts) == 0 {
 		return "", errors.New("can't retrieve the checker identity")
@@ -54,19 +53,19 @@ func (m *MongoDB) Check(ctx context.Context) (err error) {
 	// Creates a new Client and then initializes it using the Connect method.
 	c, err := mongo.Connect(ctx, options.Client().ApplyURI(m.dsn))
 	if err != nil {
-		return errs.Wrap(err, errs.DebugLevel)
+		return err
 	}
 
-	defer func() {
-		if err := c.Disconnect(ctx); err != nil {
-			err = errs.Wrap(err, errs.DebugLevel)
+	defer func(c *mongo.Client, ctx context.Context) {
+		if merr := c.Disconnect(ctx); merr != nil {
+			err = merr
 		}
-	}()
+	}(c, ctx)
 
 	// Ping the primary
 	err = c.Ping(ctx, readpref.Primary())
 	if err != nil {
-		return errs.Wrap(err, errs.DebugLevel)
+		return err
 	}
 
 	return nil

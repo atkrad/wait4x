@@ -17,8 +17,8 @@ package tcp
 import (
 	"context"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"net"
+	"os"
 	"time"
 )
 
@@ -59,7 +59,7 @@ func WithTimeout(timeout time.Duration) Option {
 }
 
 // Identity returns the identity of the checker
-func (t TCP) Identity() (string, error) {
+func (t *TCP) Identity() (string, error) {
 	return t.address, nil
 }
 
@@ -69,7 +69,13 @@ func (t *TCP) Check(ctx context.Context) error {
 
 	_, err := d.DialContext(ctx, "tcp", t.address)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		if os.IsTimeout(err) {
+			return checker.NewExpectedError("timed out while making a tcp call", err, "timeout", t.timeout)
+		} else if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError("failed to establish a tcp connection", err)
+		}
+
+		return err
 	}
 
 	return nil

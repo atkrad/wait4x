@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
+	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -33,10 +33,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestHttpInvalidAddress(t *testing.T) {
-	var checkerError *errors.Error
-
 	hc := New("http://not-exists.tld", WithTimeout(time.Second))
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	assert.Error(t, hc.Check(context.TODO()))
 }
 
 func TestHttpValidAddress(t *testing.T) {
@@ -61,8 +59,8 @@ func TestHttpInvalidStatusCode(t *testing.T) {
 
 	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated))
 
-	var checkerError *errors.Error
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	var expectedError *checker.ExpectedError
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 }
 
 func TestHttpValidStatusCode(t *testing.T) {
@@ -114,8 +112,8 @@ func TestHttpInvalidBody(t *testing.T) {
 
 	hc := New(ts.URL, WithExpectBodyRegex("FooBar"))
 
-	var checkerError *errors.Error
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	var expectedError *checker.ExpectedError
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 }
 
 func TestHttpValidBody(t *testing.T) {
@@ -156,8 +154,8 @@ func TestHttpInvalidBodyJSON(t *testing.T) {
 
 	hc := New(ts.URL, WithExpectBodyJSON("test"))
 
-	var checkerError *errors.Error
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	var expectedError *checker.ExpectedError
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 }
 
 func TestHttpInvalidBodyXPath(t *testing.T) {
@@ -167,13 +165,13 @@ func TestHttpInvalidBodyXPath(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	var checkerError *errors.Error
+	var expectedError *checker.ExpectedError
 
 	hc := New(ts.URL, WithExpectBodyXPath("//hello"))
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 
 	hc = New(ts.URL, WithExpectBodyXPath("//code[@id='test']"))
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 }
 
 func TestHttpValidBodyXPath(t *testing.T) {
@@ -221,7 +219,7 @@ func TestHttpValidHeader(t *testing.T) {
 }
 
 func TestHttpInvalidHeader(t *testing.T) {
-	var checkerError *errors.Error
+	var expectedError *checker.ExpectedError
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Test-Header", "test-value")
@@ -229,13 +227,13 @@ func TestHttpInvalidHeader(t *testing.T) {
 	defer ts.Close()
 
 	hc := New(ts.URL, WithExpectHeader("Test-Header-New"))
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 
 	hc = New(ts.URL, WithExpectHeader("Test-.+=test-value"))
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 
 	hc = New(ts.URL, WithExpectHeader("Test-Header=[A-Z]"))
-	assert.ErrorAs(t, hc.Check(context.TODO()), &checkerError)
+	assert.ErrorAs(t, hc.Check(context.TODO()), &expectedError)
 }
 
 func TestHttpRequestHeaders(t *testing.T) {
@@ -259,7 +257,7 @@ func TestHttpRequestHeaders(t *testing.T) {
 }
 
 func TestHttpInvalidCombinationFeatures(t *testing.T) {
-	var checkerError *errors.Error
+	var expectedError *checker.ExpectedError
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
@@ -270,22 +268,22 @@ func TestHttpInvalidCombinationFeatures(t *testing.T) {
 
 	hc := New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBodyRegex("FooBar"))
 	err := hc.Check(context.TODO())
-	assert.ErrorAs(t, err, &checkerError)
+	assert.ErrorAs(t, err, &expectedError)
 	assert.Equal(t, "the body doesn't expect", err.Error())
 
 	hc = New(ts.URL, WithExpectStatusCode(http.StatusCreated), WithExpectBodyRegex("Wait4X"), WithExpectHeader("X-Foo"))
 	err = hc.Check(context.TODO())
-	assert.ErrorAs(t, err, &checkerError)
+	assert.ErrorAs(t, err, &expectedError)
 	assert.Equal(t, "the http header key doesn't expect", err.Error())
 
 	hc = New(ts.URL, WithExpectStatusCode(http.StatusOK), WithExpectBodyRegex("Wait4X"), WithExpectHeader("Test-Header"))
 	err = hc.Check(context.TODO())
-	assert.ErrorAs(t, err, &checkerError)
+	assert.ErrorAs(t, err, &expectedError)
 	assert.Equal(t, "the status code doesn't expect", err.Error())
 }
 
 func TestHttpRequestBody(t *testing.T) {
-	var checkerError *errors.Error
+	var expectedError *checker.ExpectedError
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -300,7 +298,7 @@ func TestHttpRequestBody(t *testing.T) {
 		WithRequestBody(strings.NewReader("name=test&score=1")), WithExpectBodyRegex("something"),
 	)
 	err := hc.Check(context.TODO())
-	assert.ErrorAs(t, err, &checkerError)
+	assert.ErrorAs(t, err, &expectedError)
 
 	hc = New(
 		ts.URL,
