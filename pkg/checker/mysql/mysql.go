@@ -19,9 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/go-sql-driver/mysql"
-
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -41,7 +39,7 @@ func New(dsn string) checker.Checker {
 }
 
 // Identity returns the identity of the checker
-func (m MySQL) Identity() (string, error) {
+func (m *MySQL) Identity() (string, error) {
 	cfg, err := mysql.ParseDSN(m.dsn)
 	if err != nil {
 		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
@@ -54,18 +52,25 @@ func (m MySQL) Identity() (string, error) {
 func (m *MySQL) Check(ctx context.Context) (err error) {
 	db, err := sql.Open("mysql", m.dsn)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
-	defer func() {
-		if err := db.Close(); err != nil {
-			err = errors.Wrap(err, errors.DebugLevel)
+	defer func(db *sql.DB) {
+		if dberr := db.Close(); dberr != nil {
+			err = dberr
 		}
-	}()
+	}(db)
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError(
+				"failed to establish a connection to the mysql server", err,
+				"dsn", m.dsn,
+			)
+		}
+
+		return err
 	}
 
 	return nil

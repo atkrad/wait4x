@@ -72,6 +72,6 @@ func runMysql(cmd *cobra.Command, args []string) error {
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),
-		waiter.WithLogger(&Logger),
+		waiter.WithLogger(Logger),
 	)
 }

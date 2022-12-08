@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	checkerErrors "github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -71,17 +70,17 @@ func TestWaitInvalidIdentity(t *testing.T) {
 func TestWaitLogger(t *testing.T) {
 	mockChecker := new(checker.MockChecker)
 	mockChecker.On("Check", mock.Anything).
-		Return(checkerErrors.Wrap(fmt.Errorf("error message"), checkerErrors.DebugLevel)).
+		Return(fmt.Errorf("error message")).
 		On("Identity").Return("ID", nil)
 
 	var buf bytes.Buffer
 	var log logr.Logger = buflogr.NewWithBuffer(&buf)
 	// TODO: Change the "WaitWithContext" to "Wait" when we want release v3.0.0
-	err := WaitWithContext(context.TODO(), mockChecker, WithLogger(&log), WithTimeout(time.Second))
+	err := WaitWithContext(context.TODO(), mockChecker, WithLogger(log), WithTimeout(time.Second))
 
 	assert.Equal(t, context.DeadlineExceeded, err)
 	assert.Contains(t, buf.String(), "INFO [MockChecker] Checking the ID ...")
-	assert.Contains(t, buf.String(), "V[1] error message")
+	assert.Contains(t, buf.String(), "error message")
 	mockChecker.AssertExpectations(t)
 }
 

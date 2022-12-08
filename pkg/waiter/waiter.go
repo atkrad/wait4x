@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	errors2 "github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/go-logr/logr"
 	"reflect"
 	"sync"
@@ -37,7 +36,7 @@ type options struct {
 	timeout     time.Duration
 	interval    time.Duration
 	invertCheck bool
-	logger      *logr.Logger
+	logger      logr.Logger
 }
 
 // WithTimeout configures a time limit for whole of checking
@@ -62,7 +61,7 @@ func WithInvertCheck(invertCheck bool) Option {
 }
 
 // WithLogger configures waiter logger
-func WithLogger(logger *logr.Logger) Option {
+func WithLogger(logger logr.Logger) Option {
 	return func(o *options) {
 		o.logger = logger
 	}
@@ -123,11 +122,12 @@ func WaitWithContext(ctx context.Context, checker checker.Checker, opts ...Optio
 }
 
 // WaitContext waits for end up of check execution.
-func WaitContext(ctx context.Context, checker checker.Checker, opts ...Option) error {
+func WaitContext(ctx context.Context, chk checker.Checker, opts ...Option) error {
 	options := &options{
 		timeout:     10 * time.Second,
 		interval:    time.Second,
 		invertCheck: false,
+		logger:      logr.Discard(),
 	}
 
 	// apply the list of options to waiter
@@ -143,29 +143,29 @@ func WaitContext(ctx context.Context, checker checker.Checker, opts ...Option) e
 	}
 
 	var chkName string
-	if t := reflect.TypeOf(checker); t.Kind() == reflect.Ptr {
+	if t := reflect.TypeOf(chk); t.Kind() == reflect.Ptr {
 		chkName = t.Elem().Name()
 	} else {
 		chkName = t.Name()
 	}
 
-	chkID, err := checker.Identity()
+	chkID, err := chk.Identity()
 	if err != nil {
 		return err
 	}
 
 	for {
-		if options.logger != nil {
-			options.logger.Info(fmt.Sprintf("[%s] Checking the %s ...", chkName, chkID))
-		}
+		options.logger.Info(fmt.Sprintf("[%s] Checking the %s ...", chkName, chkID))
 
-		err := checker.Check(ctx)
-		if options.logger != nil {
-			var cError *errors2.Error
-			if errors.As(err, &cError) {
-				options.logger.V(int(cError.Level())).
-					WithValues(cError.Fields()...).
-					Info(err.Error())
+		err := chk.Check(ctx)
+		if err != nil {
+			var expectedError *checker.ExpectedError
+			if errors.As(err, &expectedError) {
+				options.logger.Error(expectedError, "Expectation failed", expectedError.Details()...)
+			} else {
+				if !errors.Is(err, context.DeadlineExceeded) {
+					options.logger.Error(err, "Error occurred")
+				}
 			}
 		}
 

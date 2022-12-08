@@ -19,7 +19,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"github.com/streadway/amqp"
 	"net"
 	"time"
@@ -116,18 +115,25 @@ func (r *RabbitMQ) Check(ctx context.Context) (err error) {
 	)
 
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError(
+				"failed to establish a connection to the rabbitmq server", err,
+				"dsn", r.dsn,
+			)
+		}
+
+		return err
 	}
 
-	defer func() {
-		if err := conn.Close(); err != nil {
-			err = errors.Wrap(err, errors.DebugLevel)
+	defer func(conn *amqp.Connection) {
+		if connerr := conn.Close(); connerr != nil {
+			err = connerr
 		}
-	}()
+	}(conn)
 
 	_, err = conn.Channel()
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	return nil

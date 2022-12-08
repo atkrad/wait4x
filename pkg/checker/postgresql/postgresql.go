@@ -19,9 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"net/url"
-
 	// Needed for the PostgreSQL driver
 	_ "github.com/lib/pq"
 )
@@ -54,18 +52,25 @@ func (p PostgreSQL) Identity() (string, error) {
 func (p *PostgreSQL) Check(ctx context.Context) (err error) {
 	db, err := sql.Open("postgres", p.dsn)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
-	defer func() {
-		if err := db.Close(); err != nil {
-			err = errors.Wrap(err, errors.DebugLevel)
+	defer func(db *sql.DB) {
+		if dberr := db.Close(); dberr != nil {
+			err = dberr
 		}
-	}()
+	}(db)
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError(
+				"failed to establish a connection to the postgresql server", err,
+				"dsn", p.dsn,
+			)
+		}
+
+		return err
 	}
 
 	return nil

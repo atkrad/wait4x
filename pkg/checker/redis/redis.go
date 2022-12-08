@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/errors"
 	"regexp"
 	"strings"
 	"time"
@@ -84,7 +83,7 @@ func (r Redis) Identity() (string, error) {
 func (r *Redis) Check(ctx context.Context) error {
 	opts, err := redis.ParseURL(r.address)
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 	opts.DialTimeout = r.timeout
 
@@ -93,7 +92,14 @@ func (r *Redis) Check(ctx context.Context) error {
 	// Check Redis connection
 	_, err = client.WithContext(ctx).Ping().Result()
 	if err != nil {
-		return errors.Wrap(err, errors.DebugLevel)
+		if checker.IsConnectionRefused(err) {
+			return checker.NewExpectedError(
+				"failed to establish a connection to the redis server", err,
+				"dsn", r.address,
+			)
+		}
+
+		return err
 	}
 
 	// It can connect to Redis successfully
@@ -107,16 +113,12 @@ func (r *Redis) Check(ctx context.Context) error {
 	val, err := client.WithContext(ctx).Get(splittedKey[0]).Result()
 	if err == redis.Nil {
 		// Redis key does not exist.
-		return errors.New(
-			"the key doesn't exist",
-			errors.InfoLevel,
-			errors.WithFields("key", splittedKey[0]),
-		)
+		return checker.NewExpectedError("the key doesn't exist", nil, "key", splittedKey[0])
 	}
 
 	if err != nil {
 		// Error occurred on get Redis key
-		return errors.Wrap(err, errors.DebugLevel)
+		return err
 	}
 
 	// The Redis key exists and user doesn't want to match value
@@ -130,9 +132,8 @@ func (r *Redis) Check(ctx context.Context) error {
 		return nil
 	}
 
-	return errors.New(
-		"the key and desired value doesn't exist",
-		errors.InfoLevel,
-		errors.WithFields("key", splittedKey[0], "actual", val, "expect", splittedKey[1]),
+	return checker.NewExpectedError(
+		"the key and desired value doesn't exist", nil,
+		"key", splittedKey[0], "actual", val, "expect", splittedKey[1],
 	)
 }
