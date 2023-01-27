@@ -3,7 +3,7 @@ module github.com/atkrad/wait4x/v2
 go 1.18
 
 require (
-	github.com/antchfx/htmlquery v1.2.6
+	github.com/antchfx/htmlquery v1.3.0
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zerologr v1.2.2
 	github.com/go-redis/redis/v7 v7.4.1
@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/antchfx/xpath v1.2.2 // indirect
+	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
