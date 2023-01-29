@@ -22,10 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type ServerCommand struct {
-	logger logr.Logger
-}
-
 // NewServerCommand creates the server sub-command
 func NewServerCommand() *cobra.Command {
 	serverCommand := &cobra.Command{
