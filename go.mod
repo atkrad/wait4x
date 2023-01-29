@@ -3,14 +3,14 @@ module github.com/atkrad/wait4x/v2
 go 1.18
 
 require (
-	github.com/antchfx/htmlquery v1.2.6
+	github.com/antchfx/htmlquery v1.3.0
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zerologr v1.2.2
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.7.0
-	github.com/influxdata/influxdb-client-go/v2 v2.12.1
+	github.com/influxdata/influxdb-client-go/v2 v2.12.2
 	github.com/lib/pq v1.10.7
-	github.com/rs/zerolog v1.28.0
+	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.6.1
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.8.1
@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/antchfx/xpath v1.2.2 // indirect
+	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
