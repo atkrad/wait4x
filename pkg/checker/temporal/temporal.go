@@ -55,9 +55,14 @@ const (
 	CheckModeWorker = "worker"
 )
 
-var ErrInvalidMode = errors.New("invalid checkMode provided")
-var ErrNoNamespace = errors.New(`no namespace provided (use temporal.WithNamespace("__namespace__"))`)
-var ErrNoTaskQueue = errors.New(`no task queue provided (use temporal.WithTaskQueue("__task_queue__"))`)
+var (
+	// ErrInvalidMode defines invalid mode error
+	ErrInvalidMode = errors.New("invalid checkMode provided")
+	// ErrNoNamespace defines no namespace error
+	ErrNoNamespace = errors.New(`no namespace provided (use temporal.WithNamespace("__namespace__"))`)
+	// ErrNoTaskQueue defines no task queue error
+	ErrNoTaskQueue = errors.New(`no task queue provided (use temporal.WithTaskQueue("__task_queue__"))`)
+)
 
 // Temporal represents Temporal checker
 type Temporal struct {
