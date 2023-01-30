@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd"
+	"wait4x.dev/v2/internal/app/wait4x/cmd"
 )
 
 func main() {

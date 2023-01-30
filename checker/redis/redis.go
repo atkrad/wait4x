@@ -17,12 +17,11 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
+	"github.com/go-redis/redis/v7"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/go-redis/redis/v7"
+	"wait4x.dev/v2/checker"
 )
 
 // Option configures a Redis.

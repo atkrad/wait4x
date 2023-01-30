@@ -19,7 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,6 +26,7 @@ import (
 	"os"
 	"testing"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 func TestMain(m *testing.M) {

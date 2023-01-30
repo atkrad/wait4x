@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -26,6 +25,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 func TestMain(m *testing.M) {

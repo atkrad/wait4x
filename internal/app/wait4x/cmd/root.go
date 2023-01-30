@@ -17,13 +17,13 @@ package cmd
 import (
 	"context"
 	"errors"
-	"github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd/temporal"
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
 	"os"
 	"os/exec"
 	"os/signal"
 	"time"
+	"wait4x.dev/v2/internal/app/wait4x/cmd/temporal"
 
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"

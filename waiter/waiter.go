@@ -18,11 +18,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/go-logr/logr"
 	"reflect"
 	"sync"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 // Check represents the checker's check method.

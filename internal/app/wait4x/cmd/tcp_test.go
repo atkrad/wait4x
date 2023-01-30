@@ -19,8 +19,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/atkrad/wait4x/v2/internal/pkg/test"
 	"github.com/stretchr/testify/assert"
+	"wait4x.dev/v2/internal/pkg/test"
 )
 
 func TestMain(m *testing.M) {
