@@ -246,6 +246,22 @@ wait4x rabbitmq 'amqp://127.0.0.1:5672'
 wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
 ```
 
+### Temporal
+
+```shell
+# Checking just Temporal server health check
+wait4x temporal server 127.0.0.1:7233
+
+# Checking insecure Temporal server (no TLS)
+wait4x temporal server 127.0.0.1:7233 --insecure-transport
+
+# Checking a task queue that has registered workers (pollers) or not
+wait4x temporal worker 127.0.0.1:7233 --namespace __YOUR_NAMESPACE__ --task-queue __YOUR_TASK_QUEUE__
+
+# Checking the specific a Temporal worker (pollers)
+wait4x temporal worker 127.0.0.1:7233 --namespace __YOUR_NAMESPACE__ --task-queue __YOUR_TASK_QUEUE__ --expect-worker-identity-regex ".*@__HOSTNAME__@.*"
+```
+
 ### Command Execution
 
 We need to wait for something in order to execute something else. This feature is also supported by using `--` after a feature parameter.

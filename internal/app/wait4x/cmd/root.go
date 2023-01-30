@@ -17,6 +17,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd/temporal"
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
 	"os"
@@ -75,6 +76,7 @@ func NewRootCommand() *cobra.Command {
 			Logger = zerologr.New(&zl)
 			// VerbosityFieldName (v) is not emitted.
 			zerologr.VerbosityFieldName = ""
+			cmd.SetContext(logr.NewContext(cmd.Context(), Logger))
 
 			return nil
 		},
@@ -119,6 +121,7 @@ func Execute() {
 	rootCmd.AddCommand(NewInfluxDBCommand())
 	rootCmd.AddCommand(NewMongoDBCommand())
 	rootCmd.AddCommand(NewRabbitMQCommand())
+	rootCmd.AddCommand(temporal.NewTemporalCommand())
 	rootCmd.AddCommand(NewVersionCommand())
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
