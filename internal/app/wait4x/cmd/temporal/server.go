@@ -57,8 +57,6 @@ func runServer(cmd *cobra.Command, args []string) error {
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
-	} else {
-		args = args[:]
 	}
 
 	tc := temporal.New(
