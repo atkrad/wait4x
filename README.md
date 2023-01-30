@@ -24,6 +24,7 @@ interval time.
     - [InfluxDB](#influxdb)
     - [MongoDB](#mongodb)
     - [RabbitMQ](#rabbitmq)
+    - [Temporal](#temporal)
 
 ## Features
 
@@ -37,6 +38,7 @@ interval time.
     - InfluxDB
     - MongoDB
     - RabbitMQ
+    - Temporal
 - **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
 - **Parallel Checking**: You can define multiple inputs to be checked
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
