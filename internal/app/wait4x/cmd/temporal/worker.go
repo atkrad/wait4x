@@ -34,6 +34,13 @@ func NewWorkerCommand() *cobra.Command {
 
 			return nil
 		},
+		Example: `
+  # Checking a task queue that has registered workers (pollers) or not
+  wait4x temporal worker 127.0.0.1:7233 --namespace __YOUR_NAMESPACE__ --task-queue __YOUR_TASK_QUEUE__
+
+  # Checking the specific a Temporal worker (pollers)
+  wait4x temporal worker 127.0.0.1:7233 --namespace __YOUR_NAMESPACE__ --task-queue __YOUR_TASK_QUEUE__ --expect-worker-identity-regex ".*@__HOSTNAME__@.*"
+`,
 		RunE: runWorker,
 	}
 

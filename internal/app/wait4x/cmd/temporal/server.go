@@ -34,6 +34,13 @@ func NewServerCommand() *cobra.Command {
 
 			return nil
 		},
+		Example: `
+  # Checking just Temporal server health check
+  wait4x temporal server 127.0.0.1:7233
+
+  # Checking insecure Temporal server (no TLS)
+  wait4x temporal server 127.0.0.1:7233 --insecure-transport
+`,
 		RunE: runServer,
 	}
 
