@@ -16,10 +16,10 @@ package temporal
 
 import (
 	"errors"
-	"github.com/atkrad/wait4x/v2/pkg/checker/temporal"
-	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
+	"wait4x.dev/v2/checker/temporal"
+	"wait4x.dev/v2/waiter"
 )
 
 // NewWorkerCommand creates the worker sub-command

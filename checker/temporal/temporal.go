@@ -18,7 +18,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/taskqueue/v1"
 	"go.temporal.io/api/workflowservice/v1"
@@ -30,6 +29,7 @@ import (
 	"os"
 	"regexp"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 // Option configures a Temporal.

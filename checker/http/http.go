@@ -23,9 +23,9 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"wait4x.dev/v2/checker"
 
 	"github.com/antchfx/htmlquery"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/tidwall/gjson"
 )
 

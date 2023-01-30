@@ -17,11 +17,11 @@ package mongodb
 import (
 	"context"
 	"errors"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"strings"
+	"wait4x.dev/v2/checker"
 )
 
 // MongoDB represents MongoDB checker

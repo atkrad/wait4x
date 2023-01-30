@@ -12,45 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresql
+package mysql
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"net/url"
-	// Needed for the PostgreSQL driver
-	_ "github.com/lib/pq"
+	"github.com/go-sql-driver/mysql"
+	"wait4x.dev/v2/checker"
+	// Needed for the MySQL driver
+	_ "github.com/go-sql-driver/mysql"
 )
 
-// PostgreSQL represents PostgreSQL checker
-type PostgreSQL struct {
+// MySQL represents MySQL checker
+type MySQL struct {
 	dsn string
 }
 
-// New creates the PostgreSQL checker
+// New creates the MySQL checker
 func New(dsn string) checker.Checker {
-	p := &PostgreSQL{
+	m := &MySQL{
 		dsn: dsn,
 	}
 
-	return p
+	return m
 }
 
 // Identity returns the identity of the checker
-func (p PostgreSQL) Identity() (string, error) {
-	u, err := url.Parse(p.dsn)
+func (m *MySQL) Identity() (string, error) {
+	cfg, err := mysql.ParseDSN(m.dsn)
 	if err != nil {
 		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
 	}
 
-	return u.Host, nil
+	return cfg.Addr, nil
 }
 
-// Check checks PostgreSQL connection
-func (p *PostgreSQL) Check(ctx context.Context) (err error) {
-	db, err := sql.Open("postgres", p.dsn)
+// Check checks MySQL connection
+func (m *MySQL) Check(ctx context.Context) (err error) {
+	db, err := sql.Open("mysql", m.dsn)
 	if err != nil {
 		return err
 	}
@@ -65,8 +65,8 @@ func (p *PostgreSQL) Check(ctx context.Context) (err error) {
 	if err != nil {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
-				"failed to establish a connection to the postgresql server", err,
-				"dsn", p.dsn,
+				"failed to establish a connection to the mysql server", err,
+				"dsn", m.dsn,
 			)
 		}
 

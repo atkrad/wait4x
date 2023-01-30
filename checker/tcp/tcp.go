@@ -16,10 +16,10 @@ package tcp
 
 import (
 	"context"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"net"
 	"os"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 // Option configures a TCP.

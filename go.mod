@@ -1,4 +1,4 @@
-module github.com/atkrad/wait4x/v2
+module wait4x.dev/v2
 
 go 1.18
 

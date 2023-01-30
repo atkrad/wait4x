@@ -38,16 +38,16 @@ WAIT4X_BUILD_TIME ?= $(shell date -u '+%FT%TZ')
 # - reproducible builds: -ldflags=-buildid=
 # - smaller binaries: -w (trim debugger data, but not panics)
 # - metadata: -X=... to bake in git commit
-WAIT4X_BUILD_LDFLAGS ?= -buildid= -w -X github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_BUILD_TIME)
+WAIT4X_BUILD_LDFLAGS ?= -buildid= -w -X wait4x.dev/v2/internal/app/wait4x/cmd.BuildTime=$(WAIT4X_BUILD_TIME)
 
 # pass the AppVersion if the WAIT4X_COMMIT_REF_SLUG isn't empty.
 ifneq ($(WAIT4X_COMMIT_REF_SLUG),)
-WAIT4X_BUILD_LDFLAGS += -X github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG)
+WAIT4X_BUILD_LDFLAGS += -X wait4x.dev/v2/internal/app/wait4x/cmd.AppVersion=$(WAIT4X_COMMIT_REF_SLUG)
 endif
 
 # pass the GitCommit if the WAIT4X_COMMIT_HASH isn't empty.
 ifneq ($(WAIT4X_COMMIT_HASH),)
-WAIT4X_BUILD_LDFLAGS += -X github.com/atkrad/wait4x/v2/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_HASH)
+WAIT4X_BUILD_LDFLAGS += -X wait4x.dev/v2/internal/app/wait4x/cmd.GitCommit=$(WAIT4X_COMMIT_HASH)
 endif
 
 # build flags for the Wait4X binary
@@ -90,7 +90,7 @@ check-revive:
 	revive -config .revive.toml -formatter friendly ./...
 
 build:
-	$(GO_ENVIRONMENTS) $(GO_BINARY) build -v $(WAIT4X_BUILD_FLAGS) -o $(WAIT4X_BUILD_OUTPUT)/$(WAIT4X_BINARY_NAME) cmd/wait4x/main.go
+	$(GO_ENVIRONMENTS) $(GO_BINARY) build -v $(WAIT4X_BUILD_FLAGS) -o $(WAIT4X_BUILD_OUTPUT)/$(WAIT4X_BINARY_NAME) main.go
 
 run:
-	$(GO_ENVIRONMENTS) $(GO_BINARY) run $(WAIT4X_RUN_FLAGS) cmd/wait4x/main.go $(WAIT4X_FLAGS)
+	$(GO_ENVIRONMENTS) $(GO_BINARY) run $(WAIT4X_RUN_FLAGS) main.go $(WAIT4X_FLAGS)

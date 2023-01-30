@@ -18,10 +18,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/streadway/amqp"
 	"net"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 // Option configures a RabbitMQ.

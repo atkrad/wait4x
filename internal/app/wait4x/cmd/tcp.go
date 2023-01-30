@@ -16,10 +16,10 @@ package cmd
 
 import (
 	"errors"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/tcp"
-	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/spf13/cobra"
+	"wait4x.dev/v2/checker"
+	"wait4x.dev/v2/checker/tcp"
+	"wait4x.dev/v2/waiter"
 )
 
 // NewTCPCommand creates the tcp sub-command
