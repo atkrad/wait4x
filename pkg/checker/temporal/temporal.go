@@ -254,15 +254,19 @@ func (t *Temporal) checkWorker(ctx context.Context, conn grpc.ClientConnInterfac
 	}
 
 	if t.expectWorkerIdentityRegex != "" {
-		matched := false
+		workerMatched := false
 		for _, poller := range resp.Pollers {
-			matched, err = regexp.MatchString(t.expectWorkerIdentityRegex, poller.Identity)
+			matched, err := regexp.MatchString(t.expectWorkerIdentityRegex, poller.Identity)
 			if err != nil {
 				return checker.NewExpectedError("failed to match string", err)
 			}
+
+			if matched {
+				workerMatched = true
+			}
 		}
 
-		if !matched {
+		if !workerMatched {
 			return checker.NewExpectedError("failed to match worker (poller) identity", nil)
 		}
 	}
