@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+// Wait4X allows you to wait for a port or a service to enter the requested state, with a customizable timeout and interval time.
+package main // import "wait4x.dev/v2"
 
 import (
 	"wait4x.dev/v2/internal/app/wait4x/cmd"
