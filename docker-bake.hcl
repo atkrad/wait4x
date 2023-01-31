@@ -26,7 +26,7 @@ target "artifact" {
     "linux/mips",
     "linux/mipsle",
     "linux/mips64",
-    "linux/mipsle64",
+    "linux/mips64le",
     "linux/ppc64le",
     "linux/s390x",
     "windows/amd64",
