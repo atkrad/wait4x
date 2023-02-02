@@ -267,7 +267,11 @@ func (t *Temporal) checkWorker(ctx context.Context, conn grpc.ClientConnInterfac
 		}
 
 		if !workerMatched {
-			return checker.NewExpectedError("failed to match worker (poller) identity", nil)
+			return checker.NewExpectedError(
+				"the worker (poller) hasn't registered yet",
+				nil,
+				"pattern", t.expectWorkerIdentityRegex,
+			)
 		}
 	}
 
