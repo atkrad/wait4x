@@ -1,4 +1,4 @@
-// Copyright 2021 Mohammad Abdolirad
+// Copyright 2021 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -26,6 +25,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 func TestMain(m *testing.M) {

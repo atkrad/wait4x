@@ -1,4 +1,4 @@
-// Copyright 2020 Mohammad Abdolirad
+// Copyright 2020 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"time"
+	"wait4x.dev/v2/internal/app/wait4x/cmd/temporal"
 
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
@@ -75,6 +76,7 @@ func NewRootCommand() *cobra.Command {
 			Logger = zerologr.New(&zl)
 			// VerbosityFieldName (v) is not emitted.
 			zerologr.VerbosityFieldName = ""
+			cmd.SetContext(logr.NewContext(cmd.Context(), Logger))
 
 			return nil
 		},
@@ -119,6 +121,7 @@ func Execute() {
 	rootCmd.AddCommand(NewInfluxDBCommand())
 	rootCmd.AddCommand(NewMongoDBCommand())
 	rootCmd.AddCommand(NewRabbitMQCommand())
+	rootCmd.AddCommand(temporal.NewTemporalCommand())
 	rootCmd.AddCommand(NewVersionCommand())
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)

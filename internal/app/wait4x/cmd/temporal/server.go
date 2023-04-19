@@ -1,4 +1,4 @@
-// Copyright 2019 The Wait4X Authors
+// Copyright 2023 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,67 +12,74 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package temporal
 
 import (
 	"errors"
+	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
-	"wait4x.dev/v2/checker"
-	"wait4x.dev/v2/checker/tcp"
+	"wait4x.dev/v2/checker/temporal"
 	"wait4x.dev/v2/waiter"
 )
 
-// NewTCPCommand creates the tcp sub-command
-func NewTCPCommand() *cobra.Command {
-	tcpCommand := &cobra.Command{
-		Use:   "tcp ADDRESS... [flags] [-- command [args...]]",
-		Short: "Check TCP connection",
+// NewServerCommand creates the server sub-command
+func NewServerCommand() *cobra.Command {
+	serverCommand := &cobra.Command{
+		Use:   "server TARGET [flags] [-- command [args...]]",
+		Short: "Check Temporal server health check",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.New("ADDRESS is required argument for the tcp command")
+				return errors.New("TARGET is required argument for the server command")
 			}
 
 			return nil
 		},
 		Example: `
-  # If you want checking just tcp connection
-  wait4x tcp 127.0.0.1:9090
+  # Checking just Temporal server health check
+  wait4x temporal server 127.0.0.1:7233
+
+  # Checking insecure Temporal server (no TLS)
+  wait4x temporal server 127.0.0.1:7233 --insecure-transport
 `,
-		RunE: runTCP,
+		RunE: runServer,
 	}
 
-	tcpCommand.Flags().Duration("connection-timeout", tcp.DefaultConnectionTimeout, "Timeout is the maximum amount of time a dial will wait for a connection to complete.")
-
-	return tcpCommand
+	return serverCommand
 }
 
-func runTCP(cmd *cobra.Command, args []string) error {
+func runServer(cmd *cobra.Command, args []string) error {
 	interval, _ := cmd.Flags().GetDuration("interval")
 	timeout, _ := cmd.Flags().GetDuration("timeout")
 	invertCheck, _ := cmd.Flags().GetBool("invert-check")
 
 	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
+	insecureTransport, _ := cmd.Flags().GetBool("insecure-transport")
+	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+
+	logger, err := logr.FromContext(cmd.Context())
+	if err != nil {
+		return err
+	}
 
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
-	} else {
-		args = args[:]
 	}
 
-	checkers := make([]checker.Checker, 0)
-	for _, arg := range args {
-		tc := tcp.New(arg, tcp.WithTimeout(conTimeout))
+	tc := temporal.New(
+		temporal.CheckModeServer,
+		args[0],
+		temporal.WithTimeout(conTimeout),
+		temporal.WithInsecureTransport(insecureTransport),
+		temporal.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
+	)
 
-		checkers = append(checkers, tc)
-	}
-
-	return waiter.WaitParallelContext(
+	return waiter.WaitContext(
 		cmd.Context(),
-		checkers,
+		tc,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
 		waiter.WithInvertCheck(invertCheck),
-		waiter.WithLogger(Logger),
+		waiter.WithLogger(logger),
 	)
 }

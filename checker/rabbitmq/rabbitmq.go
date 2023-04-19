@@ -1,4 +1,4 @@
-// Copyright 2022 Mohammad Abdolirad
+// Copyright 2022 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/streadway/amqp"
 	"net"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 // Option configures a RabbitMQ.

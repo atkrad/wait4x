@@ -1,4 +1,4 @@
-// Copyright 2020 Mohammad Abdolirad
+// Copyright 2020 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@ package cmd
 
 import (
 	"errors"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
-	"github.com/atkrad/wait4x/v2/pkg/checker/redis"
-	"github.com/atkrad/wait4x/v2/pkg/waiter"
 	"github.com/spf13/cobra"
+	"wait4x.dev/v2/checker"
+	"wait4x.dev/v2/checker/redis"
+	"wait4x.dev/v2/waiter"
 )
 
 // NewRedisCommand creates the redis sub-command

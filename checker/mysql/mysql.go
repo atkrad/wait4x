@@ -1,4 +1,4 @@
-// Copyright 2020 Mohammad Abdolirad
+// Copyright 2020 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/atkrad/wait4x/v2/pkg/checker"
 	"github.com/go-sql-driver/mysql"
+	"wait4x.dev/v2/checker"
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
 )

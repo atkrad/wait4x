@@ -1,6 +1,6 @@
 # Wait4X
 
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/atkrad/wait4x/ci.yaml?branch=main)](https://github.com/atkrad/wait4x/actions/workflows/ci.yaml) [![Coverage Status](https://coveralls.io/repos/github/atkrad/wait4x/badge.svg?branch=main)](https://coveralls.io/github/atkrad/wait4x?branch=main) [![Go Report Card](https://goreportcard.com/badge/github.com/atkrad/wait4x)](https://goreportcard.com/report/github.com/atkrad/wait4x) [![Docker Pulls](https://img.shields.io/docker/pulls/atkrad/wait4x?logo=docker)](https://hub.docker.com/r/atkrad/wait4x) [![GitHub all releases](https://img.shields.io/github/downloads/atkrad/wait4x/total?logo=github)](https://github.com/atkrad/wait4x/releases) [![Go Reference](https://pkg.go.dev/badge/github.com/atkrad/wait4x.svg)](https://pkg.go.dev/github.com/atkrad/wait4x/v2)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/atkrad/wait4x/ci.yaml?branch=main)](https://github.com/atkrad/wait4x/actions/workflows/ci.yaml) [![Coverage Status](https://coveralls.io/repos/github/atkrad/wait4x/badge.svg?branch=main)](https://coveralls.io/github/atkrad/wait4x?branch=main) [![Go Report Card](https://goreportcard.com/badge/github.com/atkrad/wait4x)](https://goreportcard.com/report/github.com/atkrad/wait4x) [![Docker Pulls](https://img.shields.io/docker/pulls/atkrad/wait4x?logo=docker)](https://hub.docker.com/r/atkrad/wait4x) [![GitHub all releases](https://img.shields.io/github/downloads/atkrad/wait4x/total?logo=github)](https://github.com/atkrad/wait4x/releases) [![Go Reference](https://pkg.go.dev/badge/github.com/atkrad/wait4x.svg)](https://pkg.go.dev/wait4x.dev/v2)
 
 **Wait4X** allows you to wait for a port or a service to enter the requested state, with a customizable timeout and
 interval time.
@@ -24,6 +24,7 @@ interval time.
     - [InfluxDB](#influxdb)
     - [MongoDB](#mongodb)
     - [RabbitMQ](#rabbitmq)
+    - [Temporal](#temporal)
 
 ## Features
 
@@ -37,6 +38,7 @@ interval time.
     - InfluxDB
     - MongoDB
     - RabbitMQ
+    - Temporal
 - **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
 - **Parallel Checking**: You can define multiple inputs to be checked
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
@@ -244,6 +246,22 @@ wait4x rabbitmq 'amqp://127.0.0.1:5672'
 
 # Checking RabbitMQ connection with credentials and vhost
 wait4x rabbitmq 'amqp://guest:guest@127.0.0.1:5672/vhost'
+```
+
+### Temporal
+
+```shell
+# Checking just Temporal server health check
+wait4x temporal server 127.0.0.1:7233
+
+# Checking insecure Temporal server (no TLS)
+wait4x temporal server 127.0.0.1:7233 --insecure-transport
+
+# Checking a task queue that has registered workers (pollers) or not
+wait4x temporal worker 127.0.0.1:7233 --namespace __YOUR_NAMESPACE__ --task-queue __YOUR_TASK_QUEUE__
+
+# Checking the specific a Temporal worker (pollers)
+wait4x temporal worker 127.0.0.1:7233 --namespace __YOUR_NAMESPACE__ --task-queue __YOUR_TASK_QUEUE__ --expect-worker-identity-regex ".*@__HOSTNAME__@.*"
 ```
 
 ### Command Execution
