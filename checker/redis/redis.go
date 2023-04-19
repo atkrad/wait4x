@@ -69,7 +69,7 @@ func WithExpectKey(key string) Option {
 }
 
 // Identity returns the identity of the checker
-func (r Redis) Identity() (string, error) {
+func (r *Redis) Identity() (string, error) {
 	opts, err := redis.ParseURL(r.address)
 	if err != nil {
 		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
