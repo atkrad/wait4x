@@ -32,12 +32,6 @@ func getRedisContainer(ctx context.Context, t *testing.T) testcontainers.Contain
 		if err != nil {
 			t.Fatal(err)
 		}
-
-		//t.Cleanup(func() {
-		//	if err := redisContainer.Terminate(ctx); err != nil {
-		//		t.Fatalf("failed to terminate container: %s", err)
-		//	}
-		//})
 	})
 
 	return redisContainer
