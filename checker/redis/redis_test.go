@@ -9,6 +9,7 @@ import (
 	"sync"
 	"testing"
 	"time"
+	"wait4x.dev/v2/checker"
 )
 
 var containerOnce sync.Once
@@ -42,6 +43,12 @@ func getRedisContainer(ctx context.Context, t *testing.T) testcontainers.Contain
 	return redisContainer
 }
 
+func TestInvalidConnection(t *testing.T) {
+	var expectedError *checker.ExpectedError
+	chk := New("redis://127.0.0.1:8787")
+	assert.ErrorAs(t, chk.Check(context.Background()), &expectedError)
+}
+
 func TestValidAddress(t *testing.T) {
 	ctx := context.Background()
 	rc := getRedisContainer(ctx, t)
@@ -51,8 +58,8 @@ func TestValidAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	checker := New(endpoint)
-	assert.Nil(t, checker.Check(ctx))
+	chk := New(endpoint)
+	assert.Nil(t, chk.Check(ctx))
 }
 
 func TestKeyExistence(t *testing.T) {
@@ -71,6 +78,16 @@ func TestKeyExistence(t *testing.T) {
 	redisClient := redis.NewClient(opts)
 	redisClient.Set("Foo", "Bar", time.Hour)
 
-	checker := New(endpoint, WithExpectKey("Foo"))
-	assert.Nil(t, checker.Check(ctx))
+	chk := New(endpoint, WithExpectKey("Foo"))
+	assert.Nil(t, chk.Check(ctx))
+
+	chk = New(endpoint, WithExpectKey("Foo=^B.*$"))
+	assert.Nil(t, chk.Check(ctx))
+
+	var expectedError *checker.ExpectedError
+	chk = New(endpoint, WithExpectKey("Foo=^b[A-Z]$"))
+	assert.ErrorAs(t, chk.Check(ctx), &expectedError)
+
+	chk = New(endpoint, WithExpectKey("Bob"))
+	assert.ErrorAs(t, chk.Check(ctx), &expectedError)
 }
