@@ -20,16 +20,7 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: 1.18.x
-
-    - name: Cache Go modules
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
+        cache-dependency-path: go.sum
 
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -57,16 +48,7 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: 1.18.x
-
-    - name: Cache Go modules
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
+        cache-dependency-path: go.sum
 
     - name: Test Wait4X
       run: make test
