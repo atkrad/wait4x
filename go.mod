@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
-	github.com/lib/pq v1.10.7
+	github.com/lib/pq v1.10.8
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.7.0
 	github.com/streadway/amqp v1.0.0
