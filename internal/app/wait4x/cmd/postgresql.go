@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+
 	"github.com/spf13/cobra"
 	"wait4x.dev/v2/checker"
 	"wait4x.dev/v2/checker/postgresql"
@@ -49,6 +50,9 @@ func runPostgresql(cmd *cobra.Command, args []string) error {
 	interval, _ := cmd.Flags().GetDuration("interval")
 	timeout, _ := cmd.Flags().GetDuration("timeout")
 	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+	backoffPoclicy, _ := cmd.Flags().GetString("backoff-policy")
+	backoffExpMaxInterval, _ := cmd.Flags().GetDuration("backoff-exponential-max-interval")
+	backoffCoefficient, _ := cmd.Flags().GetFloat64("backoff-exponential-coefficient")
 
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
@@ -69,6 +73,9 @@ func runPostgresql(cmd *cobra.Command, args []string) error {
 		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
+		waiter.WithBackoffCoefficient(backoffCoefficient),
+		waiter.WithBackoffPolicy(backoffPoclicy),
+		waiter.WithBackoffExponentialMaxInterval(backoffExpMaxInterval),
 		waiter.WithInvertCheck(invertCheck),
 		waiter.WithLogger(Logger),
 	)

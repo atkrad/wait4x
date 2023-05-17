@@ -17,13 +17,16 @@ package cmd
 import (
 	"context"
 	"errors"
-	"github.com/go-logr/logr"
-	"github.com/go-logr/zerologr"
+	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
 	"time"
+
+	"github.com/go-logr/logr"
+	"github.com/go-logr/zerologr"
 	"wait4x.dev/v2/internal/app/wait4x/cmd/temporal"
+	"wait4x.dev/v2/waiter"
 
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
@@ -51,6 +54,19 @@ func NewRootCommand() *cobra.Command {
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			noColor, _ := cmd.Flags().GetBool("no-color")
 			quiet, _ := cmd.Flags().GetBool("quiet")
+			backoffPolicy, _ := cmd.Flags().GetString("backoff-policy")
+			maxExpInterval, _ := cmd.Flags().GetDuration("backoff-exponential-max-interval")
+			interval, _ := cmd.Flags().GetDuration("interval")
+
+			// Validate backoff policy value
+			backoffPolicyValues := []string{waiter.BackoffPolicyExponential, waiter.BackoffPolicyLinear}
+			if !contains(backoffPolicyValues, backoffPolicy) {
+				return fmt.Errorf("--backoff-policy must be one of %v", backoffPolicyValues)
+			}
+
+			if backoffPolicy == waiter.BackoffPolicyExponential && maxExpInterval < interval {
+				return fmt.Errorf("--backoff-exponential-max-interval must be greater than --interval")
+			}
 
 			// Prevent showing error when the quiet mode enabled.
 			cmd.SilenceErrors = quiet
@@ -100,6 +116,9 @@ func NewRootCommand() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().DurationP("interval", "i", 1*time.Second, "Interval time between each loop.")
+	rootCmd.PersistentFlags().String("backoff-policy", "linear", `Select the backoff policy ("`+waiter.BackoffPolicyLinear+`"|"`+waiter.BackoffPolicyExponential+`".`)
+	rootCmd.PersistentFlags().Duration("backoff-exponential-max-interval", 5*time.Second, "Maximum interval time between each loop when backoff-policy is exponential.")
+	rootCmd.PersistentFlags().Float64("backoff-exponential-coefficient", 2.0, "Coefficient used to calculate the exponential backoff when backoff-policy is exponential.")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", 10*time.Second, "Timeout is the maximum amount of time that Wait4X will wait for a checking operation, 0 is unlimited.")
 	rootCmd.PersistentFlags().BoolP("invert-check", "v", false, "Invert the sense of checking.")
 	rootCmd.PersistentFlags().StringP("log-level", "l", zerolog.InfoLevel.String(), "Set the logging level (\"trace\"|\"debug\"|\"info\")")
