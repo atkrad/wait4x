@@ -26,8 +26,11 @@ import (
 	"wait4x.dev/v2/checker"
 )
 
+// Constants representing the available backoff policies for retry mechanisms.
 const (
-	BackoffPolicyLinear      = "linear"
+	// BackoffPolicyLinear indicates a linear backoff policy,
+	BackoffPolicyLinear = "linear"
+	// BackoffPolicyExponential indicates an exponential backoff policy.
 	BackoffPolicyExponential = "exponential"
 )
 
