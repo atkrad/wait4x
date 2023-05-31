@@ -41,6 +41,7 @@ interval time.
     - Temporal
 - **Reverse Checking:** Invert the sense of checking to find a free port or non-ready services
 - **Parallel Checking**: You can define multiple inputs to be checked
+- **Exponential Backoff Checking**: Retry using an exponential backoff approach to improve efficiency and reduce errors.
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
 - **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
 - **Importable:** Beside the CLI tool, Wait4X can be imported as a pkg in your Go app
@@ -177,6 +178,9 @@ wait4x http https://www.kernel.org/ --expect-body-xpath "//*[@id="tux-gear"]"
 
 # Request headers:
 wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
+
+# Enable exponential backoff retry
+wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential  --backoff-exponential-max-interval 120s --timeout 120s
 ```
 
 ### Redis

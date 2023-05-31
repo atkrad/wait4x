@@ -18,11 +18,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
 	"reflect"
 	"sync"
 	"time"
+
+	"github.com/go-logr/logr"
 	"wait4x.dev/v2/checker"
+)
+
+// Constants representing the available backoff policies for retry mechanisms.
+const (
+	// BackoffPolicyLinear indicates a linear backoff policy,
+	BackoffPolicyLinear = "linear"
+	// BackoffPolicyExponential indicates an exponential backoff policy.
+	BackoffPolicyExponential = "exponential"
 )
 
 // Check represents the checker's check method.
@@ -33,10 +42,13 @@ type Option func(s *options)
 
 // options represents waiter options
 type options struct {
-	timeout     time.Duration
-	interval    time.Duration
-	invertCheck bool
-	logger      logr.Logger
+	timeout                       time.Duration
+	interval                      time.Duration
+	invertCheck                   bool
+	logger                        logr.Logger
+	backoffPolicy                 string
+	backoffExponentialMaxInterval time.Duration
+	backoffCoefficient            float64
 }
 
 // WithTimeout configures a time limit for whole of checking
@@ -64,6 +76,28 @@ func WithInvertCheck(invertCheck bool) Option {
 func WithLogger(logger logr.Logger) Option {
 	return func(o *options) {
 		o.logger = logger
+	}
+}
+
+// WithBackoffPolicy returns an Option that sets the backoff policy for retries
+func WithBackoffPolicy(backoffPolicy string) Option {
+	return func(o *options) {
+		o.backoffPolicy = backoffPolicy
+	}
+}
+
+// WithBackoffExponentialMaxInterval is a function that returns an Option which sets the
+// maximum interval time duration of the exponential backoff algorithm.
+func WithBackoffExponentialMaxInterval(backoffExponentialMaxInterval time.Duration) Option {
+	return func(o *options) {
+		o.backoffExponentialMaxInterval = backoffExponentialMaxInterval
+	}
+}
+
+// WithBackoffCoefficient sets the backoffCoefficient for use in retry backoff calculations.
+func WithBackoffCoefficient(backoffCoefficient float64) Option {
+	return func(o *options) {
+		o.backoffCoefficient = backoffCoefficient
 	}
 }
 
@@ -124,10 +158,13 @@ func WaitWithContext(ctx context.Context, checker checker.Checker, opts ...Optio
 // WaitContext waits for end up of check execution.
 func WaitContext(ctx context.Context, chk checker.Checker, opts ...Option) error {
 	options := &options{
-		timeout:     10 * time.Second,
-		interval:    time.Second,
-		invertCheck: false,
-		logger:      logr.Discard(),
+		timeout:                       10 * time.Second,
+		interval:                      time.Second,
+		invertCheck:                   false,
+		logger:                        logr.Discard(),
+		backoffPolicy:                 BackoffPolicyLinear,
+		backoffExponentialMaxInterval: 5 * time.Second,
+		backoffCoefficient:            2.0,
 	}
 
 	// apply the list of options to waiter
@@ -154,6 +191,9 @@ func WaitContext(ctx context.Context, chk checker.Checker, opts ...Option) error
 		return err
 	}
 
+	//This is a counter for exponential backoff
+	retries := 0
+
 	for {
 		options.logger.Info(fmt.Sprintf("[%s] Checking the %s ...", chkName, chkID))
 
@@ -169,6 +209,15 @@ func WaitContext(ctx context.Context, chk checker.Checker, opts ...Option) error
 			}
 		}
 
+		var waitDuration time.Duration
+		if options.backoffPolicy == BackoffPolicyExponential {
+			waitDuration = exponentialBackoff(retries, options.backoffCoefficient, options.interval, options.backoffExponentialMaxInterval)
+		} else if options.backoffPolicy == BackoffPolicyLinear {
+			waitDuration = options.interval
+		} else {
+			return fmt.Errorf("invalid backoff policy: %s", options.backoffPolicy)
+		}
+
 		if options.invertCheck == true {
 			if err == nil {
 				goto CONTINUE
@@ -182,12 +231,13 @@ func WaitContext(ctx context.Context, chk checker.Checker, opts ...Option) error
 		}
 
 	CONTINUE:
-
+		retries++
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(options.interval):
+		case <-time.After(waitDuration):
 		}
+
 	}
 
 	return nil

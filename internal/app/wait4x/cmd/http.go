@@ -23,6 +23,7 @@ import (
 	"net/textproto"
 	"net/url"
 	"strings"
+
 	"wait4x.dev/v2/checker"
 	"wait4x.dev/v2/checker/http"
 	"wait4x.dev/v2/waiter"
@@ -86,7 +87,9 @@ func NewHTTPCommand() *cobra.Command {
 
   # Disable auto redirect
   wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
-`,
+
+  # Enable exponential backoff retry
+  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential  --backoff-exponential-max-interval 120s --timeout 120s`,
 		RunE: runHTTP,
 	}
 
@@ -110,6 +113,9 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	interval, _ := cmd.Flags().GetDuration("interval")
 	timeout, _ := cmd.Flags().GetDuration("timeout")
 	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+	backoffPoclicy, _ := cmd.Flags().GetString("backoff-policy")
+	backoffExpMaxInterval, _ := cmd.Flags().GetDuration("backoff-exponential-max-interval")
+	backoffCoefficient, _ := cmd.Flags().GetFloat64("backoff-exponential-coefficient")
 
 	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 	expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
@@ -175,6 +181,9 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		checkers,
 		waiter.WithTimeout(timeout),
 		waiter.WithInterval(interval),
+		waiter.WithBackoffCoefficient(backoffCoefficient),
+		waiter.WithBackoffPolicy(backoffPoclicy),
+		waiter.WithBackoffExponentialMaxInterval(backoffExpMaxInterval),
 		waiter.WithInvertCheck(invertCheck),
 		waiter.WithLogger(Logger),
 	)
