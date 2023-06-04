@@ -12,36 +12,36 @@ var (
 	ErrBadConnection = errors.New("bad connection")
 )
 
-type Cassandra struct {
-	dnss []string
+type ConnectionParams struct {
+	Hosts    []string
+	Username string
+	Password string
 }
 
-func New(dnss []string) checker.Checker {
+type Cassandra struct {
+	connectionParams ConnectionParams
+}
+
+func New(connectionParams ConnectionParams) checker.Checker {
 	return &Cassandra{
-		dnss: dnss,
+		connectionParams: connectionParams,
 	}
 }
 
 func (c *Cassandra) Identity() (string, error) {
-	return strings.Join(c.dnss, ","), nil
+	return strings.Join(c.connectionParams.Hosts, ","), nil
 }
 
 func (c *Cassandra) Check(ctx context.Context) error {
-	cluster := gocql.NewCluster(c.dnss...)
-	cluster.Keyspace = "system"
-	cluster.ProtoVersion = 4
-	cluster.Consistency = gocql.All
-
-	session, err := cluster.CreateSession()
+	session, err := c.connectToCluster()
 	if err != nil {
 		return checker.NewExpectedError(
 			"failed to establish a connection to the cassandra cluster",
 			err,
 			"connection",
-			c.dnss,
+			c.connectionParams.Hosts,
 		)
 	}
-
 	defer session.Close()
 
 	iter := session.Query("select cql_version from system.local").
@@ -55,7 +55,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 			"failed to get the row data",
 			err,
 			"rowData",
-			c.dnss,
+			c.connectionParams.Hosts,
 		)
 	}
 
@@ -64,7 +64,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 			"failed to query system.local",
 			ErrBadConnection,
 			"values",
-			c.dnss,
+			c.connectionParams.Hosts,
 		)
 	}
 
@@ -73,7 +73,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 			"failed to scan row values",
 			ErrBadConnection,
 			"scan",
-			c.dnss,
+			c.connectionParams.Hosts,
 		)
 	}
 
@@ -83,7 +83,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 			"failed to convert scanned values",
 			ErrBadConnection,
 			"conversion",
-			c.dnss,
+			c.connectionParams.Hosts,
 		)
 	}
 
@@ -92,9 +92,25 @@ func (c *Cassandra) Check(ctx context.Context) error {
 			"no returning values",
 			ErrBadConnection,
 			"return",
-			c.dnss,
+			c.connectionParams.Hosts,
 		)
 	}
 
 	return nil
+}
+
+func (c *Cassandra) connectToCluster() (*gocql.Session, error) {
+	cluster := gocql.NewCluster(c.connectionParams.Hosts...)
+	cluster.Keyspace = "system"
+	cluster.ProtoVersion = 4
+	cluster.Consistency = gocql.All
+
+	if c.connectionParams.Username != "" && c.connectionParams.Password != "" {
+		cluster.Authenticator = gocql.PasswordAuthenticator{
+			Username: c.connectionParams.Username,
+			Password: c.connectionParams.Password,
+		}
+	}
+
+	return cluster.CreateSession()
 }

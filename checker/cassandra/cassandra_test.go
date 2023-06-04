@@ -50,7 +50,9 @@ func getCassandraContainer(ctx context.Context, t *testing.T) testcontainers.Con
 func TestInvalidConnection(t *testing.T) {
 	var exceptError *checker.ExpectedError
 
-	chk := New([]string{"127.0.0.1:9042"})
+	chk := New(ConnectionParams{
+		Hosts: []string{"127.0.0.1:9042"},
+	})
 
 	assert.ErrorAs(t, chk.Check(context.Background()), &exceptError)
 }
@@ -64,8 +66,10 @@ func TestValidConnectionSingleNode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	url := fmt.Sprintf("127.0.0.1:%d", mappedPort.Int())
-	chk := New([]string{url})
+	cassUrl := fmt.Sprintf("127.0.0.1:%d", mappedPort.Int())
+	chk := New(ConnectionParams{
+		Hosts: []string{cassUrl},
+	})
 	chkErr := chk.Check(ctx)
 
 	assert.Nil(t, chkErr)
