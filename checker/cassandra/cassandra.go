@@ -3,8 +3,8 @@ package cassandra
 import (
 	"context"
 	"errors"
-
 	"github.com/gocql/gocql"
+	"strings"
 	"wait4x.dev/v2/checker"
 )
 
@@ -23,18 +23,26 @@ func New(dnss []string) checker.Checker {
 }
 
 func (c *Cassandra) Identity() (string, error) {
-	return "cassandra", nil
+	return strings.Join(c.dnss, ","), nil
 }
 
 func (c *Cassandra) Check(ctx context.Context) error {
 	cluster := gocql.NewCluster(c.dnss...)
-	cluster.Keyspace = "wait4x"
+	cluster.Keyspace = "system"
+	cluster.ProtoVersion = 4
+	cluster.Consistency = gocql.All
 
 	session, err := cluster.CreateSession()
-	defer session.Close()
 	if err != nil {
-		return err
+		return checker.NewExpectedError(
+			"failed to establish a connection to the cassandra cluster",
+			err,
+			"connection",
+			c.dnss,
+		)
 	}
+
+	defer session.Close()
 
 	iter := session.Query("select cql_version from system.local").
 		WithContext(ctx).
@@ -43,24 +51,49 @@ func (c *Cassandra) Check(ctx context.Context) error {
 
 	rows, err := iter.RowData()
 	if err != nil {
-		return err
+		return checker.NewExpectedError(
+			"failed to get the row data",
+			err,
+			"rowData",
+			c.dnss,
+		)
 	}
 
 	if len(rows.Values) != 1 {
-		return ErrBadConnection
+		return checker.NewExpectedError(
+			"failed to query system.local",
+			ErrBadConnection,
+			"values",
+			c.dnss,
+		)
 	}
 
 	if ok := iter.Scan(rows.Values...); !ok {
-		return ErrBadConnection
+		return checker.NewExpectedError(
+			"failed to scan row values",
+			ErrBadConnection,
+			"scan",
+			c.dnss,
+		)
 	}
 
 	values, ok := rows.Values[0].(*string)
 	if !ok {
-		return ErrBadConnection
+		return checker.NewExpectedError(
+			"failed to convert scanned values",
+			ErrBadConnection,
+			"conversion",
+			c.dnss,
+		)
 	}
 
 	if len(*values) < 1 {
-		return ErrBadConnection
+		return checker.NewExpectedError(
+			"no returning values",
+			ErrBadConnection,
+			"return",
+			c.dnss,
+		)
 	}
 
 	return nil
