@@ -24,6 +24,7 @@ import (
 )
 
 var (
+	// ErrCassandraInsufficientHosts error when no hosts are provided
 	ErrCassandraInsufficientHosts = errors.New("hosts is required argument for the cassandra sub-command")
 )
 

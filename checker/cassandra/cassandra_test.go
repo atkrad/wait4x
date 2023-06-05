@@ -66,9 +66,9 @@ func TestValidConnectionSingleNode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cassUrl := fmt.Sprintf("127.0.0.1:%d", mappedPort.Int())
+	cassURL := fmt.Sprintf("127.0.0.1:%d", mappedPort.Int())
 	chk := New(ConnectionParams{
-		Hosts: []string{cassUrl},
+		Hosts: []string{cassURL},
 	})
 	chkErr := chk.Check(ctx)
 

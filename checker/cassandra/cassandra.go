@@ -9,29 +9,39 @@ import (
 )
 
 var (
-	ErrBadConnection = errors.New("bad connection")
+	// ErrNoValues error when the query doesn't return any value
+	ErrNoValues = errors.New("no values returned")
+	// ErrScanValues error when the values can't be scanned
+	ErrScanValues = errors.New("scan can't scan rows")
+	// ErrValueConversion error when the value conversion fails
+	ErrValueConversion = errors.New("value can't be converted")
 )
 
+// ConnectionParams cassandra connection params struct
 type ConnectionParams struct {
 	Hosts    []string
 	Username string
 	Password string
 }
 
+// Cassandra represents Cassandra checker
 type Cassandra struct {
 	connectionParams ConnectionParams
 }
 
+// New creates the Cassandra checker
 func New(connectionParams ConnectionParams) checker.Checker {
 	return &Cassandra{
 		connectionParams: connectionParams,
 	}
 }
 
+// Identity returns the identity of the checker
 func (c *Cassandra) Identity() (string, error) {
 	return strings.Join(c.connectionParams.Hosts, ","), nil
 }
 
+// Check checks Cassandra connection
 func (c *Cassandra) Check(ctx context.Context) error {
 	session, err := c.connectToCluster()
 	if err != nil {
@@ -62,7 +72,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 	if len(rows.Values) != 1 {
 		return checker.NewExpectedError(
 			"failed to query system.local",
-			ErrBadConnection,
+			ErrNoValues,
 			"values",
 			c.connectionParams.Hosts,
 		)
@@ -71,7 +81,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 	if ok := iter.Scan(rows.Values...); !ok {
 		return checker.NewExpectedError(
 			"failed to scan row values",
-			ErrBadConnection,
+			ErrScanValues,
 			"scan",
 			c.connectionParams.Hosts,
 		)
@@ -81,7 +91,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 	if !ok {
 		return checker.NewExpectedError(
 			"failed to convert scanned values",
-			ErrBadConnection,
+			ErrValueConversion,
 			"conversion",
 			c.connectionParams.Hosts,
 		)
@@ -90,7 +100,7 @@ func (c *Cassandra) Check(ctx context.Context) error {
 	if len(*values) < 1 {
 		return checker.NewExpectedError(
 			"no returning values",
-			ErrBadConnection,
+			ErrNoValues,
 			"return",
 			c.connectionParams.Hosts,
 		)
