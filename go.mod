@@ -17,7 +17,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.20.1
 	github.com/tidwall/gjson v1.14.4
 	github.com/tonglil/buflogr v1.0.1
-	go.mongodb.org/mongo-driver v1.11.6
+	go.mongodb.org/mongo-driver v1.11.7
 	go.temporal.io/api v1.21.0
 	google.golang.org/grpc v1.55.0
 )
