@@ -25,7 +25,7 @@ import (
 	"regexp"
 )
 
-var removeUsernamePasswordRegex = regexp.MustCompile(`[^/:@]+:[^/:@]+@`)
+var hidePasswordRegexp = regexp.MustCompile(`^([^:]+):[^:@]+@`)
 
 // MySQL represents MySQL checker
 type MySQL struct {
@@ -69,7 +69,7 @@ func (m *MySQL) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the mysql server", err,
-				"dsn", removeUsernamePasswordRegex.ReplaceAllString(m.dsn, `***:***@`),
+				"dsn", hidePasswordRegexp.ReplaceAllString(m.dsn, `$1:***@`),
 			)
 		}
 

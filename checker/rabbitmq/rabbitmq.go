@@ -25,7 +25,7 @@ import (
 	"wait4x.dev/v2/checker"
 )
 
-var removeUsernamePasswordRegex = regexp.MustCompile(`[^/:@]+:[^/:@]+@`)
+var hidePasswordRegexp = regexp.MustCompile(`(amqp://[^/:]+):[^:@]+@`)
 
 // Option configures a RabbitMQ.
 type Option func(r *RabbitMQ)
@@ -121,7 +121,7 @@ func (r *RabbitMQ) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the rabbitmq server", err,
-				"dsn", removeUsernamePasswordRegex.ReplaceAllString(r.dsn, `***:***@`),
+				"dsn", hidePasswordRegexp.ReplaceAllString(r.dsn, `$1:***@`),
 			)
 		}
 

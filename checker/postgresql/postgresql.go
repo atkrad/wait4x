@@ -25,7 +25,7 @@ import (
 	"regexp"
 )
 
-var removeUsernamePasswordRegex = regexp.MustCompile(`[^/:@]+:[^/:@]+@`)
+var hidePasswordRegexp = regexp.MustCompile(`^(postgres://[^/:]+):[^:@]+@`)
 
 // PostgreSQL represents PostgreSQL checker
 type PostgreSQL struct {
@@ -69,7 +69,7 @@ func (p *PostgreSQL) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the postgresql server", err,
-				"dsn", removeUsernamePasswordRegex.ReplaceAllString(p.dsn, `***:***@`),
+				"dsn", hidePasswordRegexp.ReplaceAllString(p.dsn, `$1:***@`),
 			)
 		}
 
