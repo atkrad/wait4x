@@ -96,7 +96,7 @@ func (r *Redis) Check(ctx context.Context) error {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the redis server", err,
-				"dsn", removeUsernamePasswordRegex.ReplaceAllString(r.address,`***:***@`),
+				"dsn", removeUsernamePasswordRegex.ReplaceAllString(r.address, `***:***@`),
 			)
 		}
 

@@ -69,7 +69,7 @@ func (m *MySQL) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the mysql server", err,
-				"dsn", removeUsernamePasswordRegex.ReplaceAllString(m.dsn,`***:***@`),
+				"dsn", removeUsernamePasswordRegex.ReplaceAllString(m.dsn, `***:***@`),
 			)
 		}
 

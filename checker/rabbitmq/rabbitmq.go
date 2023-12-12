@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"github.com/streadway/amqp"
 	"net"
+	"regexp"
 	"time"
 	"wait4x.dev/v2/checker"
-	"regexp"
 )
 
 var removeUsernamePasswordRegex = regexp.MustCompile(`[^/:@]+:[^/:@]+@`)
@@ -121,7 +121,7 @@ func (r *RabbitMQ) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the rabbitmq server", err,
-				"dsn", removeUsernamePasswordRegex.ReplaceAllString(r.dsn,`***:***@`),
+				"dsn", removeUsernamePasswordRegex.ReplaceAllString(r.dsn, `***:***@`),
 			)
 		}
 
