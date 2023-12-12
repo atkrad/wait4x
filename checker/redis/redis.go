@@ -24,6 +24,8 @@ import (
 	"wait4x.dev/v2/checker"
 )
 
+var removeUsernamePasswordRegex = regexp.MustCompile(`[^/:@]+:[^/:@]+@`)
+
 // Option configures a Redis.
 type Option func(r *Redis)
 
@@ -94,7 +96,7 @@ func (r *Redis) Check(ctx context.Context) error {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the redis server", err,
-				"dsn", r.address,
+				"dsn", removeUsernamePasswordRegex.ReplaceAllString(r.address,`***:***@`),
 			)
 		}
 
