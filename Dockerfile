@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.5.1
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.2.0 AS xx
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.2.1 AS xx
 
-FROM --platform=$BUILDPLATFORM golang:1.18.10-alpine3.17 AS base
+FROM --platform=$BUILDPLATFORM golang:1.21.0-alpine3.18 AS base
 ENV GO111MODULE=auto
 ENV CGO_ENABLED=0
 

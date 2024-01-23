@@ -1,6 +1,6 @@
 module wait4x.dev/v2
 
-go 1.18
+go 1.21
 
 require (
 	github.com/antchfx/htmlquery v1.3.0
@@ -10,9 +10,9 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/lib/pq v1.10.9
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/cobra v1.7.0
-	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.20.1
 	github.com/tidwall/gjson v1.14.4
