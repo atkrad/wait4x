@@ -17,7 +17,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.27.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/tonglil/buflogr v1.0.1
-	go.mongodb.org/mongo-driver v1.11.6
+	go.mongodb.org/mongo-driver v1.13.1
 	go.temporal.io/api v1.21.0
 	google.golang.org/grpc v1.60.1
 )
@@ -72,8 +72,8 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
-	github.com/xdg-go/scram v1.1.1 // indirect
-	github.com/xdg-go/stringprep v1.0.3 // indirect
+	github.com/xdg-go/scram v1.1.2 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
