@@ -18,7 +18,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"net"
 	"regexp"
 	"time"
