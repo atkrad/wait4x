@@ -22,7 +22,10 @@ import (
 	"wait4x.dev/v2/checker"
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
+	"regexp"
 )
+
+var hidePasswordRegexp = regexp.MustCompile(`^([^:]+):[^:@]+@`)
 
 // MySQL represents MySQL checker
 type MySQL struct {
@@ -66,7 +69,7 @@ func (m *MySQL) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the mysql server", err,
-				"dsn", m.dsn,
+				"dsn", hidePasswordRegexp.ReplaceAllString(m.dsn, `$1:***@`),
 			)
 		}
 
