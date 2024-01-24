@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/antchfx/htmlquery v1.3.0
-	github.com/go-logr/logr v1.2.4
+	github.com/go-logr/logr v1.4.1
 	github.com/go-logr/zerologr v1.2.3
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.7.1
@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.27.0
 	github.com/tidwall/gjson v1.14.4
-	github.com/tonglil/buflogr v1.0.1
+	github.com/tonglil/buflogr v1.1.1
 	go.mongodb.org/mongo-driver v1.13.1
 	go.temporal.io/api v1.26.0
 	google.golang.org/grpc v1.60.1
