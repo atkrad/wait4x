@@ -12,7 +12,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.29.1
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.27.0
 	github.com/tidwall/gjson v1.14.4
