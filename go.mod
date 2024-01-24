@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/zerologr v1.2.3
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/influxdata/influxdb-client-go/v2 v2.12.3
+	github.com/influxdata/influxdb-client-go/v2 v2.13.0
 	github.com/lib/pq v1.10.9
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.29.1
@@ -28,12 +28,12 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.4 // indirect
 	github.com/antchfx/xpath v1.2.3 // indirect
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/containerd/containerd v1.7.11 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/cpuguy83/dockercfg v0.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deepmap/oapi-codegen v1.8.2 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
-	github.com/klauspost/compress v1.16.0 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -55,6 +55,7 @@ require (
 	github.com/moby/term v0.5.0 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
+	github.com/oapi-codegen/runtime v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.12.1 // indirect
 	github.com/onsi/gomega v1.10.3 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
