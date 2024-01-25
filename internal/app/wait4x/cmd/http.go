@@ -89,7 +89,13 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
 
   # Enable exponential backoff retry
-  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential  --backoff-exponential-max-interval 120s --timeout 120s`,
+  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential  --backoff-exponential-max-interval 120s --timeout 120s
+
+  # Self-signed certificates
+  wait4x http https://www.wait4x.dev --cert-file /path/to/certfile --key-file /path/to/keyfile
+
+  # CA file
+  wait4x http https://www.wait4x.dev --ca-file /path/to/cafile`,
 		RunE: runHTTP,
 	}
 
@@ -105,6 +111,9 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
 	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
 	httpCommand.Flags().Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
+	httpCommand.Flags().String("ca-file", "", "Use this CA bundle to authenticate certificates of servers with HTTPS enabled.")
+	httpCommand.Flags().String("cert-file", "", "Utilize this SSL certificate file to identify the HTTPS client.")
+	httpCommand.Flags().String("key-file", "", "Utilize this SSL key file to identify the HTTPS client.")
 
 	return httpCommand
 }
@@ -128,6 +137,15 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 	noRedirect, _ := cmd.Flags().GetBool("no-redirect")
+
+	caFile, _ := cmd.Flags().GetString("ca-file")
+	certFile, _ := cmd.Flags().GetString("cert-file")
+	keyFile, _ := cmd.Flags().GetString("key-file")
+
+	// Validate cert and key files.
+	if (certFile != "" && keyFile == "") || (keyFile != "" && certFile == "") {
+		return fmt.Errorf("both certFile and keyFile should be assigned values, not just one of them")
+	}
 
 	if len(expectBody) != 0 {
 		expectBodyRegex = expectBody
@@ -171,6 +189,9 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			http.WithNoRedirect(noRedirect),
+			http.WithCAFile(caFile),
+			http.WithCertFile(certFile),
+			http.WithKeyFile(keyFile),
 		)
 
 		checkers = append(checkers, hc)
