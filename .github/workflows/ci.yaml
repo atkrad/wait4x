@@ -140,7 +140,7 @@ jobs:
             ${{ steps.meta.outputs.bake-file }}
 
       - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@v4
         if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
