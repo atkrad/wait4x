@@ -16,8 +16,9 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"regexp"
 	"strings"
 	"time"
@@ -91,7 +92,7 @@ func (r *Redis) Check(ctx context.Context) error {
 	client := redis.NewClient(opts)
 
 	// Check Redis connection
-	_, err = client.WithContext(ctx).Ping().Result()
+	_, err = client.Ping(ctx).Result()
 	if err != nil {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
@@ -111,8 +112,8 @@ func (r *Redis) Check(ctx context.Context) error {
 	splittedKey := strings.Split(r.expectKey, "=")
 	keyHasValue := len(splittedKey) == 2
 
-	val, err := client.WithContext(ctx).Get(splittedKey[0]).Result()
-	if err == redis.Nil {
+	val, err := client.Get(ctx, splittedKey[0]).Result()
+	if errors.Is(err, redis.Nil) {
 		// Redis key does not exist.
 		return checker.NewExpectedError("the key doesn't exist", nil, "key", splittedKey[0])
 	}
