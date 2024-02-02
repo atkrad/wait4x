@@ -27,12 +27,12 @@ import (
 
 var hidePasswordRegexp = regexp.MustCompile(`^(postgres://[^/:]+):[^:@]+@`)
 
-// PostgreSQL represents PostgreSQL checker
+// PostgreSQL is a checker for PostgreSQL
 type PostgreSQL struct {
 	dsn string
 }
 
-// New creates the PostgreSQL checker
+// New creates a new PostgreSQL checker
 func New(dsn string) checker.Checker {
 	p := &PostgreSQL{
 		dsn: dsn,
@@ -41,8 +41,8 @@ func New(dsn string) checker.Checker {
 	return p
 }
 
-// Identity returns the identity of the checker
-func (p PostgreSQL) Identity() (string, error) {
+// Identity returns the PostgreSQL checker identity
+func (p *PostgreSQL) Identity() (string, error) {
 	u, err := url.Parse(p.dsn)
 	if err != nil {
 		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
