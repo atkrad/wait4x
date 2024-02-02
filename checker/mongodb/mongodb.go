@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package mongodb provides MongoDB checker.
 package mongodb
 
 import (
@@ -20,9 +21,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/x/mongo/driver/topology"
+	"regexp"
 	"strings"
 	"wait4x.dev/v2/checker"
 )
+
+var hidePasswordRegexp = regexp.MustCompile(`^(mongodb://[^/:]+):[^:@]+@`)
 
 // MongoDB represents MongoDB checker
 type MongoDB struct {
@@ -65,6 +70,13 @@ func (m *MongoDB) Check(ctx context.Context) (err error) {
 	// Ping the primary
 	err = c.Ping(ctx, readpref.Primary())
 	if err != nil {
+		if checker.IsConnectionRefused(err) || errors.Is(err, topology.ErrServerSelectionTimeout) {
+			return checker.NewExpectedError(
+				"failed to establish a connection to the MongoDB server", err,
+				"dsn", hidePasswordRegexp.ReplaceAllString(m.dsn, `$1:***@`),
+			)
+		}
+
 		return err
 	}
 
