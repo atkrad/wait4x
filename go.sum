@@ -178,6 +178,8 @@ github.com/testcontainers/testcontainers-go/modules/mysql v0.27.0 h1:6p/o/bAZPcF
 github.com/testcontainers/testcontainers-go/modules/mysql v0.27.0/go.mod h1:zhVYEruMWC10K9sNwpUqpY3/vUmnyfhSWFs80ySA4mY=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0 h1:gbA/HYjBIwOwhE/t4p3kIprfI0qsxCk+YVW7P9XFOus=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0/go.mod h1:VFrFKUUgET2hNXStdtaC7uOIJWviFUrixhKeaVw/4F4=
+github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.27.0 h1:PGcjFP0x4Da00ApAHEZz6DHWS6ymww+eO52IpP9oO80=
+github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.27.0/go.mod h1:4yBccxbVj58w9LC95QMXRHETmJNCwjiUU+cL1XRElv4=
 github.com/testcontainers/testcontainers-go/modules/redis v0.27.0 h1:DAs9D0BmBPuvEnsY8fWLwQVx5ZGdDNJTj+iK+p5Dj98=
 github.com/testcontainers/testcontainers-go/modules/redis v0.27.0/go.mod h1:xkfSzACp1p97x84TpLR8ZDzSimFv8ZP/pIrX8Nhf2gg=
 github.com/tidwall/gjson v1.17.0 h1:/Jocvlh98kcTfpN2+JzGQWQcqrPQwDrVEMApx/M5ZwM=

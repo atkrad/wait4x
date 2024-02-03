@@ -14,9 +14,11 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
+	github.com/testcontainers/testcontainers-go v0.27.0
 	github.com/testcontainers/testcontainers-go/modules/mongodb v0.27.0
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.27.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0
+	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.27.0
 	github.com/testcontainers/testcontainers-go/modules/redis v0.27.0
 	github.com/tidwall/gjson v1.17.0
 	github.com/tonglil/buflogr v1.1.1
@@ -72,7 +74,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/testcontainers/testcontainers-go v0.27.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
