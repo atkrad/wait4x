@@ -23,14 +23,14 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
-	"wait4x.dev/v2/internal/app/wait4x/cmd/temporal"
-	"wait4x.dev/v2/waiter"
-
-	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+	"wait4x.dev/v2/internal/app/wait4x/cmd/dns"
+	"wait4x.dev/v2/internal/app/wait4x/cmd/temporal"
+	"wait4x.dev/v2/waiter"
 )
 
 // Logger is the global logger.
@@ -133,6 +133,7 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewTCPCommand())
+	rootCmd.AddCommand(dns.NewDNSCommand())
 	rootCmd.AddCommand(NewHTTPCommand())
 	rootCmd.AddCommand(NewPostgresqlCommand())
 	rootCmd.AddCommand(NewMysqlCommand())
