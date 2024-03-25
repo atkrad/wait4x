@@ -190,8 +190,8 @@ github.com/testcontainers/testcontainers-go/modules/postgres v0.28.0 h1:ff0s4JdY
 github.com/testcontainers/testcontainers-go/modules/postgres v0.28.0/go.mod h1:fXgcYpbyrduNdiz2qRZuYkmvqLnEqsjbQiBNYH1ystI=
 github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.29.1 h1:+LMERllTOpLbPys8bpJ9BFCjeWfObtUVqGD65jazUpU=
 github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.29.1/go.mod h1:q4y8CVtn4XDht/r3KkL8jwIwMuqxwHK2uvDWO7PB5A4=
-github.com/testcontainers/testcontainers-go/modules/redis v0.28.0 h1:TXmpkmVL4ZXbtmLCKQoL7gFL0Wfw8M9jV2LcdFx1IyY=
-github.com/testcontainers/testcontainers-go/modules/redis v0.28.0/go.mod h1:3KcBueBbazmNyDYCzN6AmaoPpg/q1Rnv9TKvJwb1sBc=
+github.com/testcontainers/testcontainers-go/modules/redis v0.29.1 h1:GYWXYSaWhUK+owukT79WhitbLZ4REFstluVBAADgJRM=
+github.com/testcontainers/testcontainers-go/modules/redis v0.29.1/go.mod h1:dZxC6EV20IFn+A+6wc9Z5M/TnYR3c31Z9R2SXXFMBh4=
 github.com/tidwall/gjson v1.17.1 h1:wlYEnwqAHgzmhNUFfw7Xalt2JzQvsMx2Se4PcoFCT/U=
 github.com/tidwall/gjson v1.17.1/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
