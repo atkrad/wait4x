@@ -24,7 +24,7 @@ require (
 	github.com/tonglil/buflogr v1.1.1
 	go.mongodb.org/mongo-driver v1.14.0
 	go.temporal.io/api v1.30.1
-	google.golang.org/grpc v1.63.0
+	google.golang.org/grpc v1.63.2
 )
 
 require (
