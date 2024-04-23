@@ -180,8 +180,8 @@ github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsT
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/testcontainers/testcontainers-go v0.30.0 h1:jmn/XS22q4YRrcMwWg0pAwlClzs/abopbsBzrepyc4E=
 github.com/testcontainers/testcontainers-go v0.30.0/go.mod h1:K+kHNGiM5zjklKjgTtcrEetF3uhWbMUyqAQoyoh8Pf0=
-github.com/testcontainers/testcontainers-go/modules/mongodb v0.28.0 h1:dMnDVsE6lp5n0H5upshzd/kyXDh+Ex+FmVvRwhcYhXI=
-github.com/testcontainers/testcontainers-go/modules/mongodb v0.28.0/go.mod h1:z+HV6L2ho5kRngvYW4E2cvH36XPcrDgdfVfnW0sT934=
+github.com/testcontainers/testcontainers-go/modules/mongodb v0.30.0 h1:brC+Wnoh/Ghs6kQbSMOGGk6wcY5Y6suI5w5FXPOHJ8g=
+github.com/testcontainers/testcontainers-go/modules/mongodb v0.30.0/go.mod h1:Lqhn6PiAPhsZQmfkc1q3nXWXNGPJeChyjl7h/Uh238U=
 github.com/testcontainers/testcontainers-go/modules/mysql v0.29.1 h1:SnJtZNcskgxOMyVAT7M+MQjpveP59nwKzlBw2ItX+C8=
 github.com/testcontainers/testcontainers-go/modules/mysql v0.29.1/go.mod h1:VhA5dV+O19sx3Y9u9bfO+fbJfP3E7RiMq0nDMEGjslw=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.28.0 h1:ff0s4JdYIdNAVSi/SrpN2Pdt1f+IjIw3AKjbHau8Un4=
