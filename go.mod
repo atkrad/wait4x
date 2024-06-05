@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/antchfx/htmlquery v1.3.1
-	github.com/go-logr/logr v1.4.1
+	github.com/go-logr/logr v1.4.2
 	github.com/go-logr/zerologr v1.2.3
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.8.1
