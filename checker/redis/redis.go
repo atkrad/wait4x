@@ -18,10 +18,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+
 	"wait4x.dev/v2/checker"
 )
 
@@ -113,12 +115,12 @@ func (r *Redis) Check(ctx context.Context) error {
 	keyHasValue := len(splittedKey) == 2
 
 	val, err := client.Get(ctx, splittedKey[0]).Result()
-	if errors.Is(err, redis.Nil) {
-		// Redis key does not exist.
-		return checker.NewExpectedError("the key doesn't exist", nil, "key", splittedKey[0])
-	}
-
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			// Redis key does not exist.
+			return checker.NewExpectedError("the key doesn't exist", nil, "key", splittedKey[0])
+		}
+
 		// Error occurred on get Redis key
 		return err
 	}
