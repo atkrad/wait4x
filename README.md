@@ -181,6 +181,12 @@ wait4x http https://ifconfig.co --request-header "Content-Type: application/json
 
 # Enable exponential backoff retry
 wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential  --backoff-exponential-max-interval 120s --timeout 120s
+
+# Self-signed certificates
+wait4x http https://www.wait4x.dev --cert-file /path/to/certfile --key-file /path/to/keyfile
+
+# CA file
+wait4x http https://www.wait4x.dev --ca-file /path/to/cafile`
 ```
 
 ### Redis
