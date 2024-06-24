@@ -3,7 +3,7 @@ module wait4x.dev/v2
 go 1.21
 
 require (
-	github.com/antchfx/htmlquery v1.3.1
+	github.com/antchfx/htmlquery v1.3.2
 	github.com/go-logr/logr v1.4.2
 	github.com/go-logr/zerologr v1.2.3
 	github.com/go-redis/redis/v8 v8.11.5
@@ -33,7 +33,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.4 // indirect
-	github.com/antchfx/xpath v1.3.0 // indirect
+	github.com/antchfx/xpath v1.3.1 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
