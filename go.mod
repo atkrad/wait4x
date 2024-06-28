@@ -14,15 +14,15 @@ require (
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
-	github.com/testcontainers/testcontainers-go v0.30.0
-	github.com/testcontainers/testcontainers-go/modules/mongodb v0.28.0
-	github.com/testcontainers/testcontainers-go/modules/mysql v0.29.1
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.28.0
-	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.30.0
-	github.com/testcontainers/testcontainers-go/modules/redis v0.28.0
+	github.com/testcontainers/testcontainers-go v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/mongodb v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/mysql v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/redis v0.31.0
 	github.com/tidwall/gjson v1.17.1
 	github.com/tonglil/buflogr v1.1.1
-	go.mongodb.org/mongo-driver v1.14.0
+	go.mongodb.org/mongo-driver v1.16.0
 	go.temporal.io/api v1.35.0
 	google.golang.org/grpc v1.64.0
 )
@@ -37,7 +37,7 @@ require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/containerd/containerd v1.7.12 // indirect
+	github.com/containerd/containerd v1.7.15 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/cpuguy83/dockercfg v0.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -63,7 +63,7 @@ require (
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
-	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/oapi-codegen/runtime v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
