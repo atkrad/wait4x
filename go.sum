@@ -185,8 +185,8 @@ github.com/testcontainers/testcontainers-go v0.32.0 h1:ug1aK08L3gCHdhknlTTwWjPHP
 github.com/testcontainers/testcontainers-go v0.32.0/go.mod h1:CRHrzHLQhlXUsa5gXjTOfqIEJcrK5+xMDmBr/WMI88E=
 github.com/testcontainers/testcontainers-go/modules/mongodb v0.31.0 h1:0ZAEX50NNK/TVRqDls4aQUmokRcYzstKzmF3DCfFK+Y=
 github.com/testcontainers/testcontainers-go/modules/mongodb v0.31.0/go.mod h1:n5KbYAdzD8xJrNVGdPvSacJtwZ4D0Q/byTMI5vR/dk8=
-github.com/testcontainers/testcontainers-go/modules/mysql v0.31.0 h1:790+S8ewZYCbG+o8IiFlZ8ZZ33XbNO6zV9qhU6xhlRk=
-github.com/testcontainers/testcontainers-go/modules/mysql v0.31.0/go.mod h1:REFmO+lSG9S6uSBEwIMZCxeI36uhScjTwChYADeO3JA=
+github.com/testcontainers/testcontainers-go/modules/mysql v0.32.0 h1:6vjJOVJSWDTyNvQmB8EFTmv20ScquRWZa+pM1hZNodc=
+github.com/testcontainers/testcontainers-go/modules/mysql v0.32.0/go.mod h1:Q91G1jl4fSl75OICi+Bb6BQeU7LpKZaSfKvHOXRwPyI=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0 h1:isAwFS3KNKRbJMbWv+wolWqOFUECmjYZ+sIRZCIBc/E=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0/go.mod h1:ZNYY8vumNCEG9YI59A9d6/YaMY49uwRhmeU563EzFGw=
 github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.31.0 h1:kEeUIlA6wq49A6tCPretm0lYIH8luFSKfETNQS3IfGc=
