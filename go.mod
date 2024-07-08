@@ -18,7 +18,7 @@ require (
 	github.com/testcontainers/testcontainers-go/modules/mongodb v0.31.0
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.32.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0
-	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.32.0
 	github.com/testcontainers/testcontainers-go/modules/redis v0.31.0
 	github.com/tidwall/gjson v1.17.1
 	github.com/tonglil/buflogr v1.1.1
