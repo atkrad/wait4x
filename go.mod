@@ -23,7 +23,7 @@ require (
 	github.com/tidwall/gjson v1.17.3
 	github.com/tonglil/buflogr v1.1.1
 	go.mongodb.org/mongo-driver v1.16.1
-	go.temporal.io/api v1.37.0
+	go.temporal.io/api v1.38.0
 	google.golang.org/grpc v1.65.0
 )
 
@@ -52,7 +52,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
@@ -93,8 +93,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240805194559-2c9e96a0b5d4 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240805194559-2c9e96a0b5d4 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240822170219-fc7c04adadcd // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240822170219-fc7c04adadcd // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -104,6 +104,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 )
