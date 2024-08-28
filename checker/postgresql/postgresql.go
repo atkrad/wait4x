@@ -22,14 +22,17 @@ import (
 	"wait4x.dev/v2/checker"
 	// Needed for the PostgreSQL driver
 	_ "github.com/lib/pq"
+	"regexp"
 )
 
-// PostgreSQL represents PostgreSQL checker
+var hidePasswordRegexp = regexp.MustCompile(`^(postgres://[^/:]+):[^:@]+@`)
+
+// PostgreSQL is a checker for PostgreSQL
 type PostgreSQL struct {
 	dsn string
 }
 
-// New creates the PostgreSQL checker
+// New creates a new PostgreSQL checker
 func New(dsn string) checker.Checker {
 	p := &PostgreSQL{
 		dsn: dsn,
@@ -38,8 +41,8 @@ func New(dsn string) checker.Checker {
 	return p
 }
 
-// Identity returns the identity of the checker
-func (p PostgreSQL) Identity() (string, error) {
+// Identity returns the PostgreSQL checker identity
+func (p *PostgreSQL) Identity() (string, error) {
 	u, err := url.Parse(p.dsn)
 	if err != nil {
 		return "", fmt.Errorf("can't retrieve the checker identity: %w", err)
@@ -66,7 +69,7 @@ func (p *PostgreSQL) Check(ctx context.Context) (err error) {
 		if checker.IsConnectionRefused(err) {
 			return checker.NewExpectedError(
 				"failed to establish a connection to the postgresql server", err,
-				"dsn", p.dsn,
+				"dsn", hidePasswordRegexp.ReplaceAllString(p.dsn, `$1:***@`),
 			)
 		}
 
