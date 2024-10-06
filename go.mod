@@ -22,7 +22,7 @@ require (
 	github.com/testcontainers/testcontainers-go/modules/redis v0.33.0
 	github.com/tidwall/gjson v1.17.3
 	github.com/tonglil/buflogr v1.1.1
-	go.mongodb.org/mongo-driver v1.17.0
+	go.mongodb.org/mongo-driver v1.17.1
 	go.temporal.io/api v1.39.0
 	google.golang.org/grpc v1.66.2
 )
