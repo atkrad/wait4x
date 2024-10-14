@@ -54,7 +54,7 @@ jobs:
       run: make test
 
     - name: Convert coverage to lcov
-      uses: jandelgado/gcov2lcov-action@v1.0.9
+      uses: jandelgado/gcov2lcov-action@v1.1.0
       with:
         infile: coverage.out
         outfile: coverage.lcov
