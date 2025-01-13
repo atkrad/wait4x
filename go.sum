@@ -181,8 +181,8 @@ github.com/testcontainers/testcontainers-go/modules/mongodb v0.35.0 h1:i1Kh9fmXg
 github.com/testcontainers/testcontainers-go/modules/mongodb v0.35.0/go.mod h1:SD8nVMK1m7b/K2YJqYjYNzfHmZfqHtqNOlI44nfxjdg=
 github.com/testcontainers/testcontainers-go/modules/mysql v0.35.0 h1:9voGAf+1KxC0ck/XtrC/AUrkr74SSGpQRBp0O851B3Y=
 github.com/testcontainers/testcontainers-go/modules/mysql v0.35.0/go.mod h1:rxKSkFpc5XZtG00prjqPfobuMgt5EpFEOrzZgYdOX0c=
-github.com/testcontainers/testcontainers-go/modules/postgres v0.34.0 h1:c51aBXT3v2HEBVarmaBnsKzvgZjC5amn0qsj8Naqi50=
-github.com/testcontainers/testcontainers-go/modules/postgres v0.34.0/go.mod h1:EWP75ogLQU4M4L8U+20mFipjV4WIR9WtlMXSB6/wiuc=
+github.com/testcontainers/testcontainers-go/modules/postgres v0.35.0 h1:eEGx9kYzZb2cNhRbBrNOCL/YPOM7+RMJiy3bB+ie0/I=
+github.com/testcontainers/testcontainers-go/modules/postgres v0.35.0/go.mod h1:hfH71Mia/WWLBgMD2YctYcMlfsbnT0hflweL1dy8Q4s=
 github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.34.0 h1:JxIDd0NmDmqkE84DcxINTp+VrBT1nsNzJ3HEbeWSLrQ=
 github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.34.0/go.mod h1:Z76QKAH2K74c06GJIOjoqRmBr7cY1YmAyy8DOS9U9G0=
 github.com/testcontainers/testcontainers-go/modules/redis v0.34.0 h1:HkkKZPi6W2I+ywqplvnKOYRBKXQgpdxErBbdgx8F8nw=
