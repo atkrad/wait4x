@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
+	"wait4x.dev/v2/internal/app/wait4x/cmd/dns"
 	"wait4x.dev/v2/internal/app/wait4x/cmd/temporal"
 	"wait4x.dev/v2/waiter"
 
@@ -133,6 +134,7 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	rootCmd := NewRootCommand()
 	rootCmd.AddCommand(NewTCPCommand())
+	rootCmd.AddCommand(dns.NewDNSCommand())
 	rootCmd.AddCommand(NewHTTPCommand())
 	rootCmd.AddCommand(NewPostgresqlCommand())
 	rootCmd.AddCommand(NewMysqlCommand())

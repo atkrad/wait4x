@@ -11,6 +11,7 @@
 - **Supports various protocols:**
     - TCP
     - HTTP
+    - DNS
 - **Supports various services:**
     - Redis
     - MySQL
@@ -131,6 +132,64 @@ Check TCP connection:
 wait4x tcp 127.0.0.1:9090
 ```
 This command waits until the TCP port `9090` on `127.0.0.1` is available.
+
+### DNS
+
+```shell
+# Check A records existence
+wait4x dns A wait4x.dev
+
+# Check A records with expected ips
+wait4x dns A wait4x.dev --expected-ip 172.67.154.180
+
+# Check A records by defined nameserver
+wait4x dns A wait4x.dev --expected-ip 172.67.154.180 -n gordon.ns.cloudflare.com
+
+# Check AAAA records existence
+wait4x dns AAAA wait4x.dev
+
+# Check AAAA records with expected ips
+wait4x dns AAAA wait4x.dev --expected-ip '2606:4700:3033::ac43:9ab4'
+
+# Check AAAA records by defined nameserver
+wait4x dns AAAA wait4x.dev --expected-ip '2606:4700:3033::ac43:9ab4' -n gordon.ns.cloudflare.com
+
+# Check CNAME record existence
+wait4x dns CNAME 172.67.154.180
+
+# Check CNAME records with expected ips
+wait4x dns CNAME 172.67.154.180 --expected-domain wait4x.dev
+
+# Check CNAME record by defined nameserver
+wait4x dns CNAME 172.67.154.180 --expected-domain wait4x.dev -n gordon.ns.cloudflare.com
+
+# Check MX records existence
+wait4x dns MX wait4x.dev
+
+# Check MX records with expected domains
+wait4x dns MX wait4x.dev --expected-domain 'route1.mx.cloudflare.net'
+
+# Check MX records by defined nameserver
+wait4x dns MX wait4x.dev --expected-domain 'route1.mx.cloudflare.net.' -n gordon.ns.cloudflare.com
+
+# Check NS records existence
+wait4x dns NS wait4x.dev
+
+# Check NS records with expected nameservers
+wait4x dns NS wait4x.dev --expected-nameserver 'emma.ns.cloudflare.com'
+
+# Check NS records by defined nameserver
+wait4x dns NS wait4x.dev --expected-nameserver 'emma.ns.cloudflare.com' -n gordon.ns.cloudflare.com
+
+# Check TXT records existence
+wait4x dns TXT wait4x.dev
+
+# Check TXT records with expected values
+wait4x dns TXT wait4x.dev --expected-value 'include:_spf.mx.cloudflare.net'
+
+# Check TXT records by defined nameserver
+wait4x dns TXT wait4x.dev --expected-value 'include:_spf.mx.cloudflare.net' -n gordon.ns.cloudflare.com
+```
 
 ### HTTP
 
