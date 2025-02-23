@@ -22,7 +22,7 @@ import (
 	"wait4x.dev/v2/checker"
 )
 
-const server = "wait4x.dev"
+const server = "www.company.info"
 
 func TestCheckExistenceCNAME(t *testing.T) {
 	d := New(server)
@@ -30,7 +30,7 @@ func TestCheckExistenceCNAME(t *testing.T) {
 }
 
 func TestCorrectCNAME(t *testing.T) {
-	d := New(server, WithExpectedDomains([]string{"wait4x.dev"}))
+	d := New(server, WithExpectedDomains([]string{"company.info"}))
 	assert.Nil(t, d.Check(context.Background()))
 }
 
@@ -41,11 +41,11 @@ func TestIncorrectCNAME(t *testing.T) {
 }
 
 func TestCustomNSCorrectCNAME(t *testing.T) {
-	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedDomains([]string{"wait4x.dev"}))
+	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedDomains([]string{"company.info"}))
 	assert.Nil(t, d.Check(context.Background()))
 }
 
 func TestRegexCorrectCNAME(t *testing.T) {
-	d := New(server, WithExpectedDomains([]string{".*wait4.*"}))
+	d := New(server, WithExpectedDomains([]string{"company.*"}))
 	assert.Nil(t, d.Check(context.Background()))
 }

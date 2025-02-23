@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/miekg/dns"
+	"regexp"
 	"strings"
 	"wait4x.dev/v2/checker"
 	dns2 "wait4x.dev/v2/checker/dns"
@@ -98,8 +99,9 @@ func (d *CNAME) Check(ctx context.Context) (err error) {
 			actualRecord := strings.TrimSuffix(cname.Target, ".")
 			actualRecords = append(actualRecords, actualRecord)
 
-			for _, expectedIP := range d.expectedDomains {
-				if expectedIP == actualRecord {
+			for _, expectedDomain := range d.expectedDomains {
+				matched, _ := regexp.MatchString(expectedDomain, actualRecord)
+				if matched {
 					return nil
 				}
 			}
