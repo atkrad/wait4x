@@ -23,6 +23,9 @@
         name = packageName;
         buildInputs = with pkgs; [
           go
+          gopls
+          golangci-lint
+          delve
         ];
       };
       packages.default = pkgs.buildGoModule {
@@ -31,6 +34,8 @@
         src = self;
         vendorHash = "sha256-KtEOLLsbTfgaXy/0aj5zT5qbgW6qBFMuU3EnnXRu+Ig=";
         doCheck = false;
+        nativeBuildInputs = with pkgs; [ git ];
+        GOCACHE = "$(mktemp -d)";
       };
     });
 }

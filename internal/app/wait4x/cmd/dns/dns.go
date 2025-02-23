@@ -1,4 +1,4 @@
-// Copyright 2023 The Wait4X Authors
+// Copyright 2019-2025 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ import (
 func NewDNSCommand() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "dns",
+		Long:  "Check DNS records for various types like A, AAAA, CNAME, MX, TXT, and NS",
 		Short: "Check DNS records",
 	}
 
-	command.PersistentFlags().String("nameserver", "", " Address of the nameserver to send packets to")
+	command.PersistentFlags().StringP("nameserver", "n", "", "Nameserver to use for the DNS query (e.g. 8.8.8.8:53)")
 
 	command.AddCommand(NewACommand())
 	command.AddCommand(NewAAAACommand())

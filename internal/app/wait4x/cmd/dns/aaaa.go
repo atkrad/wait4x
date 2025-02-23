@@ -1,4 +1,4 @@
-// Copyright 2023 The Wait4X Authors
+// Copyright 2019-2025 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,12 +26,13 @@ import (
 // NewAAAACommand creates the DNS AAAA command
 func NewAAAACommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "AAAA ADDRESS [--command [args...]]",
+		Use:     "AAAA ADDRESS [-- command [args...]]",
 		Aliases: []string{"aaaa"},
-		Short:   "Check DNS AAAA records",
+		Short:   "Check DNS AAAA (IPv6) records for a given domain",
+		Long:    "Check for the existence and validity of DNS AAAA (IPv6) records for a specified domain. Supports verification against expected IPv6 addresses and custom nameserver configuration.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.New("ADDRESS is required argument for the dns command")
+				return errors.New("ADDRESS is required argument for the AAAA command")
 			}
 
 			return nil
@@ -40,12 +41,17 @@ func NewAAAACommand() *cobra.Command {
   # Check AAAA records existence
   wait4x dns AAAA wait4x.dev
 
-  # Check AAAA records with expected ips
-  wait4x dns AAAA wait4x.dev --expected-ip '2606:4700:3033::ac43:9ab4'
+  # Check AAAA records with expected IPv6 addresses
+  wait4x dns AAAA wait4x.dev --expect-ip '2606:4700:3033::ac43:9ab4'
 
-  # Check AAAA records by defined nameserver
-  wait4x dns AAAA wait4x.dev --expected-ip '2606:4700:3033::ac43:9ab4' -n gordon.ns.cloudflare.com
-`,
+  # Check AAAA records with multiple expected IPv6 addresses
+  wait4x dns AAAA wait4x.dev --expect-ip '2606:4700:3033::ac43:9ab4' --expect-ip '2606:4700:3034::ac43:9ab4'
+
+  # Check AAAA records using a specific nameserver
+  wait4x dns AAAA wait4x.dev --expect-ip '2606:4700:3033::ac43:9ab4' --nameserver gordon.ns.cloudflare.com
+
+  # Check AAAA records with custom interval and timeout
+  wait4x dns AAAA wait4x.dev --interval 5s --timeout 60s`,
 		RunE: runAAAA,
 	}
 
@@ -55,11 +61,30 @@ func NewAAAACommand() *cobra.Command {
 }
 
 func runAAAA(cmd *cobra.Command, args []string) error {
-	interval, _ := cmd.Flags().GetDuration("interval")
-	timeout, _ := cmd.Flags().GetDuration("timeout")
-	invertCheck, _ := cmd.Flags().GetBool("invert-check")
-	nameserver, _ := cmd.Flags().GetString("nameserver")
-	expectIPs, _ := cmd.Flags().GetStringArray("expect-ip")
+	interval, err := cmd.Flags().GetDuration("interval")
+	if err != nil {
+		return err
+	}
+
+	timeout, err := cmd.Flags().GetDuration("timeout")
+	if err != nil {
+		return err
+	}
+
+	invertCheck, err := cmd.Flags().GetBool("invert-check")
+	if err != nil {
+		return err
+	}
+
+	nameserver, err := cmd.Flags().GetString("nameserver")
+	if err != nil {
+		return err
+	}
+
+	expectIPs, err := cmd.Flags().GetStringArray("expect-ip")
+	if err != nil {
+		return err
+	}
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {

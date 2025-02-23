@@ -1,4 +1,4 @@
-// Copyright 2023 The Wait4X Authors
+// Copyright 2019-2025 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@ package cname
 
 import (
 	"context"
-	"net"
-	"regexp"
-
+	"fmt"
+	"github.com/miekg/dns"
+	"strings"
 	"wait4x.dev/v2/checker"
+	dns2 "wait4x.dev/v2/checker/dns"
 )
 
 // Option configures an DNS CNAME record
@@ -30,29 +31,17 @@ type CNAME struct {
 	nameserver      string
 	address         string
 	expectedDomains []string
-	resolver        *net.Resolver
 }
 
 // New creates the DNS CNAME checker
 func New(address string, opts ...Option) checker.Checker {
 	d := &CNAME{
-		address:  address,
-		resolver: net.DefaultResolver,
+		address: address,
 	}
 
 	// apply the list of options to CNAME
 	for _, opt := range opts {
 		opt(d)
-	}
-
-	// Nameserver settings.
-	if d.nameserver != "" {
-		d.resolver = &net.Resolver{
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				dialer := net.Dialer{}
-				return dialer.DialContext(ctx, network, d.nameserver)
-			},
-		}
 	}
 
 	return d
@@ -79,23 +68,47 @@ func (d *CNAME) Identity() (string, error) {
 
 // Check checks DNS TXT records
 func (d *CNAME) Check(ctx context.Context) (err error) {
-	value, err := d.resolver.LookupCNAME(ctx, d.address)
+	c := new(dns.Client)
+	c.Timeout = dns2.DefaultTimeout
+
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(d.address), dns.TypeCNAME)
+	m.RecursionDesired = true
+
+	r, _, err := c.ExchangeContext(ctx, m, dns2.RR(d.nameserver))
 	if err != nil {
 		return err
 	}
 
-	if len(value) != 0 && len(d.expectedDomains) == 0 {
+	if r.Rcode != dns.RcodeSuccess {
+		return fmt.Errorf("response code is not successful, %d", r.Rcode)
+	}
+
+	if len(r.Answer) == 0 {
+		return checker.NewExpectedError("no CNAME record found", nil)
+	}
+
+	if len(d.expectedDomains) == 0 {
 		return nil
 	}
-	for _, expectedDomain := range d.expectedDomains {
-		matched, _ := regexp.MatchString(expectedDomain, value)
-		if matched {
-			return nil
+
+	actualRecords := make([]string, 0)
+	for _, answer := range r.Answer {
+		if cname, ok := answer.(*dns.CNAME); ok {
+			actualRecord := strings.TrimSuffix(cname.Target, ".")
+			actualRecords = append(actualRecords, actualRecord)
+
+			for _, expectedIP := range d.expectedDomains {
+				if expectedIP == actualRecord {
+					return nil
+				}
+			}
 		}
 	}
 
 	return checker.NewExpectedError(
-		"the CNAME record value doesn't expect", nil,
-		"actual", value, "expect", d.expectedDomains,
+		"the CNAME record value doesn't match expected",
+		nil,
+		"actual", actualRecords, "expect", d.expectedDomains,
 	)
 }

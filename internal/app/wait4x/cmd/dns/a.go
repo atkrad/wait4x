@@ -1,4 +1,4 @@
-// Copyright 2023 The Wait4X Authors
+// Copyright 2019-2025 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,40 +26,69 @@ import (
 // NewACommand creates the DNS A command
 func NewACommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "A ADDRESS [value] [--command [args...]]",
+		Use:     "A ADDRESS [-- command [args...]]",
 		Aliases: []string{"a"},
-		Short:   "Check DNS A records",
+		Short:   "Check DNS A records for a given domain",
+		Long:    "Check DNS A records to verify domain name resolution to IPv4 addresses. Supports checking against expected IPs and custom nameservers.",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.New("ADDRESS is required argument for the dns command")
+				return errors.New("ADDRESS is required argument for the A command")
 			}
 
 			return nil
 		},
 		Example: `
-  # Check A records existence
+  # Check A records existence for a domain
   wait4x dns A wait4x.dev
 
-  # Check A records with expected ips
-  wait4x dns A wait4x.dev --expected-ip 172.67.154.180
+  # Check A records with specific expected IPv4 addresses
+  wait4x dns A wait4x.dev --expect-ip 172.67.154.180
+  wait4x dns A wait4x.dev --expect-ip 172.67.154.180 --expect-ip 104.21.60.85
 
-  # Check A records by defined nameserver
-  wait4x dns A wait4x.dev --expected-ip 172.67.154.180 -n gordon.ns.cloudflare.com
-`,
+  # Check A records using a custom nameserver
+  wait4x dns A wait4x.dev --expect-ip 172.67.154.180 -n gordon.ns.cloudflare.com
+
+  # Check A records with timeout and interval settings
+  wait4x dns A wait4x.dev --timeout 30s --interval 5s
+
+  # Invert the check (wait until records don't match)
+  wait4x dns A wait4x.dev --expect-ip 172.67.154.180 --invert-check`,
 		RunE: runA,
 	}
 
-	command.Flags().StringArray("expect-ip", nil, "Expect ipv4s.")
+	command.Flags().StringArray("expect-ip", []string{}, "Expected IPv4 addresses to match against A records")
 
 	return command
 }
 
+// runA is the command handler for the "dns A" command. It checks DNS A records for the given address,
+// using the specified options such as expected IP addresses, nameserver, timeout, and interval.
+// The function returns an error if any issues occur during the DNS check.
 func runA(cmd *cobra.Command, args []string) error {
-	interval, _ := cmd.Flags().GetDuration("interval")
-	timeout, _ := cmd.Flags().GetDuration("timeout")
-	invertCheck, _ := cmd.Flags().GetBool("invert-check")
-	nameserver, _ := cmd.Flags().GetString("nameserver")
-	expectIPs, _ := cmd.Flags().GetStringArray("expect-ip")
+	interval, err := cmd.Flags().GetDuration("interval")
+	if err != nil {
+		return err
+	}
+
+	timeout, err := cmd.Flags().GetDuration("timeout")
+	if err != nil {
+		return err
+	}
+
+	invertCheck, err := cmd.Flags().GetBool("invert-check")
+	if err != nil {
+		return err
+	}
+
+	nameserver, err := cmd.Flags().GetString("nameserver")
+	if err != nil {
+		return err
+	}
+
+	expectIPs, err := cmd.Flags().GetStringArray("expect-ip")
+	if err != nil {
+		return err
+	}
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {

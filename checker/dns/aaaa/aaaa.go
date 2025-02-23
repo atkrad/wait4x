@@ -1,4 +1,4 @@
-// Copyright 2023 The Wait4X Authors
+// Copyright 2019-2025 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@ package aaaa
 
 import (
 	"context"
-	"net"
+	"fmt"
+	"github.com/miekg/dns"
+	dns2 "wait4x.dev/v2/checker/dns"
 
 	"wait4x.dev/v2/checker"
 )
@@ -29,29 +31,17 @@ type AAAA struct {
 	nameserver  string
 	address     string
 	expectedIPs []string
-	resolver    *net.Resolver
 }
 
-// New creates the DNS AAAA checker
+// New creates a new AAAA checker with the given address and optional configuration options.
 func New(address string, opts ...Option) checker.Checker {
 	d := &AAAA{
-		address:  address,
-		resolver: net.DefaultResolver,
+		address: address,
 	}
 
 	// apply the list of options to AAAA
 	for _, opt := range opts {
 		opt(d)
-	}
-
-	// Nameserver settings.
-	if d.nameserver != "" {
-		d.resolver = &net.Resolver{
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				dialer := net.Dialer{}
-				return dialer.DialContext(ctx, network, d.nameserver)
-			},
-		}
 	}
 
 	return d
@@ -78,24 +68,47 @@ func (d *AAAA) Identity() (string, error) {
 
 // Check checks DNS records
 func (d *AAAA) Check(ctx context.Context) (err error) {
-	values, err := d.resolver.LookupIP(ctx, "ip6", d.address)
+	c := new(dns.Client)
+	c.Timeout = dns2.DefaultTimeout
+
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(d.address), dns.TypeAAAA)
+	m.RecursionDesired = true
+
+	r, _, err := c.ExchangeContext(ctx, m, dns2.RR(d.nameserver))
 	if err != nil {
 		return err
 	}
 
-	for _, ip := range values {
-		if len(d.expectedIPs) == 0 {
-			return nil
-		}
-		for _, expectedIP := range d.expectedIPs {
-			if expectedIP == ip.String() {
-				return nil
+	if r.Rcode != dns.RcodeSuccess {
+		return fmt.Errorf("response code is not successful, %d", r.Rcode)
+	}
+
+	if len(r.Answer) == 0 {
+		return checker.NewExpectedError("no AAAA record found", nil)
+	}
+
+	if len(d.expectedIPs) == 0 {
+		return nil
+	}
+
+	actualRecords := make([]string, 0)
+	for _, answer := range r.Answer {
+		if aaaa, ok := answer.(*dns.AAAA); ok {
+			actualRecord := aaaa.AAAA.String()
+			actualRecords = append(actualRecords, actualRecord)
+
+			for _, expectedIP := range d.expectedIPs {
+				if expectedIP == actualRecord {
+					return nil
+				}
 			}
 		}
 	}
 
 	return checker.NewExpectedError(
-		"the AAAA record value doesn't expect", nil,
-		"actual", values, "expect", d.expectedIPs,
+		"the AAAA record value doesn't match expected",
+		nil,
+		"actual", actualRecords, "expect", d.expectedIPs,
 	)
 }

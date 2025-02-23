@@ -1,4 +1,4 @@
-// Copyright 2023 The Wait4X Authors
+// Copyright 2019-2025 The Wait4X Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,12 +26,13 @@ import (
 // NewNSCommand creates the DNS NS command
 func NewNSCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "NS ADDRESS [--command [args...]]",
+		Use:     "NS ADDRESS [-- command [args...]]",
 		Aliases: []string{"ns"},
-		Short:   "Check DNS NS records",
+		Short:   "Check DNS NS records for a given domain",
+		Long:    "Check DNS NS records for a given domain name and verify nameserver records",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				return errors.New("ADDRESS is required argument for the dns command")
+				return errors.New("ADDRESS is required argument for the NS command")
 			}
 
 			return nil
@@ -41,11 +42,19 @@ func NewNSCommand() *cobra.Command {
   wait4x dns NS wait4x.dev
 
   # Check NS records with expected nameservers
-  wait4x dns NS wait4x.dev --expected-nameserver 'emma.ns.cloudflare.com'
+  wait4x dns NS wait4x.dev --expect-nameserver 'emma.ns.cloudflare.com'
 
-  # Check NS records by defined nameserver
-  wait4x dns NS wait4x.dev --expected-nameserver 'emma.ns.cloudflare.com' -n gordon.ns.cloudflare.com
-`,
+  # Check NS records with multiple expected nameservers
+  wait4x dns NS wait4x.dev --expect-nameserver 'emma.ns.cloudflare.com' --expect-nameserver 'gordon.ns.cloudflare.com'
+
+  # Check NS records using a specific nameserver
+  wait4x dns NS wait4x.dev --nameserver '8.8.8.8:53'
+
+  # Check NS records with timeout and interval
+  wait4x dns NS wait4x.dev --timeout 60s --interval 5s
+
+  # Invert the check (wait until NS records don't match)
+  wait4x dns NS wait4x.dev --expect-nameserver 'emma.ns.cloudflare.com' --invert-check`,
 		RunE: runNS,
 	}
 
