@@ -21,9 +21,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"wait4x.dev/v2/internal/test"
 
 	"github.com/stretchr/testify/assert"
-	"wait4x.dev/v2/internal/pkg/test"
 )
 
 func TestHTTPCommandInvalidArgument(t *testing.T) {
