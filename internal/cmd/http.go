@@ -18,11 +18,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/go-logr/logr"
 	"io"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
 	"strings"
+	"wait4x.dev/v2/internal/contextutil"
 
 	"wait4x.dev/v2/checker"
 	"wait4x.dev/v2/checker/http"
@@ -110,13 +112,6 @@ func NewHTTPCommand() *cobra.Command {
 }
 
 func runHTTP(cmd *cobra.Command, args []string) error {
-	interval, _ := cmd.Flags().GetDuration("interval")
-	timeout, _ := cmd.Flags().GetDuration("timeout")
-	invertCheck, _ := cmd.Flags().GetBool("invert-check")
-	backoffPoclicy, _ := cmd.Flags().GetString("backoff-policy")
-	backoffExpMaxInterval, _ := cmd.Flags().GetDuration("backoff-exponential-max-interval")
-	backoffCoefficient, _ := cmd.Flags().GetFloat64("backoff-exponential-coefficient")
-
 	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 	expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
 	expectBody, _ := cmd.Flags().GetString("expect-body")
@@ -128,6 +123,11 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 	noRedirect, _ := cmd.Flags().GetBool("no-redirect")
+
+	logger, err := logr.FromContext(cmd.Context())
+	if err != nil {
+		return err
+	}
 
 	if len(expectBody) != 0 {
 		expectBodyRegex = expectBody
@@ -148,8 +148,6 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
-	} else {
-		args = args[:]
 	}
 
 	// Request body.
@@ -158,9 +156,9 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		requestBodyReader = strings.NewReader(requestBody)
 	}
 
-	checkers := make([]checker.Checker, 0)
-	for _, arg := range args {
-		hc := http.New(arg,
+	checkers := make([]checker.Checker, len(args))
+	for i, arg := range args {
+		checkers[i] = http.New(arg,
 			http.WithExpectStatusCode(expectStatusCode),
 			http.WithExpectBodyRegex(expectBodyRegex),
 			http.WithExpectBodyJSON(expectBodyJSON),
@@ -172,19 +170,17 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			http.WithNoRedirect(noRedirect),
 		)
-
-		checkers = append(checkers, hc)
 	}
 
 	return waiter.WaitParallelContext(
 		cmd.Context(),
 		checkers,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithBackoffCoefficient(backoffCoefficient),
-		waiter.WithBackoffPolicy(backoffPoclicy),
-		waiter.WithBackoffExponentialMaxInterval(backoffExpMaxInterval),
-		waiter.WithInvertCheck(invertCheck),
-		waiter.WithLogger(Logger),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
+		waiter.WithBackoffPolicy(contextutil.GetBackoffPolicy(cmd.Context())),
+		waiter.WithBackoffCoefficient(contextutil.GetBackoffCoefficient(cmd.Context())),
+		waiter.WithBackoffExponentialMaxInterval(contextutil.GetBackoffExponentialMaxInterval(cmd.Context())),
+		waiter.WithLogger(logger),
 	)
 }

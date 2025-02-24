@@ -17,7 +17,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"runtime"
 	"text/template"
 
@@ -53,15 +52,15 @@ type Version struct {
 func NewVersionCommand() *cobra.Command {
 	versionCommand := &cobra.Command{
 		Use:   "version",
-		Short: "Print the version number of Wait4X",
-		Long:  "All software has versions. It's mine.",
-		Run:   runVersion,
+		Short: "Show Wait4X version information",
+		Long:  "Display detailed version information about the Wait4X application",
+		RunE:  runVersion,
 	}
 
 	return versionCommand
 }
 
-func runVersion(_ *cobra.Command, _ []string) {
+func runVersion(_ *cobra.Command, _ []string) error {
 	versionValues := Version{
 		AppVersion: AppVersion,
 		GoVersion:  runtime.Version(),
@@ -75,8 +74,9 @@ func runVersion(_ *cobra.Command, _ []string) {
 	t := template.Must(template.New("version").Parse(versionTemplate))
 	err := t.Execute(&tmplBytes, versionValues)
 	if err != nil {
-		log.Println("executing template:", err)
+		return fmt.Errorf("unable to parse version template: %w", err)
 	}
 
 	fmt.Println(tmplBytes.String())
+	return nil
 }

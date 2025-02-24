@@ -16,6 +16,8 @@ package dns
 
 import (
 	"errors"
+	"fmt"
+	"wait4x.dev/v2/internal/contextutil"
 
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
@@ -61,49 +63,32 @@ func NewTXTCommand() *cobra.Command {
 }
 
 func runTXT(cmd *cobra.Command, args []string) error {
-	interval, err := cmd.Flags().GetDuration("interval")
-	if err != nil {
-		return err
-	}
-
-	timeout, err := cmd.Flags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-
-	invertCheck, err := cmd.Flags().GetBool("invert-check")
-	if err != nil {
-		return err
-	}
-
 	nameserver, err := cmd.Flags().GetString("nameserver")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse --nameserver flag: %w", err)
 	}
 
 	expectValues, err := cmd.Flags().GetStringArray("expect-value")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse --expect-value flag: %w", err)
 	}
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to get logger from context: %w", err)
 	}
 
-	address := args[0]
-
 	dc := dns.New(
-		address,
+		args[0],
 		dns.WithExpectedValues(expectValues),
 		dns.WithNameServer(nameserver),
 	)
 
 	return waiter.WaitContext(cmd.Context(),
 		dc,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithInvertCheck(invertCheck),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
 		waiter.WithLogger(logger),
 	)
 }

@@ -16,6 +16,9 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"github.com/go-logr/logr"
+	"wait4x.dev/v2/internal/contextutil"
 
 	"github.com/spf13/cobra"
 	"wait4x.dev/v2/checker"
@@ -47,36 +50,30 @@ func NewPostgresqlCommand() *cobra.Command {
 }
 
 func runPostgresql(cmd *cobra.Command, args []string) error {
-	interval, _ := cmd.Flags().GetDuration("interval")
-	timeout, _ := cmd.Flags().GetDuration("timeout")
-	invertCheck, _ := cmd.Flags().GetBool("invert-check")
-	backoffPoclicy, _ := cmd.Flags().GetString("backoff-policy")
-	backoffExpMaxInterval, _ := cmd.Flags().GetDuration("backoff-exponential-max-interval")
-	backoffCoefficient, _ := cmd.Flags().GetFloat64("backoff-exponential-coefficient")
+	logger, err := logr.FromContext(cmd.Context())
+	if err != nil {
+		return fmt.Errorf("unable to get logger from context: %w", err)
+	}
 
 	// ArgsLenAtDash returns -1 when -- was not specified
 	if i := cmd.ArgsLenAtDash(); i != -1 {
 		args = args[:i]
-	} else {
-		args = args[:]
 	}
 
-	checkers := make([]checker.Checker, 0)
-	for _, arg := range args {
-		pc := postgresql.New(arg)
-
-		checkers = append(checkers, pc)
+	checkers := make([]checker.Checker, len(args))
+	for i, arg := range args {
+		checkers[i] = postgresql.New(arg)
 	}
 
 	return waiter.WaitParallelContext(
 		cmd.Context(),
 		checkers,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithBackoffCoefficient(backoffCoefficient),
-		waiter.WithBackoffPolicy(backoffPoclicy),
-		waiter.WithBackoffExponentialMaxInterval(backoffExpMaxInterval),
-		waiter.WithInvertCheck(invertCheck),
-		waiter.WithLogger(Logger),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
+		waiter.WithBackoffPolicy(contextutil.GetBackoffPolicy(cmd.Context())),
+		waiter.WithBackoffCoefficient(contextutil.GetBackoffCoefficient(cmd.Context())),
+		waiter.WithBackoffExponentialMaxInterval(contextutil.GetBackoffExponentialMaxInterval(cmd.Context())),
+		waiter.WithLogger(logger),
 	)
 }

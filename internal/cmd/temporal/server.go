@@ -16,9 +16,11 @@ package temporal
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"wait4x.dev/v2/checker/temporal"
+	"wait4x.dev/v2/internal/contextutil"
 	"wait4x.dev/v2/waiter"
 )
 
@@ -48,17 +50,24 @@ func NewServerCommand() *cobra.Command {
 }
 
 func runServer(cmd *cobra.Command, args []string) error {
-	interval, _ := cmd.Flags().GetDuration("interval")
-	timeout, _ := cmd.Flags().GetDuration("timeout")
-	invertCheck, _ := cmd.Flags().GetBool("invert-check")
+	conTimeout, err := cmd.Flags().GetDuration("connection-timeout")
+	if err != nil {
+		return fmt.Errorf("failed to parse connection-timeout flag: %w", err)
+	}
 
-	conTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
-	insecureTransport, _ := cmd.Flags().GetBool("insecure-transport")
-	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
+	insecureTransport, err := cmd.Flags().GetBool("insecure-transport")
+	if err != nil {
+		return fmt.Errorf("failed to parse insecure-transport flag: %w", err)
+	}
+
+	insecureSkipTLSVerify, err := cmd.Flags().GetBool("insecure-skip-tls-verify")
+	if err != nil {
+		return fmt.Errorf("failed to parse insecure-skip-tls-verify flag: %w", err)
+	}
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get logger from context: %w", err)
 	}
 
 	// ArgsLenAtDash returns -1 when -- was not specified
@@ -77,9 +86,9 @@ func runServer(cmd *cobra.Command, args []string) error {
 	return waiter.WaitContext(
 		cmd.Context(),
 		tc,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithInvertCheck(invertCheck),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
 		waiter.WithLogger(logger),
 	)
 }
