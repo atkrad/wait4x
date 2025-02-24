@@ -12,6 +12,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/lib/pq v1.10.9
+	github.com/miekg/dns v1.1.63
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.9.1
@@ -62,7 +63,6 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/miekg/dns v1.1.63 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/patternmatcher v0.6.0 // indirect
 	github.com/moby/sys/sequential v0.6.0 // indirect
