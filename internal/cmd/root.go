@@ -24,6 +24,7 @@ import (
 	"time"
 	"wait4x.dev/v2/internal/cmd/dns"
 	"wait4x.dev/v2/internal/cmd/temporal"
+	"wait4x.dev/v2/internal/contextutil"
 
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
@@ -34,14 +35,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Logger is the global logger.
-var Logger logr.Logger
+const (
+	// ExitError is the exit code used when the command encounters an error.
+	ExitError = 1
 
-// ExitError is the error exit code
-const ExitError = 1
-
-// ExitTimedOut is the timed out exit code
-const ExitTimedOut = 124
+	// ExitTimedOut is the exit code used when the command times out.
+	ExitTimedOut = 124
+)
 
 // NewRootCommand creates the root command
 func NewRootCommand() *cobra.Command {
@@ -53,11 +53,52 @@ func NewRootCommand() *cobra.Command {
 			HiddenDefaultCmd: true,
 		},
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
-			noColor, _ := cmd.Flags().GetBool("no-color")
-			quiet, _ := cmd.Flags().GetBool("quiet")
-			backoffPolicy, _ := cmd.Flags().GetString("backoff-policy")
-			maxExpInterval, _ := cmd.Flags().GetDuration("backoff-exponential-max-interval")
-			interval, _ := cmd.Flags().GetDuration("interval")
+			quiet, err := cmd.Flags().GetBool("quiet")
+			if err != nil {
+				return fmt.Errorf("unable to parse --quiet flag: %w", err)
+			}
+
+			noColor, err := cmd.Flags().GetBool("no-color")
+			if err != nil {
+				return fmt.Errorf("unable to parse --no-color flag: %w", err)
+			}
+
+			timeout, err := cmd.Flags().GetDuration("timeout")
+			if err != nil {
+				return fmt.Errorf("unable to parse --timeout flag: %w", err)
+			}
+
+			interval, err := cmd.Flags().GetDuration("interval")
+			if err != nil {
+				return fmt.Errorf("unable to parse --interval flag: %w", err)
+			}
+
+			invertCheck, err := cmd.Flags().GetBool("invert-check")
+			if err != nil {
+				return fmt.Errorf("unable to parse --invert-check flag: %w", err)
+			}
+
+			backoffPolicy, err := cmd.Flags().GetString("backoff-policy")
+			if err != nil {
+				return fmt.Errorf("unable to parse --backoff-policy flag: %w", err)
+			}
+
+			backoffCoefficient, err := cmd.Flags().GetFloat64("backoff-exponential-coefficient")
+			if err != nil {
+				return fmt.Errorf("unable to parse --backoff-exponential-coefficient flag: %w", err)
+			}
+
+			backoffExpMaxInterval, err := cmd.Flags().GetDuration("backoff-exponential-max-interval")
+			if err != nil {
+				return fmt.Errorf("unable to parse --backoff-exponential-max-interval flag: %w", err)
+			}
+
+			cmd.SetContext(contextutil.WithTimeout(cmd.Context(), timeout))
+			cmd.SetContext(contextutil.WithInterval(cmd.Context(), interval))
+			cmd.SetContext(contextutil.WithInvertCheck(cmd.Context(), invertCheck))
+			cmd.SetContext(contextutil.WithBackoffPolicy(cmd.Context(), backoffPolicy))
+			cmd.SetContext(contextutil.WithBackoffCoefficient(cmd.Context(), backoffCoefficient))
+			cmd.SetContext(contextutil.WithBackoffExponentialMaxInterval(cmd.Context(), backoffExpMaxInterval))
 
 			// Validate backoff policy value
 			backoffPolicyValues := []string{waiter.BackoffPolicyExponential, waiter.BackoffPolicyLinear}
@@ -65,7 +106,7 @@ func NewRootCommand() *cobra.Command {
 				return fmt.Errorf("--backoff-policy must be one of %v", backoffPolicyValues)
 			}
 
-			if backoffPolicy == waiter.BackoffPolicyExponential && maxExpInterval < interval {
+			if backoffPolicy == waiter.BackoffPolicyExponential && backoffExpMaxInterval < interval {
 				return fmt.Errorf("--backoff-exponential-max-interval must be greater than --interval")
 			}
 
@@ -90,10 +131,10 @@ func NewRootCommand() *cobra.Command {
 				With().
 				Timestamp().
 				Logger()
-			Logger = zerologr.New(&zl)
+			logger := zerologr.New(&zl)
 			// VerbosityFieldName (v) is not emitted.
 			zerologr.VerbosityFieldName = ""
-			cmd.SetContext(logr.NewContext(cmd.Context(), Logger))
+			cmd.SetContext(logr.NewContext(cmd.Context(), logger))
 
 			return nil
 		},

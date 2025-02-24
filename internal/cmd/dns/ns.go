@@ -16,6 +16,8 @@ package dns
 
 import (
 	"errors"
+	"fmt"
+	"wait4x.dev/v2/internal/contextutil"
 
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
@@ -64,30 +66,32 @@ func NewNSCommand() *cobra.Command {
 }
 
 func runNS(cmd *cobra.Command, args []string) error {
-	interval, _ := cmd.Flags().GetDuration("interval")
-	timeout, _ := cmd.Flags().GetDuration("timeout")
-	invertCheck, _ := cmd.Flags().GetBool("invert-check")
-	nameserver, _ := cmd.Flags().GetString("nameserver")
-	expectNameservers, _ := cmd.Flags().GetStringArray("expect-nameserver")
+	nameserver, err := cmd.Flags().GetString("nameserver")
+	if err != nil {
+		return fmt.Errorf("failed to parse --nameserver flag: %w", err)
+	}
+
+	expectNameservers, err := cmd.Flags().GetStringArray("expect-nameserver")
+	if err != nil {
+		return fmt.Errorf("failed to parse --expect-nameserver flag: %w", err)
+	}
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get logger from context: %w", err)
 	}
 
-	address := args[0]
-
 	dc := dns.New(
-		address,
+		args[0],
 		dns.WithExpectedNameservers(expectNameservers),
 		dns.WithNameServer(nameserver),
 	)
 
 	return waiter.WaitContext(cmd.Context(),
 		dc,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithInvertCheck(invertCheck),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
 		waiter.WithLogger(logger),
 	)
 }

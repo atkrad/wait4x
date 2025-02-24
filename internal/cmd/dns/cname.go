@@ -16,9 +16,11 @@ package dns
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	dns "wait4x.dev/v2/checker/dns/cname"
+	"wait4x.dev/v2/internal/contextutil"
 	"wait4x.dev/v2/waiter"
 )
 
@@ -63,49 +65,32 @@ func NewCNAMECommand() *cobra.Command {
 // DNS check, such as timeout, interval, nameserver, and expected domains. The function returns
 // an error if the DNS check fails.
 func runCNAME(cmd *cobra.Command, args []string) error {
-	interval, err := cmd.Flags().GetDuration("interval")
-	if err != nil {
-		return err
-	}
-
-	timeout, err := cmd.Flags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-
-	invertCheck, err := cmd.Flags().GetBool("invert-check")
-	if err != nil {
-		return err
-	}
-
 	nameserver, err := cmd.Flags().GetString("nameserver")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse --nameserver flag: %w", err)
 	}
 
 	expectDomains, err := cmd.Flags().GetStringArray("expect-domain")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse --expect-domain flag: %w", err)
 	}
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get logger from context: %w", err)
 	}
 
-	address := args[0]
-
 	dc := dns.New(
-		address,
+		args[0],
 		dns.WithExpectedDomains(expectDomains),
 		dns.WithNameServer(nameserver),
 	)
 
 	return waiter.WaitContext(cmd.Context(),
 		dc,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithInvertCheck(invertCheck),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
 		waiter.WithLogger(logger),
 	)
 }

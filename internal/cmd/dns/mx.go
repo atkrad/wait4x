@@ -17,6 +17,7 @@ package dns
 import (
 	"errors"
 	"fmt"
+	"wait4x.dev/v2/internal/contextutil"
 
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
@@ -62,29 +63,14 @@ func NewMXCommand() *cobra.Command {
 }
 
 func runMX(cmd *cobra.Command, args []string) error {
-	interval, err := cmd.Flags().GetDuration("interval")
-	if err != nil {
-		return fmt.Errorf("unable to parse interval flag: %w", err)
-	}
-
-	timeout, err := cmd.Flags().GetDuration("timeout")
-	if err != nil {
-		return fmt.Errorf("unable to parse timeout flag: %w", err)
-	}
-
-	invertCheck, err := cmd.Flags().GetBool("invert-check")
-	if err != nil {
-		return fmt.Errorf("unable to parse invert-check flag: %w", err)
-	}
-
 	nameserver, err := cmd.Flags().GetString("nameserver")
 	if err != nil {
-		return fmt.Errorf("unable to parse nameserver flag: %w", err)
+		return fmt.Errorf("unable to parse --nameserver flag: %w", err)
 	}
 
 	expectDomains, err := cmd.Flags().GetStringArray("expect-domain")
 	if err != nil {
-		return fmt.Errorf("unable to parse expect-domain flag: %w", err)
+		return fmt.Errorf("unable to parse --expect-domain flag: %w", err)
 	}
 
 	logger, err := logr.FromContext(cmd.Context())
@@ -92,19 +78,17 @@ func runMX(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unable to get logger from context: %w", err)
 	}
 
-	address := args[0]
-
 	dc := dns.New(
-		address,
+		args[0],
 		dns.WithExpectedDomains(expectDomains),
 		dns.WithNameServer(nameserver),
 	)
 
 	return waiter.WaitContext(cmd.Context(),
 		dc,
-		waiter.WithTimeout(timeout),
-		waiter.WithInterval(interval),
-		waiter.WithInvertCheck(invertCheck),
+		waiter.WithTimeout(contextutil.GetTimeout(cmd.Context())),
+		waiter.WithInterval(contextutil.GetInterval(cmd.Context())),
+		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
 		waiter.WithLogger(logger),
 	)
 }
