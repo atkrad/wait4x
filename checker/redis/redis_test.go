@@ -18,6 +18,7 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
 	redismodule "github.com/testcontainers/testcontainers-go/modules/redis"
 	"testing"
 	"time"
@@ -33,7 +34,12 @@ type RedisSuite struct {
 // SetupSuite starts a Redis container
 func (s *RedisSuite) SetupSuite() {
 	var err error
-	s.container, err = redismodule.RunContainer(context.Background())
+	s.container, err = redismodule.Run(
+		context.Background(),
+		"redis:7",
+		testcontainers.WithLogger(testcontainers.TestLogger(s.T())),
+	)
+
 	s.Require().NoError(err)
 }
 

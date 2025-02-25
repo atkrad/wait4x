@@ -17,6 +17,7 @@ package mysql
 import (
 	"context"
 	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
 	"testing"
 	"wait4x.dev/v2/checker"
@@ -31,7 +32,12 @@ type MySQLSuite struct {
 // SetupSuite starts a MySQL container
 func (s *MySQLSuite) SetupSuite() {
 	var err error
-	s.container, err = mysql.RunContainer(context.Background())
+	s.container, err = mysql.Run(
+		context.Background(),
+		"mysql:8.0.36",
+		testcontainers.WithLogger(testcontainers.TestLogger(s.T())),
+	)
+
 	s.Require().NoError(err)
 }
 
