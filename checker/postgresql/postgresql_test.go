@@ -17,6 +17,7 @@ package postgresql
 import (
 	"context"
 	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"testing"
 	"wait4x.dev/v2/checker"
@@ -31,7 +32,12 @@ type PostgreSQLSuite struct {
 // SetupSuite starts a PostgreSQL container
 func (s *PostgreSQLSuite) SetupSuite() {
 	var err error
-	s.container, err = postgres.RunContainer(context.Background())
+	s.container, err = postgres.Run(
+		context.Background(),
+		"postgres:16-alpine",
+		testcontainers.WithLogger(testcontainers.TestLogger(s.T())),
+	)
+
 	s.Require().NoError(err)
 }
 

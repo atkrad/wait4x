@@ -18,6 +18,7 @@ package mongodb
 import (
 	"context"
 	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mongodb"
 	"testing"
 	"wait4x.dev/v2/checker"
@@ -32,7 +33,12 @@ type MongoDBSuite struct {
 // SetupSuite starts a MongoDB container
 func (s *MongoDBSuite) SetupSuite() {
 	var err error
-	s.container, err = mongodb.RunContainer(context.Background())
+	s.container, err = mongodb.Run(
+		context.Background(),
+		"mongo:6",
+		testcontainers.WithLogger(testcontainers.TestLogger(s.T())),
+	)
+
 	s.Require().NoError(err)
 }
 

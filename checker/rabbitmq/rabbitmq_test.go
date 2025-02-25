@@ -34,7 +34,12 @@ type RabbitMQSuite struct {
 // SetupSuite starts a RabbitMQ container
 func (s *RabbitMQSuite) SetupSuite() {
 	var err error
-	s.container, err = rabbitmq.RunContainer(context.Background(), testcontainers.WithImage("rabbitmq:3.12.12-management-alpine"))
+	s.container, err = rabbitmq.Run(
+		context.Background(),
+		"rabbitmq:3.12.11-management-alpine",
+		testcontainers.WithLogger(testcontainers.TestLogger(s.T())),
+	)
+
 	s.Require().NoError(err)
 }
 
