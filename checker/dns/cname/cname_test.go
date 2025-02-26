@@ -12,40 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package cname provides functionality for checking the CNAME records of a domain.
 package cname
 
 import (
 	"context"
+	"github.com/stretchr/testify/suite"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"wait4x.dev/v2/checker"
 )
 
 const server = "www.company.info"
 
-func TestCheckExistenceCNAME(t *testing.T) {
+// TestSuite is a test suite for CNAME DNS checks.
+type TestSuite struct {
+	suite.Suite
+}
+
+// TestCheckExistenceCNAME tests that the CNAME DNS check passes when the expected CNAME domain is present.
+func (s *TestSuite) TestCheckExistenceCNAME() {
 	d := New(server)
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestCorrectCNAME(t *testing.T) {
+// TestCorrectCNAME tests that the CNAME DNS check passes when the expected CNAME domain is present.
+func (s *TestSuite) TestCorrectCNAME() {
 	d := New(server, WithExpectedDomains([]string{"company.info"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestIncorrectCNAME(t *testing.T) {
+// TestIncorrectCNAME tests that the CNAME DNS check fails when the expected CNAME domain is not present.
+func (s *TestSuite) TestIncorrectCNAME() {
 	var expectedError *checker.ExpectedError
 	d := New(server, WithExpectedDomains([]string{"something wrong"}))
-	assert.ErrorAs(t, d.Check(context.Background()), &expectedError)
+	s.Assert().ErrorAs(d.Check(context.Background()), &expectedError)
 }
 
-func TestCustomNSCorrectCNAME(t *testing.T) {
+// TestCustomNSCorrectCNAME tests that the CNAME DNS check passes when the expected CNAME domain is present
+// and a custom name server is used.
+func (s *TestSuite) TestCustomNSCorrectCNAME() {
 	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedDomains([]string{"company.info"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestRegexCorrectCNAME(t *testing.T) {
+// TestRegexCorrectCNAME tests that the CNAME DNS check passes when the expected CNAME domain matches a regular expression.
+func (s *TestSuite) TestRegexCorrectCNAME() {
 	d := New(server, WithExpectedDomains([]string{"company.*"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
+}
+
+// TestCNAME runs the test suite for CNAME DNS checks.
+func TestCNAME(t *testing.T) {
+	suite.Run(t, new(TestSuite))
 }

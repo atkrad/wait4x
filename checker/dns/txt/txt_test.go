@@ -12,40 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package txt provides functionality for checking the TXT records of a domain.
 package txt
 
 import (
 	"context"
+	"github.com/stretchr/testify/suite"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"wait4x.dev/v2/checker"
 )
 
 const server = "wait4x.dev"
 
-func TestCheckExistenceTXT(t *testing.T) {
+// TestSuite is a test suite for the TXT record checker.
+type TestSuite struct {
+	suite.Suite
+}
+
+// TestCheckExistenceTXT checks that the TXT record for the specified server exists.
+func (s *TestSuite) TestCheckExistenceTXT() {
 	d := New(server)
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestCorrectTXT(t *testing.T) {
+// TestCorrectTXT checks that the TXT record for the specified server has the expected value.
+func (s *TestSuite) TestCorrectTXT() {
 	d := New(server, WithExpectedValues([]string{"v=spf1 include:_spf.mx.cloudflare.net ~all"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestIncorrectTXT(t *testing.T) {
+// TestIncorrectTXT checks that the TXT record for the specified server has an incorrect value, and that the expected error is returned.
+func (s *TestSuite) TestIncorrectTXT() {
 	var expectedError *checker.ExpectedError
 	d := New(server, WithExpectedValues([]string{"127.0.0.1"}))
-	assert.ErrorAs(t, d.Check(context.Background()), &expectedError)
+	s.Assert().ErrorAs(d.Check(context.Background()), &expectedError)
 }
 
-func TestCustomNSCorrectTXT(t *testing.T) {
+// TestCustomNSCorrectTXT checks that the TXT record for the specified server has the expected value, using a custom name server.
+func (s *TestSuite) TestCustomNSCorrectTXT() {
 	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedValues([]string{"v=spf1 include:_spf.mx.cloudflare.net ~all"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestRegexCorrectTXT(t *testing.T) {
+// TestRegexCorrectTXT checks that the TXT record for the specified server has a value that matches the expected regular expression.
+func (s *TestSuite) TestRegexCorrectTXT() {
 	d := New(server, WithExpectedValues([]string{".* include:.*"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
+}
+
+// TestTXT runs the test suite for the TXT record checker.
+func TestTXT(t *testing.T) {
+	suite.Run(t, new(TestSuite))
 }

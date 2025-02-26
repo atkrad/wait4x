@@ -12,40 +12,58 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package mx provides functionality for checking the MX records of a domain.
 package mx
 
 import (
 	"context"
+	"github.com/stretchr/testify/suite"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"wait4x.dev/v2/checker"
 )
 
 const server = "wait4x.dev"
 
-func TestCheckExistenceMX(t *testing.T) {
+// TestSuite is a test suite for the MX checker.
+type TestSuite struct {
+	suite.Suite
+}
+
+// TestCheckExistenceMX tests that the MX checker correctly checks the existence of MX records for the given server.
+func (s *TestSuite) TestCheckExistenceMX() {
 	d := New(server)
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestCorrectMX(t *testing.T) {
+// TestCorrectMX tests that the MX checker correctly checks the existence of MX records for the given server with the expected domains.
+func (s *TestSuite) TestCorrectMX() {
 	d := New(server, WithExpectedDomains([]string{"route1.mx.cloudflare.net", "route2.mx.cloudflare.net"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestIncorrectMX(t *testing.T) {
+// TestIncorrectMX tests that the MX checker correctly identifies when the expected MX records do not exist for the given server.
+func (s *TestSuite) TestIncorrectMX() {
 	var expectedError *checker.ExpectedError
 	d := New(server, WithExpectedDomains([]string{"127.0.0.1"}))
-	assert.ErrorAs(t, d.Check(context.Background()), &expectedError)
+	s.Assert().ErrorAs(d.Check(context.Background()), &expectedError)
 }
 
-func TestCustomNSCorrectA(t *testing.T) {
+// TestCustomNSCorrectA tests that the MX checker correctly checks the existence of MX records for the given server
+// using a custom name server.
+func (s *TestSuite) TestCustomNSCorrectA() {
 	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedDomains([]string{"route1.mx.cloudflare.net"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestRegexCorrectA(t *testing.T) {
+// TestRegexCorrectA tests that the MX checker correctly checks the existence of MX records for the given server
+// using a regular expression to match the expected domains.
+func (s *TestSuite) TestRegexCorrectA() {
 	d := New(server, WithExpectedDomains([]string{".*.mx.cloudflare.net"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
+}
+
+// TestMX runs the test suite for the MX checker.
+func TestMX(t *testing.T) {
+	suite.Run(t, new(TestSuite))
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package a provides functionality for checking the A records of a domain.
 package a
 
 import (

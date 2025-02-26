@@ -12,35 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package aaaa provides functionality for checking the AAAA records of a domain.
 package aaaa
 
 import (
 	"context"
+	"github.com/stretchr/testify/suite"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"wait4x.dev/v2/checker"
 )
 
 const server = "wait4x.dev"
 
-func TestCheckExistenceAAAA(t *testing.T) {
+// TestSuite is a test suite for the AAAA DNS checker.
+type TestSuite struct {
+	suite.Suite
+}
+
+// TestCheckExistenceAAAA tests that the AAAA DNS checker correctly checks for the
+// existence of the expected AAAA record for the given server.
+func (s *TestSuite) TestCheckExistenceAAAA() {
 	d := New(server)
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestCorrectAAAA(t *testing.T) {
+// TestCorrectAAAA tests that the AAAA DNS checker correctly checks for the
+// existence of the expected AAAA record for the given server.
+func (s *TestSuite) TestCorrectAAAA() {
 	d := New(server, WithExpectedIPV6s([]string{"2606:4700:3034::6815:591"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestIncorrectAAAA(t *testing.T) {
+// TestIncorrectAAAA tests that the AAAA DNS checker correctly handles the case where
+// the expected AAAA record does not match the actual AAAA record for the given server.
+func (s *TestSuite) TestIncorrectAAAA() {
 	var expectedError *checker.ExpectedError
 	d := New(server, WithExpectedIPV6s([]string{"127.0.0.1"}))
-	assert.ErrorAs(t, d.Check(context.Background()), &expectedError)
+	s.Assert().ErrorAs(d.Check(context.Background()), &expectedError)
 }
 
-func TestCustomNSCorrectAAAA(t *testing.T) {
+// TestCustomNSCorrectAAAA tests that the AAAA DNS checker correctly checks for the
+// existence of the expected AAAA record for the given server using a custom name server.
+func (s *TestSuite) TestCustomNSCorrectAAAA() {
 	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedIPV6s([]string{"2606:4700:3034::6815:591"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
+}
+
+// TestAAAA runs the test suite for the AAAA DNS checker.
+func TestAAAA(t *testing.T) {
+	suite.Run(t, new(TestSuite))
 }

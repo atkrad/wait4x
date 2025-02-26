@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package mx provides functionality for checking the MX records of a domain.
 package mx
 
 import (

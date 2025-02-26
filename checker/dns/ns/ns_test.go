@@ -12,40 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package ns provides functionality for checking the NS records of a domain.
 package ns
 
 import (
 	"context"
+	"github.com/stretchr/testify/suite"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"wait4x.dev/v2/checker"
 )
 
 const server = "wait4x.dev"
 
-func TestCheckExistenceNS(t *testing.T) {
+// TestSuite is a test suite for the DNS nameserver checker.
+type TestSuite struct {
+	suite.Suite
+}
+
+// TestCheckExistenceNS tests that the DNS nameserver checker correctly checks the existence of the nameservers for the given domain.
+func (s *TestSuite) TestCheckExistenceNS() {
 	d := New(server)
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestCorrectNS(t *testing.T) {
+// TestCorrectNS tests that the DNS nameserver checker correctly checks the existence of the expected nameservers for the given domain.
+func (s *TestSuite) TestCorrectNS() {
 	d := New(server, WithExpectedNameservers([]string{"gordon.ns.cloudflare.com.", "emma.ns.cloudflare.com"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestIncorrectNS(t *testing.T) {
+// TestIncorrectNS tests that the DNS nameserver checker correctly identifies when the expected nameservers
+// do not match the actual nameservers for the given domain.
+func (s *TestSuite) TestIncorrectNS() {
 	var expectedError *checker.ExpectedError
 	d := New(server, WithExpectedNameservers([]string{"127.0.0.1"}))
-	assert.ErrorAs(t, d.Check(context.Background()), &expectedError)
+	s.Assert().ErrorAs(d.Check(context.Background()), &expectedError)
 }
 
-func TestCustomNSCorrectNS(t *testing.T) {
+// TestCustomNSCorrectNS tests that the DNS nameserver checker correctly checks the existence of the expected
+// nameservers for the given domain using a custom nameserver.
+func (s *TestSuite) TestCustomNSCorrectNS() {
 	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedNameservers([]string{"gordon.ns.cloudflare.com."}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestRegexCorrectNS(t *testing.T) {
+// TestRegexCorrectNS tests that the DNS nameserver checker correctly checks the existence of the expected
+// nameservers for the given domain using a regular expression.
+func (s *TestSuite) TestRegexCorrectNS() {
 	d := New(server, WithExpectedNameservers([]string{".*.cloudflare.com"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
+}
+
+// TestNS runs the test suite for the DNS nameserver checker.
+func TestNS(t *testing.T) {
+	suite.Run(t, new(TestSuite))
 }
