@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package cname provides functionality for checking the CNAME records of a domain.
 package cname
 
 import (

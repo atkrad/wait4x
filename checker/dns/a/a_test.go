@@ -12,35 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package a provides functionality for checking the A records of a domain.
 package a
 
 import (
 	"context"
+	"github.com/stretchr/testify/suite"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 	"wait4x.dev/v2/checker"
 )
 
 const server = "wait4x.dev"
 
-func TestCheckExistenceA(t *testing.T) {
+// TestSuite is a test suite for the A checker.
+type TestSuite struct {
+	suite.Suite
+}
+
+// TestCheckExistenceA tests that the A checker correctly checks for the existence of an A record.
+func (s *TestSuite) TestCheckExistenceA() {
 	d := New(server)
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestCorrectA(t *testing.T) {
+// TestCorrectA tests that the A checker correctly checks for the existence of an A record with the expected IP addresses.
+func (s *TestSuite) TestCorrectA() {
 	d := New(server, WithExpectedIPV4s([]string{"172.67.154.180", "127.0.0.1"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
 }
 
-func TestIncorrectA(t *testing.T) {
+// TestIncorrectA tests that the A checker correctly checks for the existence of an A record with an unexpected IP address.
+func (s *TestSuite) TestIncorrectA() {
 	var expectedError *checker.ExpectedError
 	d := New(server, WithExpectedIPV4s([]string{"127.0.0.1"}))
-	assert.ErrorAs(t, d.Check(context.Background()), &expectedError)
+	s.Assert().ErrorAs(d.Check(context.Background()), &expectedError)
 }
 
-func TestCustomNSCorrectA(t *testing.T) {
+// TestCustomNSCorrectA tests that the A checker correctly checks for the existence of an A record
+// with the expected IP addresses using a custom name server.
+func (s *TestSuite) TestCustomNSCorrectA() {
 	d := New(server, WithNameServer("8.8.8.8:53"), WithExpectedIPV4s([]string{"172.67.154.180"}))
-	assert.Nil(t, d.Check(context.Background()))
+	s.Assert().Nil(d.Check(context.Background()))
+}
+
+// TestA is a test function that runs the TestSuite for the A checker.
+func TestA(t *testing.T) {
+	suite.Run(t, new(TestSuite))
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package txt provides functionality for checking the TXT records of a domain.
 package txt
 
 import (
