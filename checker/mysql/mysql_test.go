@@ -20,7 +20,7 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
 	"testing"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 // MySQLSuite is a test suite for MySQL checker

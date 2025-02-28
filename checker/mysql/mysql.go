@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 	// Needed for the MySQL driver
 	_ "github.com/go-sql-driver/mysql"
 	"regexp"

@@ -19,9 +19,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/miekg/dns"
-	dns2 "wait4x.dev/v2/checker/dns"
+	dns2 "wait4x.dev/v3/checker/dns"
 
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 // Option configures an DNS AAAA records

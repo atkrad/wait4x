@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"testing"
 
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 const server = "wait4x.dev"

@@ -1,4 +1,4 @@
-module wait4x.dev/v2
+module wait4x.dev/v3
 
 go 1.22
 

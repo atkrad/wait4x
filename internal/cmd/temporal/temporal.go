@@ -16,7 +16,7 @@ package temporal
 
 import (
 	"github.com/spf13/cobra"
-	"wait4x.dev/v2/checker/temporal"
+	"wait4x.dev/v3/checker/temporal"
 )
 
 // NewTemporalCommand creates the temporal sub-command

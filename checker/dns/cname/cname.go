@@ -21,8 +21,8 @@ import (
 	"github.com/miekg/dns"
 	"regexp"
 	"strings"
-	"wait4x.dev/v2/checker"
-	dns2 "wait4x.dev/v2/checker/dns"
+	"wait4x.dev/v3/checker"
+	dns2 "wait4x.dev/v3/checker/dns"
 )
 
 // Option configures an DNS CNAME record

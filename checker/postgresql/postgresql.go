@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 	// Needed for the PostgreSQL driver
 	_ "github.com/lib/pq"
 	"regexp"

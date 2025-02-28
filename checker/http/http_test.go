@@ -25,7 +25,7 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 func TestMain(m *testing.M) {
