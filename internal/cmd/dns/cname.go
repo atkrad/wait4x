@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
-	dns "wait4x.dev/v2/checker/dns/cname"
-	"wait4x.dev/v2/internal/contextutil"
-	"wait4x.dev/v2/waiter"
+	dns "wait4x.dev/v3/checker/dns/cname"
+	"wait4x.dev/v3/internal/contextutil"
+	"wait4x.dev/v3/waiter"
 )
 
 // NewCNAMECommand creates a new Cobra command for the "dns CNAME" subcommand. This command

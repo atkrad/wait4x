@@ -23,7 +23,7 @@ import (
 	"net"
 	"regexp"
 	"time"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 var hidePasswordRegexp = regexp.MustCompile(`(amqp://[^/:]+):[^:@]+@`)

@@ -18,7 +18,7 @@ import (
 	"context"
 	"os"
 	"testing"
-	"wait4x.dev/v2/internal/test"
+	"wait4x.dev/v3/internal/test"
 
 	"github.com/stretchr/testify/assert"
 )

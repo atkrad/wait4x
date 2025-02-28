@@ -22,13 +22,13 @@ import (
 	"os/exec"
 	"os/signal"
 	"time"
-	"wait4x.dev/v2/internal/cmd/dns"
-	"wait4x.dev/v2/internal/cmd/temporal"
-	"wait4x.dev/v2/internal/contextutil"
+	"wait4x.dev/v3/internal/cmd/dns"
+	"wait4x.dev/v3/internal/cmd/temporal"
+	"wait4x.dev/v3/internal/contextutil"
 
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
-	"wait4x.dev/v2/waiter"
+	"wait4x.dev/v3/waiter"
 
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"

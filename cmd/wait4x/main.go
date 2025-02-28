@@ -15,7 +15,7 @@
 package main
 
 import (
-	"wait4x.dev/v2/internal/cmd"
+	"wait4x.dev/v3/internal/cmd"
 )
 
 func main() {

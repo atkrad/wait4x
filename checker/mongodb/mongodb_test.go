@@ -21,7 +21,7 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mongodb"
 	"testing"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 // MongoDBSuite is a test suite for MongoDB checker

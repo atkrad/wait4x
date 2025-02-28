@@ -18,12 +18,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-logr/logr"
-	"wait4x.dev/v2/internal/contextutil"
+	"wait4x.dev/v3/internal/contextutil"
 
 	"github.com/spf13/cobra"
-	"wait4x.dev/v2/checker"
-	"wait4x.dev/v2/checker/influxdb"
-	"wait4x.dev/v2/waiter"
+	"wait4x.dev/v3/checker"
+	"wait4x.dev/v3/checker/influxdb"
+	"wait4x.dev/v3/waiter"
 )
 
 // NewInfluxDBCommand creates the influxdb sub-command

@@ -23,7 +23,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/tidwall/gjson"

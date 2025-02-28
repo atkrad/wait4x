@@ -17,12 +17,12 @@ package dns
 import (
 	"errors"
 	"fmt"
-	"wait4x.dev/v2/internal/contextutil"
+	"wait4x.dev/v3/internal/contextutil"
 
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
-	dns "wait4x.dev/v2/checker/dns/txt"
-	"wait4x.dev/v2/waiter"
+	dns "wait4x.dev/v3/checker/dns/txt"
+	"wait4x.dev/v3/waiter"
 )
 
 // NewTXTCommand creates the DNS TXT command

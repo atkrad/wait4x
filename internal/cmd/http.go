@@ -24,11 +24,11 @@ import (
 	"net/textproto"
 	"net/url"
 	"strings"
-	"wait4x.dev/v2/internal/contextutil"
+	"wait4x.dev/v3/internal/contextutil"
 
-	"wait4x.dev/v2/checker"
-	"wait4x.dev/v2/checker/http"
-	"wait4x.dev/v2/waiter"
+	"wait4x.dev/v3/checker"
+	"wait4x.dev/v3/checker/http"
+	"wait4x.dev/v3/waiter"
 
 	"github.com/spf13/cobra"
 )

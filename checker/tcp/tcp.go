@@ -19,7 +19,7 @@ import (
 	"net"
 	"os"
 	"time"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 // Option configures a TCP.

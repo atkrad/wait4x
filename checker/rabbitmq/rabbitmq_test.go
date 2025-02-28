@@ -22,7 +22,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/rabbitmq"
 	"testing"
 	"time"
-	"wait4x.dev/v2/checker"
+	"wait4x.dev/v3/checker"
 )
 
 // RabbitMQSuite is a test suite for RabbitMQ checker
