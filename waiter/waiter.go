@@ -149,12 +149,6 @@ func Wait(checker checker.Checker, opts ...Option) error {
 	return WaitContext(context.Background(), checker, opts...)
 }
 
-// WaitWithContext waits for end up of check execution.
-// Deprecated: The function will be removed in v3.0.0, please use the WaitContext.
-func WaitWithContext(ctx context.Context, checker checker.Checker, opts ...Option) error {
-	return WaitContext(ctx, checker, opts...)
-}
-
 // WaitContext waits for end up of check execution.
 func WaitContext(ctx context.Context, chk checker.Checker, opts ...Option) error {
 	options := &options{
