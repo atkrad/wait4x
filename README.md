@@ -203,7 +203,7 @@ This command waits until the URL `https://ifconfig.co` returns an HTTP status co
 Check HTTP connection, status code, and match the response body:
 
 ```shell
-wait4x http https://ifconfig.co/json --expect-status-code 200 --expect-body='"country":\s"Netherlands"'
+wait4x http https://ifconfig.co/json --expect-status-code 200 --expect-body-regex='"country":\s"Netherlands"'
 ```
 
 Check an HTTP response header value:

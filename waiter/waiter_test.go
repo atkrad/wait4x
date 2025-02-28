@@ -19,7 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/tonglil/buflogr"
@@ -74,9 +73,8 @@ func TestWaitLogger(t *testing.T) {
 		On("Identity").Return("ID", nil)
 
 	var buf bytes.Buffer
-	var log logr.Logger = buflogr.NewWithBuffer(&buf)
-	// TODO: Change the "WaitWithContext" to "Wait" when we want release v3.0.0
-	err := WaitWithContext(context.TODO(), mockChecker, WithLogger(log), WithTimeout(time.Second))
+	var log = buflogr.NewWithBuffer(&buf)
+	err := WaitContext(context.TODO(), mockChecker, WithLogger(log), WithTimeout(time.Second))
 
 	assert.Equal(t, context.DeadlineExceeded, err)
 	assert.Contains(t, buf.String(), "INFO [MockChecker] Checking the ID ...")

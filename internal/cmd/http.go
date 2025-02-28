@@ -91,13 +91,11 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
 
   # Enable exponential backoff retry
-  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential  --backoff-exponential-max-interval 120s --timeout 120s`,
+  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential --backoff-exponential-max-interval 120s --timeout 120s`,
 		RunE: runHTTP,
 	}
 
 	httpCommand.Flags().Int("expect-status-code", 0, "Expect response code e.g. 200, 204, ... .")
-	httpCommand.Flags().String("expect-body", "", "Expect response body pattern.")
-	httpCommand.Flags().MarkDeprecated("expect-body", "This flag will be removed in v3.0.0, please use --expect-body-regex.")
 	httpCommand.Flags().String("expect-body-regex", "", "Expect response body pattern.")
 	httpCommand.Flags().String("expect-body-json", "", "Expect response body JSON pattern.")
 	httpCommand.Flags().String("expect-body-xpath", "", "Expect response body XPath pattern.")
@@ -114,7 +112,6 @@ func NewHTTPCommand() *cobra.Command {
 func runHTTP(cmd *cobra.Command, args []string) error {
 	expectStatusCode, _ := cmd.Flags().GetInt("expect-status-code")
 	expectBodyRegex, _ := cmd.Flags().GetString("expect-body-regex")
-	expectBody, _ := cmd.Flags().GetString("expect-body")
 	expectBodyJSON, _ := cmd.Flags().GetString("expect-body-json")
 	expectBodyXPath, _ := cmd.Flags().GetString("expect-body-xpath")
 	expectHeader, _ := cmd.Flags().GetString("expect-header")
@@ -127,10 +124,6 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {
 		return err
-	}
-
-	if len(expectBody) != 0 {
-		expectBodyRegex = expectBody
 	}
 
 	// Convert raw headers (e.g. 'a: b') into a http Header.

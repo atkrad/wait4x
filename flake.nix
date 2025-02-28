@@ -17,6 +17,7 @@
       pkgs = nixpkgs.legacyPackages.${system};
       unstable = nixpkgs-unstable.legacyPackages.${system};
       packageName = "wait4x";
+      version = "${self.shortRev or self.dirtyShortRev or "dirty"}";
     in {
       formatter = pkgs.alejandra;
       devShells.default = pkgs.mkShell {
@@ -26,13 +27,14 @@
           gopls
           golangci-lint
           delve
+          git
         ];
       };
       packages.default = pkgs.buildGoModule {
         pname = packageName;
-        version = "${self.shortRev or self.dirtyShortRev or "dirty"}";
+        inherit version;
         src = self;
-        vendorHash = "sha256-KtEOLLsbTfgaXy/0aj5zT5qbgW6qBFMuU3EnnXRu+Ig=";
+        vendorHash = "sha256-ODcHrmmHHeZbi1HVDkYPCyHs7mcs2UGdBzicP1+eOSI=";
         doCheck = false;
         nativeBuildInputs = with pkgs; [ git ];
         GOCACHE = "$(mktemp -d)";
