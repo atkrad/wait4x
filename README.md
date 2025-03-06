@@ -200,6 +200,7 @@ Check HTTP connection and expect a specific status code:
 ```shell
 wait4x http https://ifconfig.co --expect-status-code 200
 ```
+
 This command waits until the URL `https://ifconfig.co` returns an HTTP status code of `200`.
 
 Check HTTP connection, status code, and match the response body:
@@ -232,6 +233,16 @@ Set request headers:
 wait4x http https://ifconfig.co --request-header "Content-Type: application/json" --request-header "Authorization: Token 123"
 ```
 This command sets the `Content-Type` and `Authorization` HTTP request headers and waits until the URL `https://ifconfig.co` returns an HTTP status code of `200`.
+
+Set self-signed certificates:
+```shell
+wait4x http https://www.wait4x.dev --cert-file /path/to/certfile --key-file /path/to/keyfile
+```
+
+Set CA file:
+```shell
+wait4x http https://www.wait4x.dev --ca-file /path/to/cafile`
+```
 
 ### Redis
 
@@ -409,7 +420,7 @@ If you encounter any issues, please report them [here](https://github.com/atkrad
 
 This project is licensed under the Apache-2.0 license - see the [LICENSE](LICENSE) file for details.
 ```
-Copyright 2019-2023 The Wait4X Authors
+Copyright 2019-2025 The Wait4X Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
