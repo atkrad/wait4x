@@ -27,7 +27,7 @@
 - **Exponential Backoff Checking:** Retry using an exponential backoff approach to improve efficiency and reduce errors
 - **CI/CD Friendly:** Well-suited to be part of a CI/CD pipeline step
 - **Cross Platform:** One single pre-built binary for Linux, Mac OSX, and Windows
-- **Importable:** Beside the CLI tool, Wait4X can be imported as a pkg in your Go app
+- **Importable:** Wait4X can be imported as a package in your Go application
 - **Command Execution:** Execute your desired command after a successful wait
 
 ## Installation
@@ -392,6 +392,155 @@ wait4x tcp 127.0.0.1:9090 -- echo "Service is up!"
 ```
 This command will echo "Service is up!" after the TCP port `9090` on `127.0.0.1` is available.
 
+## Using Wait4X as an Importable Package
+
+Besides being a standalone CLI tool, Wait4X can be used as an importable package in your Go applications. This allows you to integrate Wait4X's powerful waiting and service checking capabilities directly into your code.
+
+### Adding Wait4X to Your Go Project
+
+Add Wait4X as a dependency to your Go project:
+
+```bash
+go get wait4x.dev/v3
+```
+
+Then import the packages you need:
+
+```go
+import (
+    "wait4x.dev/v3/checker/tcp"      // TCP checker
+    "wait4x.dev/v3/checker/http"     // HTTP checker
+    "wait4x.dev/v3/checker/redis"    // Redis checker
+    // ...other checkers
+    "wait4x.dev/v3/waiter"           // Waiter functionality
+)
+```
+
+### Examples
+
+Here are several examples of how to use Wait4X in your Go applications. Find the full examples in the [examples/pkg](examples/pkg) directory.
+
+#### Basic TCP Check
+
+```go
+// Create a TCP checker for localhost:6379 with a 5-second connection timeout
+tcpChecker := tcp.New("localhost:6379", tcp.WithTimeout(5*time.Second))
+
+// Wait for the TCP port to be available
+err := waiter.WaitContext(
+    ctx,
+    tcpChecker,
+    waiter.WithTimeout(time.Minute),        // Total wait timeout
+    waiter.WithInterval(2*time.Second),     // Time between retry attempts
+    waiter.WithBackoffPolicy("exponential"), // Use exponential backoff
+)
+```
+
+#### Advanced HTTP Check
+
+```go
+// Create custom HTTP headers
+headers := http.Header{}
+headers.Add("Authorization", "Bearer my-token")
+headers.Add("Content-Type", "application/json")
+
+// Create an HTTP checker with multiple validations
+checker := httpChecker.New(
+    "https://api.example.com/health",
+    httpChecker.WithTimeout(5*time.Second),
+    httpChecker.WithExpectStatusCode(200),
+    httpChecker.WithExpectBodyJSON("status"),             // Check that 'status' field exists in JSON
+    httpChecker.WithExpectBodyRegex(`"healthy":\s*true`), // Regex to check response
+    httpChecker.WithExpectHeader("Content-Type=application/json"),
+    httpChecker.WithRequestHeaders(headers),
+)
+```
+
+#### Parallel Checking of Multiple Services
+
+```go
+// Create checkers for different services
+checkers := []checker.Checker{
+    // Redis checker
+    redis.New(
+        "redis://localhost:6379",
+        redis.WithTimeout(5*time.Second),
+    ),
+    
+    // PostgreSQL checker
+    postgresql.New(
+        "postgres://postgres:password@localhost:5432/app_db?sslmode=disable",
+        postgresql.WithTimeout(5*time.Second),
+    ),
+    
+    // HTTP API checker
+    http.New(
+        "http://localhost:8080/health",
+        http.WithTimeout(3*time.Second),
+        http.WithExpectStatusCode(200),
+    ),
+}
+
+// Wait for all services in parallel
+err := waiter.WaitParallelContext(ctx, checkers, waitOptions...)
+```
+
+#### Reverse Checking (Waiting for a Port to Become Free)
+
+```go
+// Create a TCP checker for the port
+tcpChecker := tcp.New(port, tcp.WithTimeout(2*time.Second))
+
+// Use invert check to wait until the TCP connection fails (port is free)
+err := waiter.WaitContext(
+    ctx,
+    tcpChecker,
+    waiter.WithTimeout(45*time.Second),
+    waiter.WithInterval(3*time.Second),
+    waiter.WithInvertCheck(true), // Key option to invert success condition
+)
+```
+
+#### Creating Custom Checkers
+
+You can create your own custom checkers by implementing the `checker.Checker` interface:
+
+```go
+// Implement the Checker interface
+type MyCustomChecker struct {
+    // Your fields here
+}
+
+// Identity returns a string identifying this checker
+func (c *MyCustomChecker) Identity() (string, error) {
+    return "my-custom-checker", nil
+}
+
+// Check performs the actual check
+func (c *MyCustomChecker) Check(ctx context.Context) error {
+    // Your checking logic here
+    // Return nil if check passes, or an error if it fails
+}
+```
+
+### Best Practices
+
+1. Always use contexts with timeouts to prevent indefinite waiting
+2. Consider using exponential backoff for services that might take a while to start
+3. Use parallel checking when waiting for multiple independent services
+4. Handle errors appropriately - distinguish between timeout errors and other errors
+5. Add logging where appropriate to understand what's happening during waiting
+
+### Core Components
+
+1. **Checkers**: Implements the `checker.Checker` interface
+2. **Waiter**: Provides waiting functionality with options like timeout, interval, backoff, etc.
+3. **Context Usage**: All checkers and waiters support context for cancellation and timeouts
+
+For more detailed examples, see the [examples/pkg](examples/pkg) directory in the repository.
+
+## Contributing
+
 ### Reporting Issues
 
 If you encounter any issues, please report them [here](https://github.com/atkrad/wait4x/issues).
@@ -409,7 +558,7 @@ If you encounter any issues, please report them [here](https://github.com/atkrad
 
 This project is licensed under the Apache-2.0 license - see the [LICENSE](LICENSE) file for details.
 ```
-Copyright 2019-2023 The Wait4X Authors
+Copyright 2019-2025 The Wait4X Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
