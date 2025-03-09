@@ -34,11 +34,11 @@ func main() {
 
 	// Specify waiter options
 	options := []waiter.Option{
-		waiter.WithTimeout(time.Minute),        // Total wait timeout
-		waiter.WithInterval(2*time.Second),     // Time between retry attempts
-		waiter.WithBackoffPolicy("exponential"), // Use exponential backoff
-		waiter.WithBackoffCoefficient(2.0),     // Double the wait time each retry
-		waiter.WithBackoffExponentialMaxInterval(10*time.Second), // Max 10s between retries
+		waiter.WithTimeout(time.Minute),                            // Total wait timeout
+		waiter.WithInterval(2 * time.Second),                       // Time between retry attempts
+		waiter.WithBackoffPolicy("exponential"),                    // Use exponential backoff
+		waiter.WithBackoffCoefficient(2.0),                         // Double the wait time each retry
+		waiter.WithBackoffExponentialMaxInterval(10 * time.Second), // Max 10s between retries
 	}
 
 	// Wait for the TCP port to be available

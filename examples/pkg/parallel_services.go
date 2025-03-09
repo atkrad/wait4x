@@ -45,7 +45,7 @@ func main() {
 			redis.WithTimeout(5*time.Second),
 			redis.WithExpectKey("app:status=ready"), // Check if key exists with specific value
 		),
-		
+
 		// PostgreSQL checker
 		postgresql.New(
 			"postgres://postgres:password@localhost:5432/app_db?sslmode=disable",

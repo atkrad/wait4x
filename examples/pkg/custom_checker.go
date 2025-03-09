@@ -106,8 +106,8 @@ func main() {
 	// 3. Has read permission for everyone
 	fileChecker := NewFileChecker(
 		"/tmp/application.log",
-		1024,                     // 1KB minimum size
-		os.FileMode(0444),        // Read permission for all
+		1024,              // 1KB minimum size
+		os.FileMode(0444), // Read permission for all
 	)
 
 	// Wait for the file to be ready
