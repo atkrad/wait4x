@@ -537,7 +537,7 @@ func (c *MyCustomChecker) Check(ctx context.Context) error {
 2. **Waiter**: Provides waiting functionality with options like timeout, interval, backoff, etc.
 3. **Context Usage**: All checkers and waiters support context for cancellation and timeouts
 
-For more detailed examples, see the [examples/pkg](examples/pkg) directory in the repository.
+For more detailed examples, see the [examples/pkg](examples/pkg) directory in the repository. Each example is in its own directory with a complete, runnable `main.go` file.
 
 ## Contributing
 

@@ -4,15 +4,15 @@ These examples demonstrate how to use Wait4X as an importable package in your Go
 
 ## Examples Overview
 
-1. **Basic TCP Checker** (`tcp_basic.go`): Simple example of waiting for a TCP port to become available.
+1. **Basic TCP Checker** (`tcp_basic/main.go`): Simple example of waiting for a TCP port to become available.
 
-2. **Advanced HTTP Checker** (`http_advanced.go`): Demonstrates complex HTTP checking with custom headers, body validations, status code checks, and more.
+2. **Advanced HTTP Checker** (`http_advanced/main.go`): Demonstrates complex HTTP checking with custom headers, body validations, status code checks, and more.
 
-3. **Parallel Service Checking** (`parallel_services.go`): Shows how to check multiple services in parallel, waiting for all of them to be ready before proceeding.
+3. **Parallel Service Checking** (`parallel_services/main.go`): Shows how to check multiple services in parallel, waiting for all of them to be ready before proceeding.
 
-4. **Reverse Checking** (`reverse_checking.go`): Example of using the inverse check to wait for a port to become free.
+4. **Reverse Checking** (`reverse_checking/main.go`): Example of using the inverse check to wait for a port to become free.
 
-5. **Custom Checker** (`custom_checker.go`): Shows how to create your own custom checker by implementing the Checker interface.
+5. **Custom Checker** (`custom_checker/main.go`): Shows how to create your own custom checker by implementing the Checker interface.
 
 ## Using Wait4X in Your Go Projects
 
