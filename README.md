@@ -446,7 +446,7 @@ Import the packages you need:
 import (
     "context"
     "time"
-    
+
     "wait4x.dev/v3/checker/tcp"      // TCP checker
     "wait4x.dev/v3/checker/http"     // HTTP checker
     "wait4x.dev/v3/checker/redis"    // Redis checker
@@ -520,7 +520,7 @@ checkers := []checker.Checker{
 
 // Wait for all services in parallel
 err := waiter.WaitParallelContext(
-    ctx, 
+    ctx,
     checkers,
     waiter.WithTimeout(time.Minute),
     waiter.WithBackoffPolicy(waiter.BackoffPolicyExponential),
@@ -556,7 +556,7 @@ func (f *FileChecker) Check(ctx context.Context) error {
     if err != nil {
         if os.IsNotExist(err) {
             return checker.NewExpectedError(
-                "file does not exist", 
+                "file does not exist",
                 err,
                 "path", f.filePath,
             )

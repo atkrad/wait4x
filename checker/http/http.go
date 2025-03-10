@@ -17,16 +17,18 @@ package http
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
+	"errors"
 	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
 	"time"
-	"wait4x.dev/v3/checker"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/tidwall/gjson"
+	"wait4x.dev/v3/checker"
 )
 
 // Option configures an HTTP.
@@ -54,6 +56,9 @@ type HTTP struct {
 	expectStatusCode      int
 	insecureSkipTLSVerify bool
 	noRedirect            bool
+	caFile                string
+	certFile              string
+	keyFile               string
 }
 
 // New creates the HTTP checker
@@ -150,6 +155,27 @@ func WithNoRedirect(noRedirect bool) Option {
 	}
 }
 
+// WithCAFile configures CA file
+func WithCAFile(path string) Option {
+	return func(h *HTTP) {
+		h.caFile = path
+	}
+}
+
+// WithCertFile configures Cert file
+func WithCertFile(path string) Option {
+	return func(h *HTTP) {
+		h.certFile = path
+	}
+}
+
+// WithKeyFile configures key file
+func WithKeyFile(path string) Option {
+	return func(h *HTTP) {
+		h.keyFile = path
+	}
+}
+
 // Identity returns the identity of the checker
 func (h *HTTP) Identity() (string, error) {
 	return h.address, nil
@@ -157,10 +183,14 @@ func (h *HTTP) Identity() (string, error) {
 
 // Check checks HTTP connection
 func (h *HTTP) Check(ctx context.Context) (err error) {
+	tlsConfig, err := h.getTLSConfig()
+	if err != nil {
+		return
+	}
 	httpClient := &http.Client{
 		Timeout: h.timeout,
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: h.insecureSkipTLSVerify},
+			TLSClientConfig: tlsConfig,
 			Proxy:           http.ProxyFromEnvironment,
 		},
 	}
@@ -239,6 +269,41 @@ func (h *HTTP) Check(ctx context.Context) (err error) {
 	}
 
 	return nil
+}
+
+// getTLSConfig prepares TLS config
+func (h *HTTP) getTLSConfig() (*tls.Config, error) {
+	cfg := tls.Config{
+		InsecureSkipVerify: h.insecureSkipTLSVerify,
+	}
+
+	if h.insecureSkipTLSVerify {
+		return &cfg, nil
+	}
+
+	// Cert and key files.
+	if h.certFile != "" || h.keyFile != "" {
+		cert, err := tls.LoadX509KeyPair(h.certFile, h.keyFile)
+		if err != nil {
+			return nil, err
+		}
+		cfg.Certificates = []tls.Certificate{cert}
+	}
+
+	// CA file.
+	if h.caFile != "" {
+		ca, err := os.ReadFile(h.caFile)
+		if err != nil {
+			return nil, err
+		}
+		certPool := x509.NewCertPool()
+		if !certPool.AppendCertsFromPEM(ca) {
+			return nil, errors.New("can't append the CA file")
+		}
+		cfg.RootCAs = certPool
+	}
+
+	return &cfg, nil
 }
 
 func (h *HTTP) checkingStatusCodeExpectation(resp *http.Response) error {

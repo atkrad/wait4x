@@ -18,19 +18,19 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
 	"io"
 	nethttp "net/http"
 	"net/textproto"
 	"net/url"
 	"strings"
-	"wait4x.dev/v3/internal/contextutil"
+
+	"github.com/go-logr/logr"
+	"github.com/spf13/cobra"
 
 	"wait4x.dev/v3/checker"
 	"wait4x.dev/v3/checker/http"
+	"wait4x.dev/v3/internal/contextutil"
 	"wait4x.dev/v3/waiter"
-
-	"github.com/spf13/cobra"
 )
 
 // NewHTTPCommand creates the http sub-command
@@ -91,7 +91,13 @@ func NewHTTPCommand() *cobra.Command {
   wait4x http https://www.wait4x.dev --expect-status-code 301 --no-redirect
 
   # Enable exponential backoff retry
-  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential --backoff-exponential-max-interval 120s --timeout 120s`,
+  wait4x http https://ifconfig.co --expect-status-code 200 --backoff-policy exponential --backoff-exponential-max-interval 120s --timeout 120s
+
+  # Self-signed certificates
+  wait4x http https://www.wait4x.dev --cert-file /path/to/certfile --key-file /path/to/keyfile
+
+  # CA file
+  wait4x http https://www.wait4x.dev --ca-file /path/to/cafile`,
 		RunE: runHTTP,
 	}
 
@@ -102,9 +108,18 @@ func NewHTTPCommand() *cobra.Command {
 	httpCommand.Flags().String("expect-header", "", "Expect response header pattern.")
 	httpCommand.Flags().StringArray("request-header", nil, "User request headers.")
 	httpCommand.Flags().String("request-body", "", "User request body.")
-	httpCommand.Flags().Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
-	httpCommand.Flags().Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
-	httpCommand.Flags().Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
+	httpCommand.Flags().
+		Duration("connection-timeout", http.DefaultConnectionTimeout, "Http connection timeout, The timeout includes connection time, any redirects, and reading the response body.")
+	httpCommand.Flags().
+		Bool("insecure-skip-tls-verify", http.DefaultInsecureSkipTLSVerify, "Skips tls certificate checks for the HTTPS request.")
+	httpCommand.Flags().
+		Bool("no-redirect", http.DefaultNoRedirect, "Do not follow HTTP 3xx redirects.")
+	httpCommand.Flags().
+		String("ca-file", "", "Use this CA bundle to authenticate certificates of servers with HTTPS enabled.")
+	httpCommand.Flags().
+		String("cert-file", "", "Utilize this SSL certificate file to identify the HTTPS client.")
+	httpCommand.Flags().
+		String("key-file", "", "Utilize this SSL key file to identify the HTTPS client.")
 
 	return httpCommand
 }
@@ -120,17 +135,29 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 	connectionTimeout, _ := cmd.Flags().GetDuration("connection-timeout")
 	insecureSkipTLSVerify, _ := cmd.Flags().GetBool("insecure-skip-tls-verify")
 	noRedirect, _ := cmd.Flags().GetBool("no-redirect")
+	caFile, _ := cmd.Flags().GetString("ca-file")
+	certFile, _ := cmd.Flags().GetString("cert-file")
+	keyFile, _ := cmd.Flags().GetString("key-file")
 
 	logger, err := logr.FromContext(cmd.Context())
 	if err != nil {
 		return err
 	}
 
+	// Validate cert and key files.
+	if (certFile != "" && keyFile == "") || (keyFile != "" && certFile == "") {
+		return fmt.Errorf(
+			"both certFile and keyFile should be assigned values, not just one of them",
+		)
+	}
+
 	// Convert raw headers (e.g. 'a: b') into a http Header.
 	var requestHeaders nethttp.Header
 	if len(requestRawHeaders) > 0 {
 		rawHTTPHeaders := strings.Join(requestRawHeaders, "\r\n")
-		tpReader := textproto.NewReader(bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")))
+		tpReader := textproto.NewReader(
+			bufio.NewReader(strings.NewReader(rawHTTPHeaders + "\r\n\n")),
+		)
 		MIMEHeaders, err := tpReader.ReadMIMEHeader()
 		if err != nil {
 			return fmt.Errorf("can't parse the request header: %w", err)
@@ -162,6 +189,9 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 			http.WithTimeout(connectionTimeout),
 			http.WithInsecureSkipTLSVerify(insecureSkipTLSVerify),
 			http.WithNoRedirect(noRedirect),
+			http.WithCAFile(caFile),
+			http.WithCertFile(certFile),
+			http.WithKeyFile(keyFile),
 		)
 	}
 
@@ -173,7 +203,9 @@ func runHTTP(cmd *cobra.Command, args []string) error {
 		waiter.WithInvertCheck(contextutil.GetInvertCheck(cmd.Context())),
 		waiter.WithBackoffPolicy(contextutil.GetBackoffPolicy(cmd.Context())),
 		waiter.WithBackoffCoefficient(contextutil.GetBackoffCoefficient(cmd.Context())),
-		waiter.WithBackoffExponentialMaxInterval(contextutil.GetBackoffExponentialMaxInterval(cmd.Context())),
+		waiter.WithBackoffExponentialMaxInterval(
+			contextutil.GetBackoffExponentialMaxInterval(cmd.Context()),
+		),
 		waiter.WithLogger(logger),
 	)
 }
