@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="logo.png" alt="Wait4X Logo" width="150">
   <h1>Wait4X</h1>
   <p>A lightweight tool to wait for services to be ready</p>
 
@@ -629,3 +630,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+### Credits
+
+The project logo is based on the "Waiting Man" character (Zhdun) and is used with attribution to the original creator.
